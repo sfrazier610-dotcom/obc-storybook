@@ -331,3 +331,22 @@ body{background:radial-gradient(ellipse at 50% 0%,#2a1f5c 0,#141038 38%,#070818 
 .rune:not(.found)::after{font-size:9px;animation:runeGlint var(--t,2.6s) ease-in-out calc(var(--d,0s) - .35s) infinite}
 .margin-rune:hover .r-margin{opacity:1}
 @media(prefers-reduced-motion:reduce){.rune:not(.found){animation:none!important;opacity:.45;text-shadow:0 0 8px rgba(243,201,106,.7)}.rune:not(.found)::before,.rune:not(.found)::after{display:none}}
+/* v13 larger, glittering, throbbing runes */
+.rune{font-size:38px;min-width:52px;min-height:52px}
+.rune:not(.found){background:radial-gradient(circle,rgba(255,220,140,.35) 0,rgba(243,201,106,.12) 40%,transparent 68%)}
+@keyframes runePulse{0%,100%{opacity:.3;scale:1;text-shadow:0 0 3px rgba(243,201,106,.35)}50%{opacity:1;scale:1.15;color:#f6d27a;text-shadow:0 0 12px #f3c96a,0 0 26px rgba(255,220,140,.85)}}
+/* faint rotating halo ring (replaces the v12 corner glint on ::after) */
+.rune:not(.found)::after{content:"";top:50%;left:50%;bottom:auto;width:64px;height:64px;margin:-32px 0 0 -32px;border-radius:50%;font-size:0;text-shadow:none;
+ background:conic-gradient(from 0deg,transparent 0 10%,rgba(255,226,150,.55) 18%,transparent 28% 45%,rgba(190,160,255,.35) 55%,transparent 65% 78%,rgba(120,220,210,.35) 88%,transparent 96%);
+ -webkit-mask:radial-gradient(circle,transparent 52%,#000 56%,#000 64%,transparent 68%);mask:radial-gradient(circle,transparent 52%,#000 56%,#000 64%,transparent 68%);
+ opacity:.75;animation:runeRing 9s linear infinite;z-index:-1}
+@keyframes runeRing{to{transform:rotate(360deg)}}
+.rune .gl{position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px;border-radius:50%;pointer-events:none;opacity:0;will-change:transform,opacity;
+ animation:glit 2.4s ease-out infinite;background:#f3c96a;box-shadow:0 0 5px 1px #f3c96a}
+.rune .gl.w{width:5px;height:5px;margin:-2.5px;background:#fffbe8;box-shadow:0 0 6px 2px #fff1c0}
+.rune .gl.v{background:#d9c4ff;box-shadow:0 0 6px 2px #b79cff}
+.rune .gl.t{background:#bff3ec;box-shadow:0 0 6px 2px #7fdcd0}
+@keyframes glit{0%{opacity:0;transform:rotate(var(--a)) translateX(var(--r0)) scale(.3)}20%{opacity:1;transform:rotate(calc(var(--a) + 25deg)) translateX(calc(var(--r0) + 6px)) scale(1.3)}60%{opacity:.8;transform:rotate(calc(var(--a) + 70deg)) translateX(calc((var(--r0) + var(--r1)) / 2)) scale(.9)}100%{opacity:0;transform:rotate(calc(var(--a) + 110deg)) translateX(var(--r1)) scale(.2)}}
+.rune.found .gl,.rune.found::after{display:none}
+.rune.found{background:none;scale:1}
+@media(prefers-reduced-motion:reduce){.rune .gl{display:none}.rune:not(.found){opacity:.5;scale:1}.rune:not(.found)::after{animation:none!important;display:none}}
