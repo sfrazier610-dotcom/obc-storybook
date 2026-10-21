@@ -317,3 +317,17 @@ body{background:radial-gradient(ellipse at 50% 0%,#2a1f5c 0,#141038 38%,#070818 
 #secret-room{overflow-y:auto}.sr-inner{max-height:none}
 @media (max-width:480px){.sr-inner img{max-height:30vh;object-fit:cover}.sr-text{padding:12px 14px}}
 @media(prefers-reduced-motion:reduce){.reward,.rw-glow,.lantern-wrap .spot{animation:none!important}}
+/* v12 constant sparkle on unfound runes */
+.rune:not(.found){animation:runePulse 2.6s ease-in-out infinite;will-change:opacity}
+.rune:not(.found)::before,.rune:not(.found)::after{content:"✦";position:absolute;font-size:10px;line-height:1;color:#fff3c4;text-shadow:0 0 6px #f3c96a;pointer-events:none;opacity:0;animation:runeGlint 2.6s ease-in-out infinite;will-change:transform,opacity}
+.rune:not(.found)::before{top:4px;right:6px}
+.rune:not(.found)::after{bottom:6px;left:5px;font-size:8px;animation-delay:-1.3s}
+@keyframes runePulse{0%,100%{opacity:.22;text-shadow:0 0 2px rgba(243,201,106,.3)}50%{opacity:1;color:#f6d27a;text-shadow:0 0 10px #f3c96a,0 0 22px rgba(255,220,140,.8)}}
+@keyframes runeGlint{0%,32%,100%{opacity:0;transform:scale(.2) rotate(0)}50%{opacity:1;transform:scale(1.25) rotate(45deg)}68%{opacity:0;transform:scale(.4) rotate(90deg)}}
+.rune.shim:not(.found){animation:runePulse 2.6s ease-in-out infinite}
+.rune[data-rune=candle]{--d:-.4s;--t:2.6s}.rune[data-rune=margin]{--d:-1.1s;--t:2.9s}.rune[data-rune=charm]{--d:-1.9s;--t:2.3s}.rune[data-rune=quiz]{--d:-.8s;--t:2.7s}.rune[data-rune=lantern]{--d:-2.2s;--t:2.4s}
+.rune:not(.found),.rune.shim:not(.found){animation:runePulse var(--t,2.6s) ease-in-out var(--d,0s) infinite}
+.rune:not(.found)::before{font-size:13px;animation:runeGlint var(--t,2.6s) ease-in-out var(--d,0s) infinite}
+.rune:not(.found)::after{font-size:9px;animation:runeGlint var(--t,2.6s) ease-in-out calc(var(--d,0s) - .35s) infinite}
+.margin-rune:hover .r-margin{opacity:1}
+@media(prefers-reduced-motion:reduce){.rune:not(.found){animation:none!important;opacity:.45;text-shadow:0 0 8px rgba(243,201,106,.7)}.rune:not(.found)::before,.rune:not(.found)::after{display:none}}
