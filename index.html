@@ -1,5 +1,20 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Open Book Counseling | Choose a site version</title><link rel="icon" href="data:,"><link rel="stylesheet" href="shared/base.css"></head><body>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Open Book Counseling | Choose your site</title><link rel="icon" href="data:,">
+<link rel="stylesheet" href="storybook/fonts/fonts.css"><style>
+*{box-sizing:border-box}body{margin:0;font-family:"EB Garamond",Georgia,serif;background:radial-gradient(ellipse at top,#1d4a50,#08151a 80%) fixed;color:#f3e6c6;min-height:100vh}
+.crisis{background:#7a1f1f;color:#fff;padding:8px 14px;text-align:center;font:15px system-ui,sans-serif}.crisis a{color:#fff;font-weight:700}
+main{max-width:1000px;margin:0 auto;padding:28px 16px 40px;text-align:center}h1{font-family:"Cormorant Garamond",serif;font-size:clamp(2rem,7vw,3.2rem);margin:.2em 0 0;color:#f0d79a}
+.tag{font-size:1.2rem;margin:.2em 0 1.2em}.choices{display:grid;grid-template-columns:1fr;gap:16px}@media(min-width:720px){.choices{grid-template-columns:1fr 1fr}}
+.choice{display:flex;flex-direction:column;border-radius:14px;overflow:hidden;text-decoration:none;min-height:100%;box-shadow:0 10px 30px rgba(0,0,0,.4);border:2px solid #c89b3c;text-align:left}
+.choice .art{height:150px;background-size:cover;background-position:center}.choice .txt{padding:16px 18px 20px;flex:1;display:flex;flex-direction:column}
+.choice h2{font-family:"Cormorant Garamond",serif;font-size:1.8rem;margin:0}.choice p{margin:.4em 0 1em;font-size:1.05rem;line-height:1.45}
+.choice .go{margin-top:auto;display:block;text-align:center;border-radius:999px;padding:12px;font:600 16px system-ui,sans-serif}
+.pro{background:#fbf8f2;color:#1f2d3a}.pro .art{background:linear-gradient(135deg,#24506b,#3d7a8a);display:grid;place-items:center;color:#fff;font:600 2.4rem Georgia}.pro .go{background:#24506b;color:#fff}
+.story{background:#f6ead0 url(storybook/img/parchment.webp) center/cover;color:#2b1d10}.story .art{background-image:url(storybook/img/hero.webp)}.story .go{background:#123a40;color:#fff8e6}
+.label{font:700 12px system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;opacity:.75}.note{font-size:.95rem;opacity:.85;margin-top:18px}.note a{color:#f0d79a}
+</style></head><body>
 <div class="crisis">In crisis? Call or text <a href="tel:988">988</a> · Emergency: <a href="tel:911">911</a></div>
-<main><section class="hero"><h1>Open Book Counseling</h1><p class="lead">Empowering your New Story! Two draft designs, same verified content:</p>
-<div class="two"><a class="card" href="professional/"><h2>📖 Professional</h2><p>Calm, clinical, book-and-chapter design.</p></a><a class="card" href="storybook/"><h2>✦ Storybook</h2><p>An original enchanted-library adventure with hidden surprises.</p></a></div>
-<p class="note">Draft for review. <a href="research.md">Research notes</a></p></section></main></body></html>
+<main><h1>Open Book Counseling</h1><p class="tag">Empowering your New Story! Choose how you'd like to explore:</p>
+<div class="choices">
+<a class="choice pro" href="professional/"><div class="art" aria-hidden="true">📖</div><div class="txt"><span class="label">Classic · Professional</span><h2>Professional site</h2><p>A clean, calm, straightforward site. Find a therapist, check insurance and fees, see locations, and book quickly.</p><span class="go">View the professional version →</span></div></a>
+<a class="choice story" href="storybook/"><div class="art" role="img" aria-label="Painted illustration of a glowing open book in a starry library"></div><div class="txt"><span class="label">Interactive · Storybook</span><h2>Storybook site</h2><p>The same information, told as an illustrated book you can page through, with turning pages, optional sounds and hidden surprises.</p><span class="go">Open the storybook →</span></div></a>
+</div><p class="note">Both versions have the same clinicians, match quiz, coping toolkit, and booking: <a href="https://openbook-counseling.clientsecure.me">openbook-counseling.clientsecure.me</a></p></main></body></html>

@@ -9,7 +9,7 @@ document.addEventListener('click',e=>{if(e.target.closest('.btn'))spark(e.client
 const cover=$('#cover');const closeCover=()=>{cover.classList.add('gone');setTimeout(()=>cover.remove(),900);inkChapter(chs[cur]);};
 if(RM||sessionStorage.getItem('obc_cover_seen')){cover.remove();}else{
  sessionStorage.setItem('obc_cover_seen','1');
- const open=()=>{cover.classList.add('opening');setTimeout(closeCover,1300);};
+ const open=()=>{window.obcSound&&obcSound.creak();cover.classList.add('opening');setTimeout(closeCover,1300);};
  $('#cover-open').onclick=open;$('#cover-skip').onclick=closeCover;const auto=setTimeout(open,2600);
  cover.addEventListener('click',()=>clearTimeout(auto),{once:true});addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.contains(cover))closeCover();});}
 
@@ -23,7 +23,7 @@ function setActive(i){chs.forEach((c,j)=>c.classList.toggle('active',j===i));cur
 function inkChapter(c){if(RM||!c)return;c.classList.remove('inking');void c.offsetWidth;c.classList.add('inking');}
 function snap(page){const d=document.createElement('div');const cl=page.cloneNode(true);cl.querySelectorAll('[id]').forEach(n=>n.removeAttribute('id'));cl.removeAttribute('id');cl.setAttribute('aria-hidden','true');cl.querySelectorAll('img[loading]').forEach(m=>m.loading='eager');d.appendChild(cl);return d;}
 function turnTo(i,focus){if(i<0||i>=chs.length||i===cur||busy)return;
- if(!desk()){chs[i].scrollIntoView({behavior:RM?'auto':'smooth'});return;}
+ window.obcSound&&obcSound.flip();if(!desk()){chs[i].scrollIntoView({behavior:RM?'auto':'smooth'});return;}
  const fwd=i>cur,from=chs[cur],to=chs[i];
  if(RM){setActive(i);if(focus)to.querySelector('h1,h2').focus?.();return;}
  busy=true;const leaf=document.createElement('div');leaf.className='leaf '+(fwd?'fwd':'back');
@@ -50,7 +50,7 @@ const fs=$$('#quiz fieldset'),sub=$('#quiz button[type=submit]');let qi=0;
 const qn=document.createElement('div');qn.className='quiz-nav';qn.innerHTML='<button type="button" class="btn ghost sm" id="q-back">‹ Back</button><span class="cnt" id="q-cnt"></span><button type="button" class="btn sm" id="q-next">Turn the page ›</button>';
 sub.before(qn);const qShow=()=>{fs.forEach((f,j)=>f.hidden=j!==qi);$('#q-cnt').textContent=`Page ${qi+1} of ${fs.length}`;$('#q-back').disabled=qi===0;$('#q-next').hidden=qi===fs.length-1;sub.hidden=qi!==fs.length-1;
  if(!RM){fs[qi].classList.remove('pf');void fs[qi].offsetWidth;fs[qi].classList.add('pf');}};
-$('#q-next').onclick=()=>{qi=Math.min(fs.length-1,qi+1);qShow();};$('#q-back').onclick=()=>{qi=Math.max(0,qi-1);qShow();};qShow();
+$('#q-next').onclick=()=>{obcSound.flip();qi=Math.min(fs.length-1,qi+1);qShow();};$('#q-back').onclick=()=>{obcSound.flip();qi=Math.max(0,qi-1);qShow();};qShow();
 window.obcQuizAll=()=>{fs.forEach(f=>f.hidden=false);};
 // illustrated result cards
 const spots=['lantern','key','quill','moth','book','fox'];
@@ -61,7 +61,7 @@ new MutationObserver(()=>{$$('.ranked>li').forEach((li,i)=>{if(li.querySelector(
 const cs=['lantern','moth','key','book','fox','quill'];
 $$('#coping .skill').forEach((k,i)=>{const h=k.querySelector('h3');const f=document.createElement('div');f.className='charm-front';
  f.innerHTML=`<img src="img/spot-${cs[i%6]}.webp" alt="" loading="lazy"><h4>${h.childNodes[0].textContent.trim()}</h4><p>${(h.querySelector('small')||{}).textContent||''}</p><button class="btn sm" type="button">Turn the card over</button>`;
- f.querySelector('button').onclick=()=>{k.classList.add('open');setTimeout(()=>(k.querySelector('button:not(.charm-front button),input,textarea')||h).focus({preventScroll:true}),RM?0:500);};k.prepend(f);});
+ f.querySelector('button').onclick=()=>{obcSound.flip();k.classList.add('open');setTimeout(()=>(k.querySelector('button:not(.charm-front button),input,textarea')||h).focus({preventScroll:true}),RM?0:500);};k.prepend(f);});
 // pageflip on charm steps
 document.addEventListener('click',e=>{const b=e.target.closest('[data-next],[data-prev]');if(!b||RM)return;const li=[...b.closest('.skill').querySelectorAll('.steps li')].find(l=>!l.hidden);if(li){li.classList.remove('pf');void li.offsetWidth;li.classList.add('pf');}});
 
@@ -75,12 +75,12 @@ const cv=$('#motes');if(!RM&&cv.getContext){const x=cv.getContext('2d');let W,H,
 const room=$('#secret-room');window.obcOpenRoom=()=>{room.hidden=false;$('#sr-close').focus();};$('#sr-close').onclick=()=>room.hidden=true;room.addEventListener('keydown',e=>{if(e.key==='Escape')room.hidden=true;});
 const glyphs=['ᚠ','ᚱ','ᛟ','ᛉ','ᛞ'],hs=['#match h2','#team h2','#services h2','#toolkit h2','#faq h2'].map(s=>$(s));let found=0;
 hs.forEach((h,i)=>{const b=document.createElement('button');b.className='rune';b.textContent=glyphs[i];b.setAttribute('aria-label','Hidden rune '+(i+1));
- b.onclick=e=>{if(b.classList.contains('found'))return;b.classList.add('found');found++;$('#rune-count').textContent=found;spark(e.clientX,e.clientY);toast(found<5?`A rune glows. ${5-found} still hidden.`:'All five runes glow. A bookcase swings open…');if(found===5)setTimeout(obcOpenRoom,RM?0:700);};h.appendChild(b);});
+ b.onclick=e=>{if(b.classList.contains('found'))return;b.classList.add('found');found++;$('#rune-count').textContent=found;found<5?obcSound.chime(found):obcSound.flourish();spark(e.clientX,e.clientY);toast(found<5?`A rune glows. ${5-found} still hidden.`:'All five runes glow. A bookcase swings open…');if(found===5)setTimeout(obcOpenRoom,RM?0:700);};h.appendChild(b);});
 const K=['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];let ki=0;
-addEventListener('keydown',e=>{ki=(e.key===K[ki])?ki+1:(e.key===K[0]?1:0);if(ki===K.length){ki=0;document.body.dataset.konami='1';obcOpenRoom();}});
-let bc=0;$('.brand').addEventListener('click',()=>{if(++bc===3){bc=0;toast('The library whispers: "Every chapter can be rewritten."');}});
+addEventListener('keydown',e=>{ki=(e.key===K[ki])?ki+1:(e.key===K[0]?1:0);if(ki===K.length){ki=0;document.body.dataset.konami='1';obcSound.flourish();obcOpenRoom();}});
+let bc=0;$('.brand').addEventListener('click',()=>{if(++bc===3){bc=0;obcSound.flourish();toast('The library whispers: "Every chapter can be rewritten."');}});
 // the fox on the last page says hello
-$$('.spot').forEach(s=>{s.style.cursor='pointer';s.addEventListener('click',e=>{spark(e.clientX,e.clientY);toast(s.src.includes('fox')?'The fox yawns: "Rest is part of the story too."':'Something shimmers in the margin…');});});
+$$('.spot').forEach(s=>{s.style.cursor='pointer';s.addEventListener('click',e=>{spark(e.clientX,e.clientY);s.src.includes('fox')?obcSound.flourish():obcSound.chime();toast(s.src.includes('fox')?'The fox yawns: "Rest is part of the story too."':'Something shimmers in the margin…');});});
 // mobile menu closes after choosing
 $$('#nav a').forEach(a=>a.addEventListener('click',()=>{$('#nav').classList.remove('open');$('.menu').setAttribute('aria-expanded','false');}));
 })();

@@ -107,3 +107,11 @@ select,input[type=number],input[type=search]{background:#fffaf0}
 @media(prefers-reduced-motion:reduce){.pf{animation:none}}
 .skill.open{min-height:0}
 [hidden]{display:none!important}
+.sound-ctl{position:fixed;right:10px;bottom:10px;z-index:120;display:flex;gap:6px}
+.sbtn{font:600 14px system-ui,sans-serif;background:#0c2025f0;color:#f3e6c6;border:1.5px solid #c89b3c;border-radius:999px;padding:8px 12px;cursor:pointer;min-height:40px}
+.sbtn[aria-pressed=true]{background:#1f5a5e}
+.pro-link{display:inline-block;background:#fff8e6;color:#123a40!important;border:2px solid #123a40;border-radius:999px;padding:10px 18px;font:600 15px system-ui,sans-serif;text-decoration:none;margin:6px 0}
+.pro-link:hover{background:#e7f1f0}
+.cover-pro{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:3;white-space:nowrap}
+@media(max-width:600px){.cover-pro{white-space:normal;text-align:center;width:88vw}.sound-ctl{bottom:54px}#runes-hud{bottom:10px}.sbtn{font-size:13px;padding:6px 10px}}
+.crisis{z-index:300}.cover-pro{top:64px}@media(max-width:600px){.cover-pro{top:86px}}
