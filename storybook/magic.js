@@ -4,9 +4,6 @@
 if(matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.classList.add('rm');return;}
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],mob=matchMedia('(max-width:999px)').matches||matchMedia('(pointer:coarse)').matches;
 document.documentElement.classList.add('magic');
-// floating background books
-const sky=document.createElement('div');sky.className='floaters';sky.setAttribute('aria-hidden','true');
-const nB=mob?1:3;for(let i=0;i<nB;i++){const im=document.createElement('img');im.src='img/spot-book.webp';im.alt='';im.className='floater f'+i;sky.appendChild(im);}document.body.appendChild(sky);
 // shooting star on the hero
 const hp=$('#home .hero-page');if(hp){const s=document.createElement('span');s.className='shoot';s.setAttribute('aria-hidden','true');hp.appendChild(s);}
 // wrap all illustrations for parallax + shimmer
@@ -34,4 +31,30 @@ let run=true,raf=0;function loop(t){if(!run)return;
 raf=requestAnimationFrame(loop);
 document.addEventListener('visibilitychange',()=>{run=!document.hidden;document.documentElement.classList.toggle('paused',document.hidden);if(run)raf=requestAnimationFrame(loop);else cancelAnimationFrame(raf);});
 window.obcMagic={pause(){run=false;cancelAnimationFrame(raf);},running:()=>run};
+})();
+// v7 night sky: layered twinkling stars, open-book constellation, occasional shooting stars.
+// Reduced motion: drawn once, static.
+(function(){
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches,mob=matchMedia('(max-width:999px)').matches;
+const cv=document.getElementById('sky');if(!cv||!cv.getContext)return;const x=cv.getContext('2d');let W,H,dpr=Math.min(devicePixelRatio||1,mob?1.5:2);
+const S=Array.from({length:mob?110:240},()=>({x:Math.random(),y:Math.random(),r:Math.random()<.85?Math.random()*1.1+.45:Math.random()*1.5+1.2,ph:Math.random()*6.28,sp:.4+Math.random()*1.6,c:Math.random()<.15?'255,226,160':(Math.random()<.2?'190,200,255':'255,255,255')}));
+// open-book constellation (normalized points), upper left; lines form the two pages and spine
+const C=[[.10,.20],[.16,.16],[.22,.19],[.22,.29],[.16,.26],[.10,.30],[.28,.16],[.34,.20],[.34,.30],[.28,.26]].map(([a,b])=>[a*.9+.02,b*.9]);
+const L=[[0,1],[1,2],[2,3],[3,4],[4,5],[5,0],[2,6],[6,7],[7,8],[8,9],[9,3]];
+let shoot=null,next=performance.now()+4000;
+const rs=()=>{W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';x.setTransform(dpr,0,0,dpr,0,0);if(RM)draw(0);};
+function draw(t){x.clearRect(0,0,W,H);
+ for(const s of S){const a=RM?.75:.45+.55*Math.abs(Math.sin(t/1000*s.sp+s.ph));x.globalAlpha=a;x.fillStyle=`rgb(${s.c})`;x.beginPath();x.arc(s.x*W,s.y*H,s.r,0,6.283);x.fill();}
+ const cs=Math.min(W,H*1.6);const P=C.map(([a,b])=>[a*cs,b*cs*.75+40]);
+ x.globalAlpha=.22;x.strokeStyle='#f3d995';x.lineWidth=.8;x.beginPath();L.forEach(([i,j])=>{x.moveTo(...P[i]);x.lineTo(...P[j]);});x.stroke();
+ P.forEach((p,i)=>{x.globalAlpha=RM?.9:.6+.4*Math.abs(Math.sin(t/900+i));x.fillStyle='#ffe9b0';x.shadowBlur=8;x.shadowColor='#f3c96a';x.beginPath();x.arc(p[0],p[1],1.6,0,6.283);x.fill();});x.shadowBlur=0;
+ if(shoot){const k=(t-shoot.t0)/900;if(k>1)shoot=null;else{const hx=shoot.x+shoot.dx*k,hy=shoot.y+shoot.dy*k;const g=x.createLinearGradient(hx,hy,hx-shoot.dx*.25,hy-shoot.dy*.25);g.addColorStop(0,'rgba(255,255,255,.95)');g.addColorStop(1,'rgba(255,255,255,0)');x.globalAlpha=1-k*.6;x.strokeStyle=g;x.lineWidth=1.6;x.beginPath();x.moveTo(hx,hy);x.lineTo(hx-shoot.dx*.25,hy-shoot.dy*.25);x.stroke();}}
+ x.globalAlpha=1;}
+rs();addEventListener('resize',rs);if(RM)return;
+let last=0;(function f(t){if(document.hidden){return setTimeout(()=>requestAnimationFrame(f),500);}
+ if(mob&&t-last<32){requestAnimationFrame(f);return;}last=t;
+ if(!shoot&&t>next){shoot={x:Math.random()*W*.8+W*.2,y:Math.random()*H*.3,dx:-(180+Math.random()*220),dy:90+Math.random()*80,t0:t};next=t+7000+Math.random()*9000;}
+ draw(t);requestAnimationFrame(f);})(0);
+// gold motes rising from the book's gutter (desktop spread only)
+const bk=document.getElementById('book');if(bk&&!mob){const g=document.createElement('div');g.className='gutter-motes';g.setAttribute('aria-hidden','true');for(let i=0;i<7;i++){const m=document.createElement('i');m.style.animationDelay=(-i*1).toFixed(1)+'s';m.style.setProperty('--dx',((Math.random()-.5)*60).toFixed(0)+'px');g.appendChild(m);}bk.appendChild(g);}
 })();

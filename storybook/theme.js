@@ -26,7 +26,7 @@ function turnTo(i,focus){if(i<0||i>=chs.length||i===cur||busy)return;
  window.obcSound&&obcSound.flip();if(!desk()){chs[i].scrollIntoView({behavior:RM?'auto':'smooth'});return;}
  const fwd=i>cur,from=chs[cur],to=chs[i];
  if(RM){setActive(i);if(focus)to.querySelector('h1,h2').focus?.();return;}
- busy=true;const leaf=document.createElement('div');leaf.className='leaf '+(fwd?'fwd':'back');
+ busy=true;const bk=$('#book');bk.classList.remove('glowturn');void bk.offsetWidth;bk.classList.add('glowturn');const leaf=document.createElement('div');leaf.className='leaf '+(fwd?'fwd':'back');
  const a=snap(from.querySelector(fwd?'.page.right':'.page.left'));a.className='lf';const b=snap(to.querySelector(fwd?'.page.left':'.page.right'));b.className='lb';
  leaf.append(a,b);$('#book').appendChild(leaf);
  // underneath: show from's static half + to's other half
@@ -89,17 +89,16 @@ const vw=$('#services .vignette');const wrap=document.createElement('div');wrap.
 mkRune('charm',2,$('#sk-box'),'r-charm');
 // 4) Appears only after the quiz is finished
 new MutationObserver(()=>{if($('.ranked')&&!$('#results .rune')){const r=mkRune('quiz',3,$('#results'),'r-quiz');}}).observe($('#results'),{childList:true});
-// 5) A drifting book you must catch (or, with reduced motion, resting in the FAQ ornament)
-const fb=document.createElement('button');fb.type='button';fb.className='drift-book';fb.setAttribute('aria-label','A drifting book');fb.innerHTML='<img src="img/spot-book.webp" alt="">';
-if(RM){$('#faq .page.left').appendChild(fb);fb.classList.add('still');}else document.body.appendChild(fb);
-const r5=mkRune('book',4,fb,'r-book');fb.addEventListener('click',e=>collect(r5,e));
+// 5) Inside the brass lantern on the Libraries page: tap the lantern to kindle it and a rune appears in its glow
+const lan=document.querySelector('#locations .spot');const lw=document.createElement('span');lw.className='lantern-wrap';lan.before(lw);lw.appendChild(lan);lan.classList.add('lantern-spot');
+const r5=mkRune('lantern',4,lw,'r-lantern hiddenrune');
 // periodic subtle shimmer on an unfound rune
 if(!RM)setInterval(()=>{if(document.hidden)return;const u=Object.values(obcRunes).filter(x=>!x.classList.contains('found'));if(!u.length)return;const x=u[Math.floor(Math.random()*u.length)];x.classList.remove('shim');void x.offsetWidth;x.classList.add('shim');},7000);
 const K=['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];let ki=0;
 addEventListener('keydown',e=>{ki=(e.key===K[ki])?ki+1:(e.key===K[0]?1:0);if(ki===K.length){ki=0;document.body.dataset.konami='1';obcSound.flourish();obcOpenRoom();}});
 let bc=0;$('.brand').addEventListener('click',()=>{if(++bc===3){bc=0;obcSound.flourish();toast('The library whispers: "Every chapter can be rewritten."');}});
 // the fox on the last page says hello
-$$('.spot').forEach(s=>{s.style.cursor='pointer';s.addEventListener('click',e=>{spark(e.clientX,e.clientY);s.src.includes('fox')?obcSound.flourish():obcSound.chime();toast(s.src.includes('fox')?'The fox yawns: "Rest is part of the story too."':'Something shimmers in the margin…');});});
+$$('.spot').forEach(s=>{s.style.cursor='pointer';s.addEventListener('click',e=>{spark(e.clientX,e.clientY);if(s.classList.contains('lantern-spot')){s.parentElement.classList.add('kindled');r5.classList.remove('hiddenrune');obcSound.chime(4);toast('The lantern kindles…');return;}s.src.includes('fox')?obcSound.flourish():obcSound.chime();toast(s.src.includes('fox')?'The fox yawns: "Rest is part of the story too."':'Something shimmers in the margin…');});});
 // mobile menu closes after choosing
 $$('#nav a').forEach(a=>a.addEventListener('click',()=>{$('#nav').classList.remove('open');$('.menu').setAttribute('aria-expanded','false');}));
 })();
