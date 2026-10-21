@@ -1,0 +1,8 @@
+:root{--brand:#24506b;--brand2:#e8eef3;--accent:#a8743a;--bg:#fbf8f2}
+body{font-family:Georgia,"Iowan Old Style","Palatino Linotype",serif}nav,.btn,.chips,.filters,.cat,.crisis{font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+.hero{background:#fff;border-left:14px solid var(--brand);border-radius:var(--r);box-shadow:0 10px 30px rgba(36,80,107,.12);margin-top:30px;padding:56px 32px}
+section>h2{border-bottom:2px solid var(--accent);padding-bottom:6px}section>h2::before{content:"❧ ";color:var(--accent)}
+.page{perspective:1400px}.page>*{transform-origin:left center}.turn{animation:turn .8s ease-out both}
+@keyframes turn{from{opacity:0;transform:rotateY(-35deg)}to{opacity:1;transform:none}}
+.card{border-left:4px solid var(--brand2)}.skill{background:#fffdf8}
+@media(prefers-reduced-motion:reduce){.turn{animation:none}}
