@@ -292,3 +292,28 @@ body{background:radial-gradient(ellipse at 50% 0%,#2a1f5c 0,#141038 38%,#070818 
 .awards.done .aw-hint{display:block}
 .awards.rm .aw-tipglow,.awards.rm .aw-hint{animation:none}
 @media (max-width:480px){.aw-wand{width:190px;height:56px}}
+/* v11 runes: a touch easier */
+.rune{opacity:.22;min-width:48px;min-height:48px}
+.rune.shim{animation:runeshim2 2.6s ease}@keyframes runeshim2{40%{opacity:.85;text-shadow:0 0 18px #ffe29a,0 0 4px #fff}}
+.r-margin{opacity:.15}.margin-rune:hover .r-margin{opacity:.6}.r-quiz{opacity:.4}
+.candle .flame{opacity:.6;box-shadow:0 0 14px 4px rgba(255,190,80,.35)}
+.lantern-wrap:not(.kindled) .spot{animation:lanternCall 3.2s ease-in-out infinite}
+@keyframes lanternCall{50%{filter:drop-shadow(0 0 10px rgba(255,200,90,.75)) brightness(1.06)}}
+.rune-whisper{margin:10px 0 0;font-size:.82rem;font-style:italic;color:#8a6a3a;opacity:.6;letter-spacing:.02em}
+.rune-hint-line{opacity:.7;font-style:italic}
+.reward-btn{margin-left:8px;font:inherit;font-size:.85rem;padding:3px 10px;border-radius:12px;border:1px solid #c89b3c;background:#c89b3c;color:#1a1206;cursor:pointer;min-height:32px}
+/* reward */
+.reward{position:relative;margin:14px auto 16px;max-width:560px;padding:20px 18px 14px;border-radius:12px;color:#2b1d10;overflow:hidden;
+ background:radial-gradient(ellipse at 50% 40%,#fff6dc 0,#f1ddaa 65%,#d8b878 100%);border:2px solid #c89b3c;box-shadow:0 0 0 4px #0d2328,0 0 0 6px #a57a2e,0 0 40px rgba(243,201,106,.55);animation:rwIn 1.2s ease both}
+.rw-glow{position:absolute;inset:-40%;background:conic-gradient(from 0deg,transparent,rgba(255,230,150,.35),transparent 30%);animation:rwSpin 9s linear infinite;pointer-events:none}
+.rw-k{position:relative;margin:0;font-variant:small-caps;letter-spacing:.12em;color:#6e4a18}
+.rw-word{position:relative;margin:4px 0 10px;font-size:clamp(2rem,9vw,3.2rem);font-weight:700;line-height:1.1;color:#b8862d;-webkit-user-select:text;user-select:text;
+ background:linear-gradient(180deg,#fff1b0,#d9a93f 50%,#8a5e18);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 8px rgba(240,190,80,.7));word-break:break-word}
+.rw-word::selection{-webkit-text-fill-color:#2b1d10;background:#f3d98b}
+.rw-msg{position:relative;margin:0 0 8px;font-size:1.05rem;line-height:1.4}
+.rw-fine{position:relative;margin:0;font-size:.78rem;color:#5c4630}
+@keyframes rwIn{0%{opacity:0;transform:scale(.85);filter:brightness(2)}60%{opacity:1;filter:brightness(1.3)}100%{transform:none;filter:none}}
+@keyframes rwSpin{to{transform:rotate(360deg)}}
+#secret-room{overflow-y:auto}.sr-inner{max-height:none}
+@media (max-width:480px){.sr-inner img{max-height:30vh;object-fit:cover}.sr-text{padding:12px 14px}}
+@media(prefers-reduced-motion:reduce){.reward,.rw-glow,.lantern-wrap .spot{animation:none!important}}

@@ -75,11 +75,15 @@ const cv=$('#motes');if(!RM&&cv.getContext){const x=cv.getContext('2d');let W,H,
 const room=$('#secret-room');window.obcOpenRoom=()=>{room.hidden=false;$('#sr-close').focus();};$('#sr-close').onclick=()=>room.hidden=true;room.addEventListener('keydown',e=>{if(e.key==='Escape')room.hidden=true;});
 // ---- 5 hidden runes, spread across the book ----
 let found=0;const glyphs=['ᚠ','ᚱ','ᛟ','ᛉ','ᛞ'];window.obcRunes={};
-function collect(b,e){if(b.classList.contains('found'))return;b.classList.add('found');b.setAttribute('aria-label','A glimmer, found');found++;$('#rune-count').textContent=found;
+const RKEY='obc_runes_found';const saved=(()=>{try{return JSON.parse(localStorage.getItem(RKEY)||'[]').filter(k=>['candle','margin','charm','quiz','lantern'].includes(k))}catch(e){return[]}})();
+function saveRunes(){try{localStorage.setItem(RKEY,JSON.stringify([...counted]))}catch(e){}}
+const counted=new Set();function markFound(b){b.classList.add('found');b.classList.remove('hiddenrune');b.setAttribute('aria-label','A glimmer, found');if(counted.has(b.dataset.rune))return;counted.add(b.dataset.rune);found++;$('#rune-count').textContent=found;if(found===5)showRewardBtn();}
+function showRewardBtn(){const h=$('#runes-hud');if(h.querySelector('.reward-btn'))return;const x=h.querySelector('.rune-hint-line');x&&x.remove();const b=document.createElement('button');b.type='button';b.className='reward-btn';b.textContent='✦ View your reward';b.onclick=()=>obcOpenRoom();h.appendChild(b);}
+function collect(b,e){if(b.classList.contains('found'))return;markFound(b);saveRunes();
  found<5?obcSound.chime(found):obcSound.flourish();const r=b.getBoundingClientRect();spark(e&&e.clientX||r.left+r.width/2,e&&e.clientY||r.top+r.height/2);
  toast(found<5?`A rune glows. ${5-found} still hidden.`:'All five runes glow. A bookcase swings open…');if(found===5)setTimeout(obcOpenRoom,RM?0:700);}
 function mkRune(key,i,parent,cls){const b=document.createElement('button');b.type='button';b.className='rune '+(cls||'');b.dataset.rune=key;b.textContent=glyphs[i];b.setAttribute('aria-label','A faint glimmer');
- b.addEventListener('click',e=>{e.stopPropagation();collect(b,e);});parent.appendChild(b);obcRunes[key]=b;return b;}
+ b.addEventListener('click',e=>{e.stopPropagation();collect(b,e);});parent.appendChild(b);obcRunes[key]=b;if(saved.includes(key))markFound(b);return b;}
 // 1) Candle on the prologue page: clicking the candle reveals a rune beside it
 const hp=$('#home .hero-page');const cdl=document.createElement('button');cdl.type='button';cdl.className='candle';cdl.setAttribute('aria-label','A candle');cdl.innerHTML='<span class="flame"></span><span class="wax"></span>';hp.appendChild(cdl);
 const r1=mkRune('candle',0,hp,'r-candle hiddenrune');cdl.onclick=e=>{cdl.classList.add('lit');r1.classList.remove('hiddenrune');obcSound.chime(4);spark(e.clientX,e.clientY);};
@@ -92,8 +96,13 @@ new MutationObserver(()=>{if($('.ranked')&&!$('#results .rune')){const r=mkRune(
 // 5) Inside the brass lantern on the Libraries page: tap the lantern to kindle it and a rune appears in its glow
 const lan=document.querySelector('#locations .spot');const lw=document.createElement('span');lw.className='lantern-wrap';lan.before(lw);lw.appendChild(lan);lan.classList.add('lantern-spot');
 const r5=mkRune('lantern',4,lw,'r-lantern hiddenrune');
+// restore runes that aren't built yet (quiz)
+saved.forEach(k=>{if(!counted.has(k)&&glyphs.length){counted.add(k);found++;}});$('#rune-count').textContent=found;if(found>=5)showRewardBtn();
+// faint hints (v11)
+(()=>{const h=$('#runes-hud');if(found<5){const l=document.createElement('span');l.className='rune-hint-line';l.textContent=' · 5 runes hide in these pages…';h.appendChild(l);}
+ [['#home .page.right','A candle in the painting waits to be lit…'],['#match .page.right','Finish the ritual, and something may glimmer…'],['#services .page.left','Look closely at the margins…'],['#toolkit .page.right','Some charms keep secrets on their backs…'],['#locations .page.left','A lantern longs for a spark…']].forEach(([q,t])=>{const pg=$(q);if(!pg)return;const p=document.createElement('p');p.className='rune-whisper';p.textContent='✧ '+t;pg.appendChild(p);});})();
 // periodic subtle shimmer on an unfound rune
-if(!RM)setInterval(()=>{if(document.hidden)return;const u=Object.values(obcRunes).filter(x=>!x.classList.contains('found'));if(!u.length)return;const x=u[Math.floor(Math.random()*u.length)];x.classList.remove('shim');void x.offsetWidth;x.classList.add('shim');},7000);
+if(!RM)setInterval(()=>{if(document.hidden)return;const u=Object.values(obcRunes).filter(x=>!x.classList.contains('found'));if(!u.length)return;const x=u[Math.floor(Math.random()*u.length)];x.classList.remove('shim');void x.offsetWidth;x.classList.add('shim');},4500);
 const K=['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];let ki=0;
 addEventListener('keydown',e=>{ki=(e.key===K[ki])?ki+1:(e.key===K[0]?1:0);if(ki===K.length){ki=0;document.body.dataset.konami='1';obcSound.flourish();obcOpenRoom();}});
 let bc=0;$('.brand').addEventListener('click',()=>{if(++bc===3){bc=0;obcSound.flourish();toast('The library whispers: "Every chapter can be rewritten."');}});
