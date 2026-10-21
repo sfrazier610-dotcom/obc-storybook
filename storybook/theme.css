@@ -164,3 +164,4 @@ select,input[type=number],input[type=search]{background:#fffaf0}
 @media(prefers-reduced-motion:reduce){.floaters,.fireflies,.shoot,.quillwrite,.bloom,.trail{display:none!important}.vwrap::after,.chapter h2,.ribbons a,.rune.shim,.candle .flame,.drift-book{animation:none!important}}
 .vignette{aspect-ratio:4/3;object-fit:cover;height:auto}
 .drift-book img,.floater{-webkit-mask-image:radial-gradient(circle,#000 45%,transparent 70%);mask-image:radial-gradient(circle,#000 45%,transparent 70%);border-radius:50%}
+.drift-book{z-index:115}
