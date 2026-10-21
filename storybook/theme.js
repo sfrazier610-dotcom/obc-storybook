@@ -66,16 +66,35 @@ $$('#coping .skill').forEach((k,i)=>{const h=k.querySelector('h3');const f=docum
 document.addEventListener('click',e=>{const b=e.target.closest('[data-next],[data-prev]');if(!b||RM)return;const li=[...b.closest('.skill').querySelectorAll('.steps li')].find(l=>!l.hidden);if(li){li.classList.remove('pf');void li.offsetWidth;li.classList.add('pf');}});
 
 // ---- dust motes (parallax) ----
-const cv=$('#motes');if(!RM&&cv.getContext){const x=cv.getContext('2d');let W,H,mx=0,my=0;const P=Array.from({length:70},()=>({x:Math.random(),y:Math.random(),z:Math.random()*.8+.2,r:Math.random()*1.6+.4,v:Math.random()*.0003+.0001}));
+const cv=$('#motes');if(!RM&&cv.getContext){const x=cv.getContext('2d');let W,H,mx=0,my=0;const P=Array.from({length:matchMedia('(max-width:999px)').matches?28:70},()=>({x:Math.random(),y:Math.random(),z:Math.random()*.8+.2,r:Math.random()*1.6+.4,v:Math.random()*.0003+.0001}));
  const rs=()=>{W=cv.width=innerWidth;H=cv.height=innerHeight;};rs();addEventListener('resize',rs);addEventListener('mousemove',e=>{mx=e.clientX/W-.5;my=e.clientY/H-.5;});
- (function f(t){x.clearRect(0,0,W,H);P.forEach(p=>{p.y-=p.v*p.z;if(p.y<-.05)p.y=1.05;const px=(p.x+Math.sin(t/4000+p.x*9)*.01-mx*.03*p.z)*W,py=(p.y-my*.03*p.z)*H;
+ (function f(t){if(document.hidden){return setTimeout(()=>requestAnimationFrame(f),500);}x.clearRect(0,0,W,H);P.forEach(p=>{p.y-=p.v*p.z;if(p.y<-.05)p.y=1.05;const px=(p.x+Math.sin(t/4000+p.x*9)*.01-mx*.03*p.z)*W,py=(p.y-my*.03*p.z)*H;
   x.beginPath();x.arc(px,py,p.r*p.z*1.4,0,7);x.fillStyle=`rgba(255,214,140,${.25+.35*p.z})`;x.shadowBlur=8;x.shadowColor='#ffcf7a';x.fill();});requestAnimationFrame(f);})(0);}
 
 // ---- Easter eggs ----
 const room=$('#secret-room');window.obcOpenRoom=()=>{room.hidden=false;$('#sr-close').focus();};$('#sr-close').onclick=()=>room.hidden=true;room.addEventListener('keydown',e=>{if(e.key==='Escape')room.hidden=true;});
-const glyphs=['ᚠ','ᚱ','ᛟ','ᛉ','ᛞ'],hs=['#match h2','#team h2','#services h2','#toolkit h2','#faq h2'].map(s=>$(s));let found=0;
-hs.forEach((h,i)=>{const b=document.createElement('button');b.className='rune';b.textContent=glyphs[i];b.setAttribute('aria-label','Hidden rune '+(i+1));
- b.onclick=e=>{if(b.classList.contains('found'))return;b.classList.add('found');found++;$('#rune-count').textContent=found;found<5?obcSound.chime(found):obcSound.flourish();spark(e.clientX,e.clientY);toast(found<5?`A rune glows. ${5-found} still hidden.`:'All five runes glow. A bookcase swings open…');if(found===5)setTimeout(obcOpenRoom,RM?0:700);};h.appendChild(b);});
+// ---- 5 hidden runes, spread across the book ----
+let found=0;const glyphs=['ᚠ','ᚱ','ᛟ','ᛉ','ᛞ'];window.obcRunes={};
+function collect(b,e){if(b.classList.contains('found'))return;b.classList.add('found');b.setAttribute('aria-label','A glimmer, found');found++;$('#rune-count').textContent=found;
+ found<5?obcSound.chime(found):obcSound.flourish();const r=b.getBoundingClientRect();spark(e&&e.clientX||r.left+r.width/2,e&&e.clientY||r.top+r.height/2);
+ toast(found<5?`A rune glows. ${5-found} still hidden.`:'All five runes glow. A bookcase swings open…');if(found===5)setTimeout(obcOpenRoom,RM?0:700);}
+function mkRune(key,i,parent,cls){const b=document.createElement('button');b.type='button';b.className='rune '+(cls||'');b.dataset.rune=key;b.textContent=glyphs[i];b.setAttribute('aria-label','A faint glimmer');
+ b.addEventListener('click',e=>{e.stopPropagation();collect(b,e);});parent.appendChild(b);obcRunes[key]=b;return b;}
+// 1) Candle on the prologue page: clicking the candle reveals a rune beside it
+const hp=$('#home .hero-page');const cdl=document.createElement('button');cdl.type='button';cdl.className='candle';cdl.setAttribute('aria-label','A candle');cdl.innerHTML='<span class="flame"></span><span class="wax"></span>';hp.appendChild(cdl);
+const r1=mkRune('candle',0,hp,'r-candle hiddenrune');cdl.onclick=e=>{cdl.classList.add('lit');r1.classList.remove('hiddenrune');obcSound.chime(4);spark(e.clientX,e.clientY);};
+// 2) Woven into the margin of the Approaches illustration (glows when you hover/focus near it)
+const vw=$('#services .vignette');const wrap=document.createElement('div');wrap.className='vwrap margin-rune';vw.before(wrap);wrap.appendChild(vw);mkRune('margin',1,wrap,'r-margin');
+// 3) On the back of the box-breathing charm card
+mkRune('charm',2,$('#sk-box'),'r-charm');
+// 4) Appears only after the quiz is finished
+new MutationObserver(()=>{if($('.ranked')&&!$('#results .rune')){const r=mkRune('quiz',3,$('#results'),'r-quiz');}}).observe($('#results'),{childList:true});
+// 5) A drifting book you must catch (or, with reduced motion, resting in the FAQ ornament)
+const fb=document.createElement('button');fb.type='button';fb.className='drift-book';fb.setAttribute('aria-label','A drifting book');fb.innerHTML='<img src="img/spot-book.webp" alt="">';
+if(RM){$('#faq .page.left').appendChild(fb);fb.classList.add('still');}else document.body.appendChild(fb);
+const r5=mkRune('book',4,fb,'r-book');fb.addEventListener('click',e=>collect(r5,e));
+// periodic subtle shimmer on an unfound rune
+if(!RM)setInterval(()=>{if(document.hidden)return;const u=Object.values(obcRunes).filter(x=>!x.classList.contains('found'));if(!u.length)return;const x=u[Math.floor(Math.random()*u.length)];x.classList.remove('shim');void x.offsetWidth;x.classList.add('shim');},7000);
 const K=['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];let ki=0;
 addEventListener('keydown',e=>{ki=(e.key===K[ki])?ki+1:(e.key===K[0]?1:0);if(ki===K.length){ki=0;document.body.dataset.konami='1';obcSound.flourish();obcOpenRoom();}});
 let bc=0;$('.brand').addEventListener('click',()=>{if(++bc===3){bc=0;obcSound.flourish();toast('The library whispers: "Every chapter can be rewritten."');}});
