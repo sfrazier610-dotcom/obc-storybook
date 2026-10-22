@@ -8,7 +8,7 @@ $('#q-concerns').innerHTML=Object.entries(C).map(([k,v])=>`<label><input type="c
 $('#q-mods').innerHTML=Object.entries(M).map(([k,v])=>`<label><input type="checkbox" name="mod" value="${k}">${esc(v)}</label>`).join('');
 function score(c,a){let pts=0,max=0,why=[],gaps=[];
  a.concerns.forEach(x=>{max+=3;if(c.concerns.includes(x)){pts+=3;why.push(`Lists ${C[x]} (+3)`);}else gaps.push(`${C[x]} not listed`);});
- max+=2;if(c.ages===null){pts+=1;why.push('Age range not publicly listed (+1, confirm)');}else if(c.ages.includes(a.age)){pts+=2;why.push(`Works with ${a.age}s (+2)`);}else gaps.push(`Doesn't list ${a.age}s`);
+ max+=2;if(c.ages===null){pts+=1;why.push('Age range not publicly listed (+1, confirm)');}else if(c.ages.includes(a.age)){pts+=2;why.push(c.agesLabel?`Works with ${a.age==="child"?"children":a.age+"s"} (${c.agesLabel}) (+2)`:`Works with ${a.age==="child"?"children":a.age+"s"} (+2)`);}else gaps.push(`Doesn't list ${a.age}s`);
  max+=2;if(c.formats===null){pts+=1;why.push('Formats not publicly listed (+1, confirm)');}else if(c.formats.includes(a.format)){pts+=2;why.push(`Offers ${a.format} therapy (+2)`);}else gaps.push(`${a.format} therapy not listed`);
  a.mods.forEach(m=>{max+=1;if(c.mods.includes(m)){pts+=1;why.push(`Uses ${M[m]} (+1)`);}else gaps.push(`${M[m]} not listed`);});
  return {c,pts,max,pct:Math.round(100*pts/max),why,gaps};}
@@ -30,8 +30,8 @@ fm.innerHTML+=Object.entries(M).map(([k,v])=>`<option value="${k}">${esc(v)}</op
 function team(){const c=fc.value,m=fm.value,a=$('#f-age').value,q=$('#f-q').value.toLowerCase();
  const list=D.clinicians.filter(x=>(!c||x.concerns.includes(c))&&(!m||x.mods.includes(m))&&(!a||x.ages===null||x.ages.includes(a))&&(!q||JSON.stringify(x).toLowerCase().includes(q)));
  $('#team-count').textContent=`Showing ${list.length} of ${D.clinicians.length} clinicians`+(a?' (clinicians with unlisted age ranges are included)':'');
- $('#team-grid').innerHTML=list.map(x=>`<article class="card"><div class="avatar" aria-hidden="true">${x.name.split(' ').map(s=>s[0]).join('')}</div><h3>${esc(x.name)}</h3><p class="cred">${esc(x.cred)}</p><p>${esc(x.style)}</p>
- ${x.award?`<p class="award">${esc(x.award)}</p>`:''}<p><strong>Ages:</strong> ${x.ages?x.ages.join(', '):'Confirm'} · <strong>Formats:</strong> ${x.formats?x.formats.join(', '):'Confirm'}</p>
+ $('#team-grid').innerHTML=list.map(x=>`<article class="card"><div class="avatar" aria-hidden="true">${x.name.split(' ').map(s=>s[0]).join('')}</div><h3>${esc(x.name)}</h3><p class="cred">${esc(x.cred)}</p><p>${esc(x.card||x.style)}</p>${x.bio?`<details class="bio"><summary>Read full bio</summary><p>${esc(x.bio)}</p></details>`:''}
+ ${x.award?`<p class="award">${esc(x.award)}</p>`:''}<p><strong>Ages:</strong> ${x.agesLabel?esc(x.agesLabel):x.ages?x.ages.join(', '):'Confirm'} · <strong>Formats:</strong> ${x.formats?x.formats.join(', '):'Confirm'}</p>
  <p class="tags">${x.concerns.map(k=>`<span>${esc(C[k])}</span>`).join('')}</p><p><strong>Approaches:</strong> ${x.mods.length?x.mods.map(k=>esc(M[k])).join(', '):'Confirm'}</p></article>`).join('')||'<p>No one matches every filter. Try removing one.</p>';}
 [fc,fm,$('#f-age'),$('#f-q')].forEach(el=>el.addEventListener('input',team));team();
 // modalities

@@ -350,3 +350,4 @@ body{background:radial-gradient(ellipse at 50% 0%,#2a1f5c 0,#141038 38%,#070818 
 .rune.found .gl,.rune.found::after{display:none}
 .rune.found{background:none;scale:1}
 @media(prefers-reduced-motion:reduce){.rune .gl{display:none}.rune:not(.found){opacity:.5;scale:1}.rune:not(.found)::after{animation:none!important;display:none}}
+.card details.bio{margin:6px 0 10px}.card details.bio summary{cursor:pointer;color:var(--wine);font-weight:600}.card details.bio p{margin:6px 0 0;line-height:1.5}

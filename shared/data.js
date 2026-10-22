@@ -1,9 +1,11 @@
 // Source: practice site (sites.google.com/view/openbooktherapist) + Psychology Today, per brief. null = not listed publicly -> CONFIRM.
 window.OBC = {
  clinicians: [
-  {id:"scott",name:"Scott Frazier",cred:"CMHC, CCTP",ages:["teen","adult"],formats:["individual","couples","family"],
+  {id:"scott",name:"Scott Frazier",cred:"CMHC, CCTP",ages:["child","teen","adult"],agesLabel:"Ages 8+",formats:["individual","couples","family"],
    concerns:["trauma","anxiety","depression","eating","ocd","adhd","addiction","personality","highprofile","lgbtq"],
-   mods:["ART","EMDR","CBT","EFT","Imago","SFBT"],style:"Direct, nonjudgmental, non-shame-based; LGBTQ+ affirming. Works with high-profile / high-stress clients.",
+   mods:["ART","EMDR","CBT","DBT","EFT","IFS","Imago","SFBT"],style:"Direct, nonjudgmental, non-shame-based; LGBTQ+ affirming. Works with high-profile / high-stress clients.",
+   card:"Scott Frazier, CMHC, CCTP, is a Licensed Clinical Mental Health Counselor who works with children 8+, teens, adults and couples on trauma, PTSD, depression, anxiety and relationships. He uses ART, EMDR, CBT, DBT, EFT and Imago in a direct, nonjudgmental, non-shame-based style.",
+   bio:"Scott Frazier, CMHC, CCTP, is a Licensed Clinical Mental Health Counselor and the co-founder of Open Book Counseling, City Weekly's Best of Utah two years running. Over more than 25 years, he has worked in forensic counseling, residential treatment, and clinical leadership, including as Program Manager at Sierra Tucson, where he was named Employee of the Year in 2019 for strengthening suicide-prevention and client-safety systems. Earlier, he designed a juvenile re-entry program recognized by the Federal Bureau of Prisons as a best practice. Today, Scott helps children (8+), teens, adults, and couples heal from trauma, PTSD, depression, anxiety, addiction, eating disorders, and relationship strain, including clients in high-visibility roles who need discreet care. He's direct, honest, and non-shame-based, and draws on ART, EMDR, CBT, DBT, EFT, IFS, and Imago. He also mentors and supervises clinicians. He holds a master's in Community Counseling from the University of Phoenix and sees clients in Draper, Bountiful, and online.",
    award:"City Weekly Best of Utah 2026 — Best Experiential Therapist, 1st place"},
   {id:"amber",name:"Amber Frazier",cred:"CMHC",ages:["child","teen","adult"],formats:["individual","couples","family","child"],
    concerns:["trauma","abuse","anxiety","depression","attachment","addiction","dysregulation"],

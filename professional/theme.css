@@ -6,3 +6,4 @@ section>h2{border-bottom:2px solid var(--accent);padding-bottom:6px}section>h2::
 @keyframes turn{from{opacity:0;transform:rotateY(-35deg)}to{opacity:1;transform:none}}
 .card{border-left:4px solid var(--brand2)}.skill{background:#fffdf8}
 @media(prefers-reduced-motion:reduce){.turn{animation:none}}
+.card details.bio{margin:6px 0 10px}.card details.bio summary{cursor:pointer;font-weight:600}.card details.bio p{margin:6px 0 0;line-height:1.55}
