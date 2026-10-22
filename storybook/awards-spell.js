@@ -1,6 +1,6 @@
 (function(){
  var A=document.getElementById('awards');if(!A)return;
- var RM=matchMedia('(prefers-reduced-motion: reduce)').matches,W=A.querySelector('.aw-wand');
+ var RM=matchMedia('(prefers-reduced-motion: reduce)').matches,W=A.querySelector('.aw-pen');
  if(RM){A.classList.add('rm','cast','done');W.addEventListener('click',function(){var S=window.obcSound;try{if(S&&!S.muted())S.chime(2)}catch(e){}});return;}
  A.classList.add('armed');
  var cv=A.querySelector('.aw-sparks'),cx=cv.getContext('2d'),busy=false,raf,t1,t2;
@@ -13,6 +13,6 @@
   A.classList.remove('cast','done','swish');void A.offsetWidth;A.classList.add('swish','casting');
   var S=window.obcSound;try{if(S&&S.muted&&!S.muted())S.chime(2)}catch(e){}
   t1=setTimeout(function(){A.classList.remove('armed');A.classList.add('cast');sparks()},650);
-  t2=setTimeout(function(){A.classList.add('done');A.classList.remove('swish','casting');A.querySelector('.aw-hint').textContent='Tap the wand to cast again ✦';busy=false},650+3200)}
+  t2=setTimeout(function(){A.classList.add('done');A.classList.remove('swish','casting');A.querySelector('.aw-hint').textContent='Tap the pen to write it again ✦';busy=false},650+3200)}
  W.addEventListener('click',cast);
 })();
