@@ -372,7 +372,7 @@ body{background:radial-gradient(ellipse at 50% 0%,#2a1f5c 0,#141038 38%,#070818 
 .sheet{border:1px solid #8a6a32!important;background:linear-gradient(rgba(255,250,236,.94),rgba(246,234,206,.94))!important;position:relative}
 .sheet::before{content:"";position:absolute;inset:5px;border:1px dashed rgba(138,106,50,.45);border-radius:inherit;pointer-events:none}
 .sheet-tag{margin:0 0 6px;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:#7a2b2b}
-@media (max-width:480px){.sheet-approaches{border-left:3px solid #b8924a;padding-left:8px}
+.sheet-approaches{border-left:3px solid #b8924a;padding-left:8px}
 .quest-intro{font-style:italic;color:#5a4320;margin:0 0 10px}
 #results.rolling{visibility:hidden}
 .d20-roll{display:flex;flex-direction:column;align-items:center;gap:6px;margin:12px 0;color:#5a4320;font-style:italic}
@@ -460,3 +460,4 @@ body{background:radial-gradient(ellipse at 50% 0%,#2a1f5c 0,#141038 38%,#070818 
 .mo-rm .rune.found{transition:box-shadow .6s,text-shadow .6s}
 .mo-rm .rune.rune-burst,.mo-rm .rune.rune-burst::before,.mo-rm .rune.rune-burst::after{animation:none!important}
 @media (prefers-reduced-motion:reduce){.mo-fx{display:none}.torch i::before,.torch i::after{display:none}}
+.mo .awards.cast .aw-list .aw:nth-child(1){animation-delay:.9s}.mo .awards.cast .aw-list .aw:nth-child(3){animation-delay:2.2s}
