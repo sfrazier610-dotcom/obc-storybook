@@ -75,8 +75,9 @@ const cv=$('#motes');if(!RM&&cv.getContext){const x=cv.getContext('2d');let W,H,
 const room=$('#secret-room');window.obcOpenRoom=()=>{room.hidden=false;$('#sr-close').focus();};$('#sr-close').onclick=()=>room.hidden=true;room.addEventListener('keydown',e=>{if(e.key==='Escape')room.hidden=true;});
 // ---- 5 hidden runes, spread across the book ----
 let found=0;const glyphs=['ᚠ','ᚱ','ᛟ','ᛉ','ᛞ'];window.obcRunes={};
-const RKEY='obc_runes_found';const saved=(()=>{try{return JSON.parse(localStorage.getItem(RKEY)||'[]').filter(k=>['candle','margin','charm','quiz','lantern'].includes(k))}catch(e){return[]}})();
-function saveRunes(){try{localStorage.setItem(RKEY,JSON.stringify([...counted]))}catch(e){}}
+/* Runes reset on every visit (Scott, Oct 22 2026): nothing is saved, and stale keys are removed. */
+try{['obc_runes_found','obc_bonus_runes','obc_reward_seen'].forEach(k=>localStorage.removeItem(k))}catch(e){}
+const saved=[];function saveRunes(){}
 const counted=new Set();function markFound(b){b.classList.add('found');b.classList.remove('hiddenrune');b.setAttribute('aria-label','A glimmer, found');if(counted.has(b.dataset.rune))return;counted.add(b.dataset.rune);found++;$('#rune-count').textContent=found;if(found===5)showRewardBtn();}
 function showRewardBtn(){const h=$('#runes-hud');if(h.querySelector('.reward-btn'))return;const x=h.querySelector('.rune-hint-line');x&&x.remove();const b=document.createElement('button');b.type='button';b.className='reward-btn';b.textContent='✦ View your reward';b.onclick=()=>obcOpenRoom();h.appendChild(b);}
 function collect(b,e){if(b.classList.contains('found'))return;markFound(b);saveRunes();

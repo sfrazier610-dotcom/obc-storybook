@@ -465,3 +465,9 @@ body{background:radial-gradient(ellipse at 50% 0%,#2a1f5c 0,#141038 38%,#070818 
 .rune.found{border-radius:50%!important;aspect-ratio:1/1}
 .vwrap.margin-rune{overflow:visible}.vwrap.margin-rune .vignette{border-radius:6px}
 .rune{font-family:"Segoe UI Historic","Noto Sans Runic","Apple Symbols",Cardo,serif}
+
+/* v20 quest launcher (game CSS lazy-loads) */
+.qg-launch{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+#qg-open{font:inherit;font-size:1.05rem;padding:12px 18px;min-height:48px;border-radius:24px;border:2px solid var(--gold);background:linear-gradient(#1f5a5e,#123a40);color:#fbeec8;cursor:pointer;box-shadow:0 0 14px rgba(200,155,60,.35)}
+#qg-open:hover,#qg-open:focus-visible{box-shadow:0 0 0 3px #f3d98b,0 0 22px rgba(243,217,139,.6)}
+.qg-bonus{color:#f3d98b}

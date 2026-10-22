@@ -1,0 +1,91 @@
+/* Conquering Anxiety & Depression mini-game */
+dialog.qg{--fog:1;width:min(760px,96vw);max-height:94vh;padding:0;border:2px solid var(--gold);border-radius:14px;color:var(--ink);background:linear-gradient(rgba(255,250,236,.97),rgba(246,234,206,.97));overflow:hidden;display:none;flex-direction:column}
+dialog.qg[open]{display:flex}
+dialog.qg::backdrop{background:rgba(6,16,20,.72)}
+.qg-sky{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.qg-sky .fog{position:absolute;inset:-20% -40%;background:radial-gradient(ellipse at 30% 40%,rgba(120,130,135,.55),transparent 60%),radial-gradient(ellipse at 70% 60%,rgba(140,148,150,.45),transparent 55%);opacity:calc(var(--fog)*.9);transition:opacity .8s ease;animation:qgDrift 24s linear infinite alternate}
+.qg-sky .f2{animation-duration:34s;animation-direction:alternate-reverse;opacity:calc(var(--fog)*.6)}
+.qg-sky .wind{position:absolute;inset:0;background:repeating-linear-gradient(170deg,transparent 0 46px,rgba(31,90,94,.10) 46px 48px);opacity:0;transition:opacity .8s}
+dialog.qg[data-weather=storm] .wind,dialog.qg[data-weather=both] .wind{opacity:calc(var(--fog)*1);animation:qgWind 3s linear infinite}
+.qg-sky .sun{position:absolute;left:50%;top:-30%;width:120%;height:70%;transform:translateX(-50%);background:radial-gradient(ellipse at 50% 100%,rgba(255,220,130,.55),transparent 65%);opacity:calc(1 - var(--fog));transition:opacity 1s}
+@keyframes qgDrift{to{transform:translateX(12%)}}
+@keyframes qgWind{to{background-position:0 200px}}
+.qg-x{position:absolute;top:8px;right:8px;z-index:3;width:44px;height:44px;border-radius:50%;border:1px solid var(--gold);background:#10292e;color:#f3d98b;font-size:1.1rem;cursor:pointer}
+.qg-body{position:relative;z-index:1;overflow:auto;padding:20px 22px 12px;flex:1 1 auto}
+.qg-body h2{margin:0 48px 8px 0;font-size:1.55rem;color:#6e1f24}
+.qg-body h2:focus{outline:none}
+.qg-lede{font-size:1.05rem}
+.qg-small{font-size:.86rem;color:var(--muted)}
+.qg-menu{display:grid;gap:10px;margin:14px 0}
+.qg-menu button,.qg-menu-a{font:inherit;text-align:left;padding:12px 14px;min-height:48px;border-radius:10px;border:1px solid #8a6a32;background:rgba(255,250,236,.9);color:var(--ink);cursor:pointer;text-decoration:none}
+.qg-menu small{display:block;color:var(--muted);font-size:.82rem}
+.qg-menu button:hover,.qg-menu button:focus-visible,.qg-menu-a:focus-visible{box-shadow:0 0 0 3px var(--gold)}
+.qg-link{font:inherit;background:none;border:0;color:#1f5a5e;text-decoration:underline;cursor:pointer;padding:6px 2px;min-height:44px}
+.qg-meters{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0 10px}
+.qg-meter{position:relative;border:1px solid #8a6a32;border-radius:8px;padding:6px 10px;background:rgba(255,255,255,.6);overflow:hidden;font-size:.92rem}
+.qg-meter span{position:relative;z-index:1}
+.qg-meter i{position:absolute;left:0;top:0;bottom:0;transition:width .6s ease}
+.qg-meter.res i{background:linear-gradient(90deg,rgba(243,190,80,.55),rgba(255,226,140,.35))}
+.qg-meter.wx i{background:linear-gradient(90deg,rgba(110,120,128,.45),rgba(160,168,172,.3))}
+.qg-card{border:1px solid #8a6a32;border-radius:10px;padding:10px 14px;background:linear-gradient(rgba(235,238,240,.92),rgba(220,226,228,.92));margin:8px 0}
+.qg-card.storm{background:linear-gradient(rgba(220,232,234,.92),rgba(200,216,220,.92))}
+.qg-card h3{margin:2px 0 4px;font-size:1.2rem}
+.qg-card p{margin:0}
+.qg-tag{font-size:.72rem!important;letter-spacing:.12em;text-transform:uppercase;color:#7a2b2b}
+.qg-result{border-left:3px solid #8a6a32;padding:8px 12px;margin:8px 0;background:rgba(255,250,236,.85);border-radius:0 8px 8px 0}
+.qg-result.match{border-left-color:#c89b3c;box-shadow:0 0 12px rgba(243,217,139,.6)}
+.qg-result:focus{outline:2px solid var(--gold)}
+.qg-guide{margin:10px 0}
+.qg-summon{width:100%;font:inherit;text-align:left;display:block;padding:10px 14px 10px 52px;min-height:52px;position:relative;border-radius:10px;border:1px solid #8a6a32;background:linear-gradient(#fff6dd,#f3e2b8);cursor:pointer;color:var(--ink)}
+.qg-summon small{display:block;font-size:.82rem;color:var(--muted)}
+.qg-summon .lantern{position:absolute;left:14px;top:50%;width:24px;height:30px;margin-top:-15px;border-radius:6px 6px 8px 8px;border:2px solid #8a6a32;background:radial-gradient(circle at 50% 60%,#ffd977 0,#f0a83a 40%,transparent 70%)}
+.qg-guide.on .qg-summon{box-shadow:0 0 16px rgba(243,217,139,.8);border-color:var(--gold)}
+.qg-guide.on .lantern{animation:qgFlicker 1.6s ease-in-out infinite}
+@keyframes qgFlicker{50%{filter:brightness(1.3)}}
+[aria-disabled=true]{opacity:.6;cursor:not-allowed}
+.qg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.qg-spell{font:inherit;font-size:.95rem;text-align:left;padding:8px 10px;min-height:52px;border-radius:9px;border:1px solid #8a6a32;background:rgba(255,252,242,.95);cursor:pointer;color:var(--ink);position:relative}
+.qg-spell small{display:block;font-size:.76rem;color:var(--muted)}
+.qg-spell.guided{border-style:dashed;padding-left:34px}
+.qg-spell .duo{position:absolute;left:9px;top:12px;width:18px;height:16px;background:radial-gradient(circle at 30% 30%,#8a6a32 0 3px,transparent 3.5px),radial-gradient(circle at 72% 30%,#8a6a32 0 3px,transparent 3.5px),radial-gradient(ellipse at 30% 100%,#8a6a32 0 5px,transparent 5.5px),radial-gradient(ellipse at 72% 100%,#8a6a32 0 5px,transparent 5.5px)}
+.qg-spell:hover:not([aria-disabled]),.qg-spell:focus-visible,.qg-summon:focus-visible,.qg-row button:focus-visible{box-shadow:0 0 0 3px var(--gold)}
+.qg-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0}
+.qg-row button:not(.qg-link),.qg-val button{font:inherit;padding:10px 16px;min-height:46px;border-radius:22px;border:1px solid var(--gold);background:linear-gradient(#1f5a5e,#123a40);color:#fbeec8;cursor:pointer}
+.qg-steps li{margin:4px 0}
+.qg-flavor,.qg-say{font-style:italic}
+.qg-val{display:grid;gap:8px;max-width:420px}
+.qg-val input{font:inherit;padding:10px;border:1px solid #8a6a32;border-radius:8px;min-height:44px}
+.qg-skill{border:1px solid #8a6a32;border-radius:10px;padding:8px 14px;background:rgba(255,252,242,.95)}
+.qg-skill h3{margin:4px 0}
+.qg-prac{border:1px solid #8a6a32;border-radius:9px;padding:8px 10px;background:rgba(255,252,242,.95)}
+.qg-prac summary{cursor:pointer;min-height:32px}
+.qg-castle{position:relative;height:70px;margin:6px 0}
+.qg-castle .banner{position:absolute;bottom:0;width:16px;height:46px;background:linear-gradient(#6e1f24,#8a2d2b);clip-path:polygon(0 0,100% 0,100% 100%,50% 84%,0 100%);transform-origin:bottom;animation:qgRise 1.2s ease-out both}
+.qg-castle .b1{left:30%}.qg-castle .b2{left:66%;animation-delay:.25s}
+.qg-castle .lamp{position:absolute;bottom:8px;width:14px;height:14px;border-radius:50%;background:radial-gradient(circle,#fff3c4,#f0a83a 60%,transparent 72%);opacity:0;animation:qgLight .8s ease-out forwards}
+.qg-castle .l1{left:20%;animation-delay:.6s}.qg-castle .l2{left:48%;animation-delay:.85s}.qg-castle .l3{left:78%;animation-delay:1.1s}
+@keyframes qgRise{from{transform:scaleY(0)}}
+@keyframes qgLight{to{opacity:1;box-shadow:0 0 18px 6px rgba(243,217,139,.7)}}
+.qg-rune{display:inline-grid;place-items:center;width:48px;height:48px;border-radius:50%;border:1px solid rgba(200,155,60,.6);background:radial-gradient(circle,rgba(255,236,170,.5),transparent 70%);font:1.4rem "Segoe UI Historic","Noto Sans Runic","Apple Symbols",Cardo,serif;color:#8a6a32;opacity:.55;cursor:pointer;animation:qgFlicker 2.4s ease-in-out infinite}
+.qg-rune.found{opacity:1;color:#6e1f24;box-shadow:0 0 0 2px var(--gold),0 0 18px rgba(243,217,139,.9);animation:none}
+.qg-rune:focus-visible{box-shadow:0 0 0 3px var(--gold)}
+dialog.qg.pulse .qg-sky .sun{animation:qgPulse .9s ease-out}
+@keyframes qgPulse{40%{opacity:.8}}
+.qg-foot{position:relative;z-index:2;flex:0 0 auto;padding:8px 16px;background:#10292e;color:#eadcbc;font-size:.8rem;line-height:1.35;border-top:2px solid var(--gold)}
+.qg-foot p{margin:0 0 4px}
+.qg-foot a{color:#f3d98b}
+.qg-find{display:inline-block;font-weight:600;padding:4px 0;min-height:32px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (max-width:640px){
+ dialog.qg{width:100vw;max-width:100vw;max-height:100dvh;height:100dvh;border-radius:0;margin:0}
+ .qg-body{padding:16px 14px 8px}
+ .qg-grid{grid-template-columns:1fr 1fr}
+ .qg-meters{grid-template-columns:1fr}
+ .qg-foot{font-size:.74rem;padding:6px 12px}
+}
+@media (prefers-reduced-motion:reduce){
+ .qg-sky .fog,.qg-sky .wind,.qg-guide.on .lantern,.qg-rune,dialog.qg.pulse .qg-sky .sun{animation:none!important}
+ .qg-meter i{transition:none!important}
+ .qg-sky .fog,.qg-sky .sun,.qg-sky .wind{transition:opacity .3s linear}
+ .qg-castle .banner,.qg-castle .lamp{animation:none!important;opacity:1}
+}
