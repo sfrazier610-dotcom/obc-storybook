@@ -461,3 +461,7 @@ body{background:radial-gradient(ellipse at 50% 0%,#2a1f5c 0,#141038 38%,#070818 
 .mo-rm .rune.rune-burst,.mo-rm .rune.rune-burst::before,.mo-rm .rune.rune-burst::after{animation:none!important}
 @media (prefers-reduced-motion:reduce){.mo-fx{display:none}.torch i::before,.torch i::after{display:none}}
 .mo .awards.cast .aw-list .aw:nth-child(1){animation-delay:.9s}.mo .awards.cast .aw-list .aw:nth-child(3){animation-delay:2.2s}
+
+.rune.found{border-radius:50%!important;aspect-ratio:1/1}
+.vwrap.margin-rune{overflow:visible}.vwrap.margin-rune .vignette{border-radius:6px}
+.rune{font-family:"Segoe UI Historic","Noto Sans Runic","Apple Symbols",Cardo,serif}
