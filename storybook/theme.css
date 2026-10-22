@@ -372,11 +372,7 @@ body{background:radial-gradient(ellipse at 50% 0%,#2a1f5c 0,#141038 38%,#070818 
 .sheet{border:1px solid #8a6a32!important;background:linear-gradient(rgba(255,250,236,.94),rgba(246,234,206,.94))!important;position:relative}
 .sheet::before{content:"";position:absolute;inset:5px;border:1px dashed rgba(138,106,50,.45);border-radius:inherit;pointer-events:none}
 .sheet-tag{margin:0 0 6px;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:#7a2b2b}
-.sheet-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0}
-.sheet-stats div{text-align:center;border:1px solid #b8924a;border-radius:8px;padding:6px 2px;background:rgba(255,255,255,.55)}
-.sheet-stats dt{font-size:.68rem;line-height:1.15;color:#5a4320}.sheet-stats dd{margin:2px 0 0;font-size:1.2rem;font-weight:700;color:#1f3a4d}
-@media (max-width:480px){.sheet-stats{grid-template-columns:repeat(2,1fr)}}
-.sheet-approaches{border-left:3px solid #b8924a;padding-left:8px}
+@media (max-width:480px){.sheet-approaches{border-left:3px solid #b8924a;padding-left:8px}
 .quest-intro{font-style:italic;color:#5a4320;margin:0 0 10px}
 #results.rolling{visibility:hidden}
 .d20-roll{display:flex;flex-direction:column;align-items:center;gap:6px;margin:12px 0;color:#5a4320;font-style:italic}

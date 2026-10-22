@@ -1,4 +1,4 @@
-/* Storybook "quest" layer: original fantasy-RPG touches. All stats come from shared/data.js counts. */
+/* Storybook "quest" layer: original fantasy-RPG touches. */
 (function(){
 var D=window.OBC||{},RM=matchMedia('(prefers-reduced-motion: reduce)').matches,$=function(s){return document.querySelector(s)};
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
@@ -7,11 +7,8 @@ var grid=$('#team-grid');
 function sheets(){if(!grid)return;grid.querySelectorAll('article.card:not(.sheet)').forEach(function(a){var h=a.querySelector('h3');if(!h)return;
  var c=(D.clinicians||[]).find(function(x){return x.name===h.textContent});if(!c)return;a.classList.add('sheet');
  var top=document.createElement('p');top.className='sheet-tag';top.textContent='Party member · Character sheet';a.insertBefore(top,a.firstChild);
- var st=document.createElement('dl');st.className='sheet-stats';st.setAttribute('aria-label','Counts from this guide\u2019s listed information');
- var rows=[['Approaches listed',c.mods.length],['Concerns listed',c.concerns.length],['Offices',c.offices?c.offices.length:'Confirm'],['Session types',c.settings?c.settings.length:'Confirm']];
- st.innerHTML=rows.map(function(r){return '<div><dt>'+esc(r[0])+'</dt><dd>'+esc(r[1])+'</dd></div>'}).join('');
  var ap=[].slice.call(a.querySelectorAll('p')).filter(function(p){return /^Approaches:/.test(p.textContent)})[0];
- if(ap){ap.classList.add('sheet-approaches');ap.parentNode.insertBefore(st,ap)}else a.appendChild(st);});}
+ if(ap)ap.classList.add('sheet-approaches');});}
 if(grid){sheets();new MutationObserver(sheets).observe(grid,{childList:true});}
 /* 2) Quiz as a quest: d20 roll before results */
 var quiz=$('#quiz'),res=$('#results');
