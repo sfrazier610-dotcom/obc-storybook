@@ -1,198 +1,251 @@
-/* Conquering Anxiety & Depression: an educational mini-game. Not therapy. Lazy: data + CSS load on first open. */
+/* The Fogstorm: a small retro top-down RPG about coping skills. Educational, not therapy.
+   All pixel art is original and drawn in code. Lazy: data + CSS load on first open. */
 (function(){'use strict';
-var KEY='obc_quest_v1',BKEY='obc_bonus_runes',Q=null,dlg=null,S=null,MODE=null,loading=null;
+var KEY='obc_quest_v1',Q=null,dlg=null,loading=null,SCENE='title',raf=0,P=null,B=null,MAP=null,ENEMIES=[],PARTS=[],FLO=[],T0=0,held=null;
 var RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
 function $(s,r){return (r||document).querySelector(s)}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function load(){if(Q)return Promise.resolve();if(loading)return loading;
  loading=new Promise(function(ok,no){var l=document.createElement('link');l.rel='stylesheet';l.href='quest-game.css';document.head.appendChild(l);
   var s=document.createElement('script');s.src='../shared/quest-data.js';s.onload=function(){Q=window.OBC_QUEST;ok()};s.onerror=no;document.head.appendChild(s)});return loading}
-function prog(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return {}}}
-function saveProg(p){try{localStorage.setItem(KEY,JSON.stringify(p))}catch(e){}}
+function prog(){try{var p=JSON.parse(localStorage.getItem(KEY))||{};return p.v===4?p:{v:4}}catch(e){return {v:4}}}
+function saveProg(p){p.v=4;try{localStorage.setItem(KEY,JSON.stringify(p))}catch(e){}}
 var BONUS=[];/* bonus rune lives in memory only: resets every visit */
-function bonus(){return BONUS}
 function sym(id){return Q.symptoms.find(function(x){return x.id===id})}
 function sp(id){return Q.spells.find(function(x){return x.id===id})}
+function clins(){return ((window.OBC&&OBC.clinicians)||[]).filter(function(k){var c=Q.companions.find(function(x){return x.id===k.id});return c&&c.consent})}
+function clin(id){return clins().find(function(k){return k.id===id})||null}
+function maxRes(p){return 20+Math.min(10,2*Math.floor(((p||prog()).xp||0)/2))}
+function level(p){return 1+Math.min(5,Math.floor(((p||prog()).xp||0)/2))}
 
-/* ---------- pure turn math ---------- */
-function newState(mode,phaseIdx){var G=Q.guide,st={comp:null,mode:mode,phase:phaseIdx||0,resolve:20,meter:20,max:20,lastSpell:null,current:null,prev:null,round:0,
-  guide:{present:false,turnsLeft:0,cooldown:0},gateOpen:false,freeRest:false,freeRestUsed:false,value:'',helped:{},log:[],over:null};
- if(mode==='boss'){var P=Q.boss[st.phase];st.meter=st.max=P.meter;if(P.guide==='cooldown-start')st.guide.cooldown=G.cooldownTurns;if(P.guide==='auto'){st.guide.present=true;st.guide.turnsLeft=99}}
- if(mode==='story'){st.meter=st.max=12}
- return st}
-function roster(st){if(st.mode==='story')return Q.symptoms.map(function(s){return s.id});if(st.mode==='fog'||st.mode==='storm')return Q.symptoms.filter(function(s){return s.weather===st.mode&&!(s.guideOnly&&false)}).map(function(s){return s.id});
- var P=Q.boss[st.phase];if(P.roster)return P.roster.slice();
- var w=P.id==='stair'?(st.round%2?'fog':'storm'):null;return Q.symptoms.filter(function(s){return (!w||s.weather===w)&&!s.guideOnly}).map(function(s){return s.id})}
-function draw(st,rnd){rnd=rnd||Math.random;var P=st.mode==='boss'?Q.boss[st.phase]:null;
- if(P&&P.id==='gate'&&!st.gateOpen&&(st.round%3===2||st.meter<=1))return 'gate';
- if(P&&P.id==='stair'&&st.prev==='whatif')return 'worthless';
- if(P&&P.id==='lantern'&&st.meter<=1)return 'lanterns';
- var r=roster(st).filter(function(id){return id!==st.prev&&!(P&&P.id==='gate'&&st.gateOpen&&id==='gate')});return r[Math.floor(rnd()*r.length)]}
-/* named companions (consent:true). Name, cred and settings come from OBC.clinicians so they never drift. */
-function comp(id){if(!id||!Q)return null;var c=Q.companions.find(function(x){return x.id===id});if(!c||!c.consent)return null;
- var k=((window.OBC&&OBC.clinicians)||[]).find(function(x){return x.id===id});if(!k)return null;
- return {id:id,name:k.name,cred:k.cred,first:k.name.split(' ')[0],tele:(k.settings||[]).join()==='telehealth',storyline:c.storyline,summon:c.summon,bonus:c.bonus||{},c:c}}
-function guideBonus(st,spellId){var c=comp(st.comp);if(!c||!st.guide.present)return 0;var b=c.bonus[spellId]||0;
- if(spellId==='selfkind'&&st.current==='worthless'&&c.bonus.selfkindVsWorthless)b+=c.bonus.selfkindVsWorthless;return b}
-function sessTurns(st){var c=comp(st.comp);return (c&&c.c.sessionTurns)||Q.guide.sessionTurns}
-function resolveTurn(st,action,opt){opt=opt||{};var G=Q.guide,s=sym(st.current),P=st.mode==='boss'?Q.boss[st.phase]:null,g=st.guide,out={action:action,taught:!!opt.taught,symptom:s.id,cleared:0,drain:0,matched:false,hint:null,msg:''};
- var present=g.present;
- if(action==='summon'){if(present||g.cooldown>0)return {error:'unavailable'};g.present=true;g.turnsLeft=sessTurns(st);out.drain=Math.max(0,s.drain-G.drainReduce);out.msg=G.summonLines[0];out.summoned=true}
- else if(action==='rest'){if(st.freeRest&&!st.freeRestUsed){st.freeRestUsed=true;out.drain=0;out.msg='The storm rains. You rest, and nothing is lost.'}else{out.drain=Math.max(0,s.drain-(present?G.drainReduce:0));out.msg='You pause to rest. Resting is allowed.'}
-  st.resolve=Math.min(20,st.resolve+3);out.rested=3}
- else{var S1=sp(action);if(!S1)return {error:'nospell'};if(S1.kind==='guided'&&!present)return {error:'needsguide'};if(st.lastSpell===action)return {error:'repeat'};
-  var match=s.weakTo.indexOf(action)>=0;
-  if(action==='gratitude'&&s.id==='lanterns')match=true;
-  if(match){out.matched=true;var mult=(P&&P.tripleSpell===action)?3:2;out.cleared=S1.base*mult+(present?G.matchBonus:0)+guideBonus(st,action);out.drain=0}
-  else if(P&&P.tripleSpell===action){out.cleared=S1.base*3+(present?G.matchBonus:0)+guideBonus(st,action);out.drain=Math.max(0,Math.ceil(s.drain/2)-(present?G.drainReduce:0))}
-  else{out.cleared=(present?G.mismatchClear:1)+guideBonus(st,action);out.drain=Math.max(0,Math.ceil(s.drain/2)-(present?G.drainReduce:0));var cc=comp(st.comp);if(cc&&present&&action==='guidedstep'&&cc.c.gateNoDrainOnMiss)out.drain=0;
-   out.hint=s.guideOnly?'This gate is easier with your Guide beside you.':'Hint: '+sp(s.weakTo[0]).name+' fits this weather best.'}
-  if(action==='guidedstep'&&s.id==='gate')st.gateOpen=true;
-  if(action==='gratitude'){out.gratitude=opt.choice==='notToday'?'notToday':'named';out.msg=opt.choice==='notToday'?'"Not today" counts. You stayed with it together.':'One small glow, named together.'}
-  st.lastSpell=action;st.meter-=out.cleared;if(out.matched)st.helped[action]=(st.helped[action]||0)+1}
- /* phase locks */
- if(P&&P.id==='gate'&&!st.gateOpen&&st.meter<1){st.meter=1;out.lock='The Closed Gate still stands. It opens only with Guided Step Through the Gate.'}
- if(P&&P.id==='lantern'&&st.meter<1&&action!=='gratitude'){st.meter=1;out.lock='The great lantern lights only with the Shared Gratitude Rune.'}
+/* ---------- original pixel art (code-drawn) ---------- */
+var PAL={k:'#1a1a2b',h:'#5a3a22',s:'#e2ad84',c:'#1f6f73',d:'#134a4d',y:'#f3c95a',b:'#3b2a1a',w:'#ffffff'};
+var HERO={down:['....kkkk....','...khhhhk...','..khhhhhhk..','..kssssssk..','..ksksskskk.','...kssssk...','..kccccccky.','.kccdccdccy.','.kccccccck..','..kcccccck..','..kddddddk..','...kb..bk...','...kb..bk...','...kk..kk...'],
+ side:['....kkkk....','...khhhhk...','..khhhhhhk..','..khsssssk..','..khssksk...','...kssssk...','..kccccccky.','.kccccdccy..','.kccccccck..','..kcccccck..','..kddddddk..','...kb..bk...','...kb..bk...','...kk..kk...'],
+ up:['....kkkk....','...khhhhk...','..khhhhhhk..','..khhhhhhk..','..khhhhhhk..','...khhhhk...','..kccccccky.','.kccccccccy.','.kccccccck..','..kcccccck..','..kddddddk..','...kb..bk...','...kb..bk...','...kk..kk...']};
+function legsB(r){r=r.slice();r[11]='..kb....bk..';r[12]='..kb....bk..';r[13]='..kk....kk..';return r}
+var CLOUD=['....kkkkkk....','..kkggggggkk..','.kggllggggggk.','kgglllgggggggk','kggggggggggggk','kggwkggggwkggk','kggkkggggkkggk','kggggggggggggk','kgggggkkgggggk','.kggggggggggk.','..kgkggggkgk..','...k.kggk.k...'];
+var FOGPAL={k:'#3d4246',g:'#9aa3a8',l:'#c9cfd2',w:'#eef2f3'},STORMPAL={k:'#1d2c3d',g:'#5d7891',l:'#8fb0c9',w:'#f3c95a'},BOSSPAL={k:'#14141c',g:'#4b4e5c',l:'#767a8a',w:'#f3c95a'};
+var FACE=['...kkkkkk...','..kHHHHHHk..','.kHHHHHHHHk.','.kHssssssHk.','.kHskssksHk.','.kHssssssHk.','..kssssssk..','...kssssk...','..kAAAAAAk..','.kAAAwwAAAk.','.kAAAwwAAAk.','.kkkkkkkkkk.'];
+/* portraits are stylized placeholders, not likenesses: each clinician gets their own hair and scarf colors */
+var FACEPAL={scott:{H:'#6b4a2e',A:'#1f6f73'},amber:{H:'#c9863a',A:'#8a2f3c'},shanna:{H:'#2a1c14',A:'#c0782a'},amanda:{H:'#8a5a33',A:'#3f6fb0'},aspen:{H:'#d9b46a',A:'#3d8a4f'},abby:{H:'#4a2e1e',A:'#7a4fa0'}};
+function px(c,rows,pal,x,y,o){o=o||{};var s=o.s||1,w=rows[0].length;for(var j=0;j<rows.length;j++)for(var i=0;i<w;i++){var ch=rows[j][i];if(ch==='.'||!ch)continue;var col=o.flash?'#ffffff':(pal[ch]||PAL[ch]);if(!col)continue;c.fillStyle=col;c.fillRect(Math.round(x+(o.flip?w-1-i:i)*s),Math.round(y+j*s),s,s)}}
+function facePal(id){var f=FACEPAL[id]||{H:'#555',A:'#888'};return {k:'#1a1a2b',s:'#e2ad84',w:'#fff6dd',H:f.H,A:f.A}}
+
+/* ---------- overworld ---------- */
+var ROWS=['TTTTTTTTCCCCTTTTTTTT','TFFFFFFTCCCCTSSSSSST','TFFFFFFTCCDCTSSSSSST','TFFFFFF......SSSSSST','TFFFFFFFF.WW.SSSSSST','TFFFFFFFF.WW.SSSSSST','TFFFFFF......SSSSSST','TFFFFFFF.....SSSSSST','TFFFFFFFF.H..SSSSSST','TTFFFFFF.....SSSSSTT','TTTFFFF.......SSSTTT','TTTTTTTT....TTTTTTTT','TTTTTTTTTTTTTTTTTTTT'];
+var TS=16,MW=20,MH=13,START={x:10,y:10},OFFICE={x:10,y:8},DOOR={x:10,y:2};
+var SPAWN=[['f1','fog',3,2],['f2','fog',5,4],['f3','fog',2,7],['f4','fog',6,9],['f5','fog',4,10],['s1','storm',15,2],['s2','storm',17,5],['s3','storm',14,7],['s4','storm',16,9]];
+function tile(x,y){return (ROWS[y]||'')[x]||'T'}
+function walk(x,y){return 'FS.HD'.indexOf(tile(x,y))>=0}
+function zone(x,y){var t=tile(x,y);return t==='F'?'fog':t==='S'?'storm':null}
+function hash(x,y){return ((x*73856093)^(y*19349663))>>>0}
+function drawTile(c,t,x,y){var X=x*TS,Y=y*TS,h=hash(x,y);
+ function r(col,a,b,w,hh){c.fillStyle=col;c.fillRect(X+a,Y+b,w,hh)}
+ if(t==='T'){r('#2f6b3a',0,0,16,16);r('#1e4a28',2,1,12,11);r('#2f7d40',3,2,10,8);r('#4a9a55',5,3,4,3);r('#5a3a22',6,11,4,5);r('#1e4a28',1,3,1,6);r('#1e4a28',14,3,1,6);return}
+ if(t==='W'){r('#2a5f8a',0,0,16,16);r('#3f7fb0',2,4+(h%3),5,1);r('#3f7fb0',9,10-(h%3),5,1);return}
+ if(t==='C'){r('#6c6f7a',0,0,16,16);c.fillStyle='#50535d';for(var i=0;i<16;i+=4){c.fillRect(X,Y+i,16,1);c.fillRect(X+((i/4)%2?0:8),Y+i,1,4)}if(y===0){r('#14141c',0,0,4,3);r('#14141c',8,0,4,3)}return}
+ if(t==='D'){r('#6c6f7a',0,0,16,16);r('#3b2a1a',3,4,10,12);r('#5a3a22',4,5,8,11);r('#3b2a1a',4,3,8,1);r('#f3c95a',10,10,1,2);return}
+ if(t==='H'){r('#c9a46a',0,0,16,16);r('#8a2f3c',0,0,16,6);r('#6e1f24',0,5,16,1);r('#f6ead0',2,7,12,8);r('#3b2a1a',6,10,4,6);r('#fff6dd',3,8,4,3);r('#fff6dd',9,8,4,3);r('#1a1a2b',7,8,2,3);return}
+ var base=t==='F'?'#7f9a7e':t==='S'?'#7d8d99':t==='.'?'#c9b38a':'#6fa860';r(base,0,0,16,16);
+ c.fillStyle=t==='F'?'#6b856b':t==='S'?'#66747f':t==='.'?'#b39d76':'#5a9150';c.fillRect(X+(h%12)+1,Y+((h>>4)%12)+1,2,1);c.fillRect(X+((h>>8)%12)+2,Y+((h>>12)%12)+2,1,2);
+ if(t==='S'&&h%5===0){r('#56636d',4,8,6,4);r('#93a1ab',5,8,3,1)}}
+function buildMap(){MAP=document.createElement('canvas');MAP.width=MW*TS;MAP.height=MH*TS;var c=MAP.getContext('2d');for(var y=0;y<MH;y++)for(var x=0;x<MW;x++)drawTile(c,tile(x,y),x,y)}
+function spawn(){var cl=prog().cleared||[];ENEMIES=SPAWN.filter(function(e){return cl.indexOf(e[0])<0}).map(function(e){return {id:e[0],weather:e[1],x:e[2],y:e[3],fx:e[2],fy:e[3],t:Math.random()*3000}})}
+function newPlayer(){var p=prog();P={x:p.x!=null?p.x:START.x,y:p.y!=null?p.y:START.y,dir:'down',moving:null,frame:0,resolve:p.resolve!=null?Math.min(p.resolve,maxRes(p)):maxRes(p)};P.fx=P.x;P.fy=P.y}
+function savePos(){var p=prog();p.x=P.x;p.y=P.y;p.resolve=P.resolve;saveProg(p)}
+var DIRS={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
+function step(dir){if(SCENE!=='map'||!P||P.moving)return false;P.dir=dir;var d=DIRS[dir],nx=P.x+d[0],ny=P.y+d[1];if(!walk(nx,ny)){status();return false}
+ P.moving={sx:P.x,sy:P.y,t:0};P.x=nx;P.y=ny;P.frame^=1;if(RM){P.moving=null;P.fx=nx;P.fy=ny;arrive()}return true}
+function arrive(){savePos();var t=tile(P.x,P.y);
+ if(t==='D'){P.y=DOOR.y+1;P.fy=P.y;savePos();return bossIntro()}
+ if(t==='H'){var m=maxRes();if(P.resolve<m){P.resolve=m;savePos();say('You rest at the Open Book office. Resolve restored to '+m+'.');toast('Rested at the office: Resolve full')}}
+ var e=touching();if(e)return encounter(e);status()}
+function touching(){return ENEMIES.find(function(e){return Math.abs(e.fx-P.fx)<.6&&Math.abs(e.fy-P.fy)<.6})}
+function nearest(){var best=null,bd=1e9;ENEMIES.forEach(function(e){var d=Math.abs(e.x-P.x)+Math.abs(e.y-P.y);if(d<bd){bd=d;best=e}});return best}
+function wander(e,dt){if(RM)return;e.t-=dt;if(e.moving){e.moving.t+=dt/400;var k=Math.min(1,e.moving.t);e.fx=e.moving.sx+(e.x-e.moving.sx)*k;e.fy=e.moving.sy+(e.y-e.moving.sy)*k;if(k>=1)e.moving=null;return}
+ if(e.t>0)return;e.t=1400+Math.random()*1800;var ks=Object.keys(DIRS),d=DIRS[ks[Math.floor(Math.random()*4)]],nx=e.x+d[0],ny=e.y+d[1];
+ if(zone(nx,ny)===e.weather&&!ENEMIES.some(function(o){return o!==e&&o.x===nx&&o.y===ny})&&!(nx===P.x&&ny===P.y)){e.moving={sx:e.x,sy:e.y,t:0};e.x=nx;e.y=ny}}
+function drawMap(c,t,dt){c.drawImage(MAP,0,0);
+ if(!RM){c.fillStyle='rgba(220,225,228,.10)';var o=(t/90)%64;for(var i=-1;i<6;i++){c.fillRect(i*64+o,30+((i*37)%40),40,6);c.fillRect(i*64-o+20,110+((i*23)%50),30,5)}
+  c.fillStyle='rgba(143,176,201,.35)';for(var j=0;j<10;j++){var rx=208+((j*29+t/8)%112),ry=((j*47+t/3)%208);c.fillRect(rx,ry,1,3)}
+  c.fillStyle='#5d9bc8';var wy=Math.floor(t/400)%3;c.fillRect(10*TS+3,4*TS+5+wy,6,1);c.fillRect(11*TS+6,5*TS+9-wy,6,1)}
+ ENEMIES.forEach(function(e){wander(e,dt);var bob=RM?0:Math.round(Math.sin(t/300+e.x)*1);px(c,CLOUD,e.weather==='fog'?FOGPAL:STORMPAL,e.fx*TS+1,e.fy*TS+2+bob)});
+ if(P.moving){P.moving.t+=dt/150;var k=Math.min(1,P.moving.t);P.fx=P.moving.sx+(P.x-P.moving.sx)*k;P.fy=P.moving.sy+(P.y-P.moving.sy)*k;if(k>=1){P.moving=null;P.fx=P.x;P.fy=P.y;arrive();if(SCENE==='map'&&held)step(held)}}
+ else if(touching()&&SCENE==='map')encounter(touching());
+ var rows=P.dir==='up'?HERO.up:P.dir==='down'?HERO.down:HERO.side;if(P.frame)rows=legsB(rows);var ib=(!RM&&!P.moving&&Math.floor(t/500)%2)?1:0;
+ px(c,rows,PAL,P.fx*TS+2,P.fy*TS+1+ib,{flip:P.dir==='left'})}
+
+/* ---------- battle rules (pure) ---------- */
+function newBattle(kind,weather,phase){var p=prog(),G=Q.guide,st={kind:kind,mode:kind==='boss'?'boss':weather,phase:phase||0,resolve:P?P.resolve:maxRes(p),maxRes:maxRes(p),meter:8,max:8,lastSpell:null,current:null,prev:null,round:0,cooldown:0,gateOpen:false,freeRest:false,freeRestUsed:false,helped:{},over:null};
+ if(kind==='boss'){var Ph=Q.boss[st.phase];st.meter=st.max=Ph.meter;if(Ph.guide==='cooldown-start')st.cooldown=G.cooldownTurns}
+ st.current=draw(st);return st}
+function phaseOf(st){return st.mode==='boss'?Q.boss[st.phase]:null}
+function roster(st){if(st.mode!=='boss')return Q.symptoms.filter(function(s){return s.weather===st.mode}).map(function(s){return s.id});
+ var Ph=Q.boss[st.phase];if(Ph.roster)return Ph.roster.slice();var w=Ph.id==='stair'?(st.round%2?'fog':'storm'):null;
+ return Q.symptoms.filter(function(s){return (!w||s.weather===w)&&!s.guideOnly}).map(function(s){return s.id})}
+function draw(st,rnd){rnd=rnd||Math.random;var Ph=phaseOf(st);
+ if(st.mode!=='boss'&&st.current)return st.current;
+ if(Ph&&Ph.id==='gate'&&!st.gateOpen&&(st.round%3===2||st.meter<=1))return 'gate';
+ if(Ph&&Ph.id==='stair'&&st.prev==='whatif')return 'worthless';
+ if(Ph&&Ph.id==='lantern'&&st.meter<=1)return 'lanterns';
+ var r=roster(st).filter(function(id){return id!==st.prev&&!(Ph&&Ph.id==='gate'&&st.gateOpen&&id==='gate')});return r[Math.floor(rnd()*r.length)]}
+function guideReady(st){var Ph=phaseOf(st);return (Ph&&Ph.guide==='auto')||st.cooldown<=0}
+/* the spell a guide casts: the counter that fits the current symptom (guided spells included) */
+function rightSpell(st){var s=sym(st.current),Ph=phaseOf(st);if(s.weakTo.indexOf('gratitude')>=0&&(s.id==='lanterns'))return 'gratitude';if(Ph&&Ph.id==='gate'&&s.id==='gate')return 'guidedstep';return s.weakTo[0]}
+function turn(st,action,opt){opt=opt||{};var G=Q.guide,s=sym(st.current),Ph=phaseOf(st),out={action:action,symptom:s.id,cleared:0,drain:0,matched:false,hint:null};
+ if(action==='guide'){if(!guideReady(st))return {error:'cooldown'};var k=clin(opt.clinician);if(!k)return {error:'noclin'};
+  var x=rightSpell(st);out.spell=x;out.clinician=k.id;out.cleared=3;out.drain=0;out.matched=true;out.tip=s.tip;
+  if(x==='guidedstep'&&s.id==='gate')st.gateOpen=true;if(x==='gratitude')out.gratitude=true;
+  st.helped[x]=(st.helped[x]||0)+1;st.meter-=3;st.cooldown=(Ph&&Ph.guide==='auto')?0:G.cooldownTurns+1}
+ else if(action==='rest'){if(st.freeRest&&!st.freeRestUsed){st.freeRestUsed=true;out.drain=0;out.free=true}else out.drain=Math.ceil(s.drain/2);st.resolve=Math.min(st.maxRes,st.resolve+3);out.rested=3}
+ else{var S1=sp(action);if(!S1)return {error:'nospell'};if(S1.kind==='guided')return {error:'needsguide'};if(st.lastSpell===action)return {error:'repeat'};
+  var match=s.weakTo.indexOf(action)>=0,triple=Ph&&Ph.tripleSpell===action;
+  if(match){out.matched=true;out.cleared=S1.base*(triple?3:2);out.drain=0}
+  else if(triple){out.cleared=S1.base*3;out.drain=Math.ceil(s.drain/2)}
+  else{out.cleared=1;out.drain=Math.ceil(s.drain/2);out.hint=s.guideOnly?'This one is best faced with a guide. Try Call Guide.':(sp(s.weakTo[0]).kind==='guided'?'A guide knows the counter for this one.':'Hint: '+sp(s.weakTo[0]).name+' fits '+s.name+' best.')}
+  st.lastSpell=action;st.meter-=out.cleared;if(match)st.helped[action]=(st.helped[action]||0)+1}
+ if(Ph&&Ph.id==='gate'&&!st.gateOpen&&st.meter<1){st.meter=1;out.lock='The Closed Gate holds. Only Guided Step Through the Gate opens it, and that takes a guide.'}
+ if(Ph&&Ph.id==='lantern'&&st.meter<1&&out.spell!=='gratitude'){st.meter=1;out.lock='The great lantern lights only with the Shared Gratitude Rune, cast with a guide.'}
  st.meter=Math.max(0,st.meter);st.resolve=Math.max(0,st.resolve-out.drain);
- if(P&&P.freeRestAt&&st.meter<=P.freeRestAt&&!st.freeRest){st.freeRest=true;out.rain=true}
- /* guide tick */
- if(present&&!out.summoned&&g.turnsLeft<99){g.turnsLeft--;if(g.turnsLeft<=0){g.present=false;g.cooldown=G.cooldownTurns;out.left=G.leaveLines[0]}}
- else if(!present&&!out.summoned&&g.cooldown>0)g.cooldown--;
+ if(Ph&&Ph.freeRestAt&&st.meter<=Ph.freeRestAt&&!st.freeRest){st.freeRest=true;out.rain=true}
+ if(action!=='guide'||st.cooldown>0){if(st.cooldown>0)st.cooldown--}
  st.round++;st.prev=st.current;
  if(st.meter<=0)st.over='clear';else if(st.resolve<=0)st.over='rest';
- st.log.push(out);return out}
+ else if(st.mode==='boss')st.current=draw(st);
+ return out}
 
-/* ---------- UI ---------- */
-var FOOT='<footer class="qg-foot" role="contentinfo" aria-label="Disclaimer and crisis resources"><p>This is an educational game, not therapy, diagnosis, or a substitute for care. If you are in crisis or thinking about suicide, call or text <a href="tel:988">988</a> (Suicide &amp; Crisis Lifeline). In Utah, you can also use the <a href="https://safeut.org" target="_blank" rel="noopener">SafeUT app or safeut.org</a> for 24/7 chat with a licensed counselor. In an emergency, call <a href="tel:911">911</a>.</p><a class="qg-find" href="#match" data-quiz>Find a guide for the real journey</a></footer>';
+/* ---------- shell + UI ---------- */
+var FOOT='<footer class="qg-foot" role="contentinfo" aria-label="Disclaimer and crisis resources"><p>Educational game, not therapy, diagnosis, or a substitute for care. In crisis or thinking about suicide, call or text <a href="tel:988">988</a> (Suicide &amp; Crisis Lifeline). In Utah, use the <a href="https://safeut.org" target="_blank" rel="noopener">SafeUT app or safeut.org</a> for 24/7 chat with a licensed counselor. In an emergency, call <a href="tel:911">911</a>.</p><a class="qg-find" href="#match" data-quiz>Find a guide for the real journey</a></footer>';
 function shell(){dlg=document.createElement('dialog');dlg.className='qg';dlg.setAttribute('aria-labelledby','qg-title');
- dlg.innerHTML='<div class="qg-sky" aria-hidden="true"><i class="fog f1"></i><i class="fog f2"></i><i class="wind"></i><i class="sun"></i></div><button class="qg-x" type="button" aria-label="Close the game">✕</button><button class="qg-help-btn" type="button" data-help aria-haspopup="true">How to play</button><div class="qg-body"></div><section class="qg-panel" hidden aria-labelledby="qg-ph"></section>'+FOOT;
+ dlg.innerHTML='<button class="qg-x" type="button" aria-label="Close the game">✕</button><button class="qg-help-btn" type="button" data-help aria-haspopup="true">How to play</button><div class="qg-body"></div><section class="qg-panel" hidden aria-labelledby="qg-ph"></section><p class="qg-live sr" aria-live="polite"></p>'+FOOT;
  document.body.appendChild(dlg);
- dlg.querySelector('.qg-x').onclick=close;dlg.querySelector('[data-help]').onclick=function(){panel('<h2 id="qg-ph">How to play</h2>'+HOWTO())};dlg.addEventListener('cancel',function(e){e.preventDefault();if(!dlg.querySelector('.qg-panel').hidden)return unpanel();close()});
- dlg.addEventListener('click',function(e){var a=e.target.closest('[data-quiz]');if(a){e.preventDefault();close();var i=[].slice.call(document.querySelectorAll('.chapter')).findIndex(function(c){return c.id==='match'});if(window.obcTurnTo&&i>=0)obcTurnTo(i);else location.hash='#match';}})}
+ dlg.querySelector('.qg-x').onclick=close;dlg.querySelector('[data-help]').onclick=function(){panel('<h2 id="qg-ph">How to play</h2>'+HOWTO())};
+ dlg.addEventListener('cancel',function(e){e.preventDefault();if(!dlg.querySelector('.qg-panel').hidden)return unpanel();close()});
+ dlg.addEventListener('close',stopLoop);
+ dlg.addEventListener('keydown',key);dlg.addEventListener('keyup',function(e){var d=KEYS[e.key];if(d&&held===d)held=null});
+ dlg.addEventListener('click',function(e){var a=e.target.closest('[data-quiz]');if(a){e.preventDefault();close();var i=[].slice.call(document.querySelectorAll('.chapter')).findIndex(function(c){return c.id==='match'});if(window.obcTurnTo&&i>=0)obcTurnTo(i);else location.hash='#match'}})}
+var KEYS={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right',w:'up',s:'down',a:'left',d:'right',W:'up',S:'down',A:'left',D:'right'};
+function key(e){if(SCENE!=='map'||!dlg.querySelector('.qg-panel').hidden)return;var t=e.target;if(t&&/INPUT|TEXTAREA/.test(t.tagName))return;var d=KEYS[e.key];if(!d)return;e.preventDefault();held=d;step(d)}
 function HOWTO(){return '<ul class="qg-how">'+
- '<li><b>Resolve</b> is your energy for the walk. Symptoms drain a little of it each turn. If it runs out, nothing bad happens: you go to Rest and Regroup and can try again.</li>'+
- '<li><b>The Fog or Storm meter</b> shows how much weather is left. Bring it to zero to clear the sky.</li>'+
- '<li><b>Symptoms are weather</b>, not you. Gray Fog stands for low-mood symptoms; Storm Wind stands for anxious ones. Each card tells you what the weather is doing.</li>'+
- '<li><b>Spells are real coping skills.</b> A <b>matched</b> spell (the right skill for that weather) clears double and stops the drain. A <b>mismatched</b> spell still helps a little, and you get a hint. You can\'t cast the same spell twice in a row. Tap the small <b>i</b> on any spell to see its real steps and what it\'s strong against.</li>'+
- '<li><b>Rest</b> gives back 3 Resolve. Resting is always allowed.</li>'+
- '<li><b>Call your Guide</b> for a few turns of help: stronger spells, less drain, and the two guided spells. While your Guide is here, they\'ll offer the spell that fits and can walk through it with you. Then the Guide rests for a short cooldown.</li></ul>'+
- '<p class="qg-small">There is no wrong way to play. Different skills help different people.</p>'}
-function panel(h){var pn=dlg.querySelector('.qg-panel'),b=dlg.querySelector('.qg-body');pn._ret=document.activeElement;pn.innerHTML=h+'<div class="qg-row"><button type="button" data-unpanel>Back to the game</button></div>';b.hidden=true;pn.hidden=false;pn.querySelector('[data-unpanel]').onclick=unpanel;var f=pn.querySelector('h2');f.setAttribute('tabindex','-1');f.focus()}
+ '<li><b>Walk</b> with the arrow keys or WASD, or the on-screen pad. The gray Fog Fields (west) hold low-mood symptoms; the blue Storm Ridge (east) holds anxious ones. The castle door at the top is the Fogstorm.</li>'+
+ '<li><b>Touch a cloud</b> to start a battle. Symptoms are the weather, never you.</li>'+
+ '<li><b>Resolve</b> is your HP. Symptoms drain it a little each turn. If it runs out, you go to Rest and Regroup with no penalty. The Open Book office (the red-roofed house) restores it.</li>'+
+ '<li><b>Spells</b> are real coping skills. The right spell for the symptom deals double and blocks the drain. Any other spell still does 1, plus a hint. You can\'t cast the same spell twice in a row.</li>'+
+ '<li><b>Call Guide</b> lets you pick any Open Book clinician. They cast the right spell for you, free: it costs no Resolve and deals 3 HP, with a short tip about the real skill. Then they rest for '+Q.guide.cooldownTurns+' turns. Gratitude and Guided Step are only cast with a guide.</li>'+
+ '<li><b>Rest</b> restores 3 Resolve; the symptom still drains a little.</li></ul><p class="qg-small">Win a battle to gain experience. Every 2 wins raise your level and max Resolve. Progress stays in this browser only.</p>'}
+function panel(h){var pn=dlg.querySelector('.qg-panel'),b=dlg.querySelector('.qg-body');pn._ret=document.activeElement;pn.innerHTML=h+'<div class="qg-row"><button type="button" class="qg-btn" data-unpanel>Back to the game</button></div>';b.hidden=true;pn.hidden=false;pn.querySelector('[data-unpanel]').onclick=unpanel;var f=pn.querySelector('h2');f.setAttribute('tabindex','-1');f.focus()}
 function unpanel(){var pn=dlg.querySelector('.qg-panel');if(pn.hidden)return;pn.hidden=true;dlg.querySelector('.qg-body').hidden=false;var r=pn._ret;if(r&&r.isConnected&&dlg.contains(r))r.focus();else{var h=dlg.querySelector('.qg-body h2');h&&h.focus()}}
-function strongVs(id){return Q.symptoms.filter(function(x){return x.weakTo.indexOf(id)>=0}).map(function(x){return x.name})}
-function spellInfo(x){var sv=strongVs(x.id);return '<h2 id="qg-ph">'+esc(x.name)+'</h2><p class="qg-small">'+(x.kind==='guided'?'Guided spell: needs your Guide.':'Solo spell.')+' Real skill: '+esc(x.source)+'.</p><h3>Steps</h3><ol class="qg-steps">'+x.steps.map(function(t){return '<li>'+esc(t)+'</li>'}).join('')+'</ol><h3>Strong against</h3><p>'+(sv.length?esc(sv.join(', ')):'Any weather a little')+'.</p><p>'+esc(x.fits||'')+'</p>'}
-function needed(){if(!S||!S.current)return null;var s=sym(S.current);var id=s.weakTo.filter(function(i){return i!==S.lastSpell&&(sp(i).kind==='solo'||S.guide.present)})[0];return id?sp(id):null}
-function fx(kind){if(RM||!dlg)return;var n=matchMedia('(max-width:640px)').matches?8:14,w=document.createElement('div');w.className='qg-fx '+kind;w.setAttribute('aria-hidden','true');
- for(var i=0;i<(kind==='summon'?1:n);i++){var e=document.createElement('i');var a=i/n*6.283,r=60+Math.random()*80;e.style.setProperty('--dx',Math.round(Math.cos(a)*r)+'px');e.style.setProperty('--dy',Math.round(Math.sin(a)*r)+'px');e.style.animationDelay=(Math.random()*.15).toFixed(2)+'s';w.appendChild(e)}
- dlg.appendChild(w);setTimeout(function(){w.remove()},1600)}
-var TUT=[['.qg-meters','These are your meters. Resolve is your energy; the other meter is the weather left to clear.'],
- ['.qg-card','This card is the symptom, shown as weather. Each turn it drains a little Resolve unless your spell matches it.'],
- ['.qg-grid','Pick a spell. Each is a real coping skill. Tap the small i to see its steps and what it\'s strong against. A match clears double and stops the drain; a mismatch still helps a little.'],
- ['.qg-guide','Call your Guide for a few turns of help. Your Guide can offer the spell that fits and cast it with you. Spells with two figures need the Guide.'],
- ['.qg-rest','Low on Resolve? Rest gives back 3. Running out just means Rest and Regroup. You can open How to play any time.']];
-function tutorial(){if(S.tut==null||S.tut>=TUT.length)return;var t=TUT[S.tut],el=dlg.querySelector('.qg-body '+t[0]);if(!el)return;el.classList.add('qg-hl');
- var c=document.createElement('div');c.className='qg-callout';c.setAttribute('role','note');c.setAttribute('aria-label','Tutorial tip '+(S.tut+1)+' of '+TUT.length);
- c.innerHTML='<p><b>Tip '+(S.tut+1)+' of '+TUT.length+'.</b> '+t[1]+'</p><div class="qg-row"><button type="button" data-tnext>'+(S.tut<TUT.length-1?'Next tip':'Got it')+'</button><button type="button" class="qg-link" data-tskip>Skip the tutorial</button></div>';
- el.parentNode.insertBefore(c,el);c.querySelector('[data-tnext]').onclick=function(){S.tut++;render(S._res,'[data-tnext]')};c.querySelector('[data-tskip]').onclick=function(){S.tut=null;render(S._res);say('Tutorial skipped. How to play is always at the top.')}}
-function intro(go){var p=prog();p.intro=1;saveProg(p);dlg.style.setProperty('--fog','1');
- body('<h2 id="qg-title">Before you set out</h2><p class="qg-lede">A quick guide to the walk. You can open this again any time with the How to play button.</p>'+HOWTO()+'<div class="qg-row"><button type="button" data-tut>Start with a short tutorial</button><button type="button" data-skip>Skip the tutorial</button></div>');
- dlg.querySelector('[data-tut]').onclick=function(){go(0)};dlg.querySelector('[data-skip]').onclick=function(){go(null)}}
-function teach(x){var s=sym(S.current),i=0,GN=guideLabel();
- function step(){body('<h2 id="qg-title">'+esc(x.name)+', together</h2><p class="qg-say">'+esc(GN)+': "Let\'s walk through it. Take your time."</p><ol class="qg-steps">'+x.steps.slice(0,i+1).map(function(t,k){return '<li'+(k===i?' class="now"':'')+'>'+esc(t)+'</li>'}).join('')+'</ol><p class="qg-small">Step '+(i+1)+' of '+x.steps.length+'. Try it for real if you like.</p><div class="qg-row">'+(i<x.steps.length-1?'<button type="button" data-tstep>Next step</button>':'<button type="button" data-tcast>Cast it together</button>')+'<button type="button" class="qg-link" data-back>Back</button></div>',i?'li.now':'h2');
-  var n=dlg.querySelector('[data-tstep]');n&&(n.onclick=function(){i++;step()});var c=dlg.querySelector('[data-tcast]');c&&(c.onclick=function(){act(x.id,{taught:true})});dlg.querySelector('[data-back]').onclick=function(){render(S._res)}}
- step()}
-function guideLabel(){var c=comp(S&&S.comp);return c?c.first:'Your Guide'}
-function close(){if(dlg&&dlg.open)dlg.close();var b=$('#qg-open');b&&b.focus()}
-function body(h,focusSel){var b=dlg.querySelector('.qg-body');b.innerHTML=h;var f=b.querySelector(focusSel||'h2');if(f){f.setAttribute('tabindex','-1');f.focus()}}
-function sky(){if(!S)return;var pct=S.max?S.meter/S.max:0;dlg.style.setProperty('--fog',pct.toFixed(2));dlg.dataset.weather=S.mode==='boss'?Q.boss[S.phase].weather:S.mode}
-function title(){var p=prog();dlg.style.setProperty('--fog','1');dlg.dataset.weather='both';
- body('<h2 id="qg-title">Conquering Anxiety &amp; Depression</h2><p class="qg-lede">Symptoms are weather: fog, wind and storms that roll over the land. You are a traveler finding your way through, never fighting yourself. Each spell is a real coping skill. Different skills help different people.</p>'+
- '<div class="qg-menu"><button type="button" data-go="fog">Walk through the Gray Fog <small>depression symptoms · practice</small></button><button type="button" data-go="storm">Walk through the Storm Wind <small>anxiety symptoms · practice</small></button><button type="button" data-go="boss">The Fogstorm over the Castle <small>four phases'+(p.phase?' · resume at phase '+(p.phase+1):'')+'</small></button><button type="button" data-go="stories">Companion storylines <small>six short side-quests, one with each Open Book guide</small></button><button type="button" data-go="practice">Practice a spell <small>read the real steps, no weather</small></button></div>'+
- '<p class="qg-small">Progress is saved only in this browser. Nothing is sent to the practice. <button type="button" class="qg-link" data-go="reset">Reset my game</button></p>');
- dlg.querySelectorAll('[data-go]').forEach(function(b){b.onclick=function(){var g=b.dataset.go;if(g==='reset'){localStorage.removeItem(KEY);title();say('Your game was reset.')}else if(g==='practice')practice();else if(g==='stories')stories();else if(g==='boss'&&!(prog().phase))pick();else start(g,g==='boss'?(prog().phase||0):0)}})}
-function guideName(){var c=comp(S&&S.comp);return c?c.name+', '+c.cred:'Your Guide'}
-function quizTop(){var el=$('#results .ranked li strong');if(!el)return null;var t=el.textContent;var k=((window.OBC&&OBC.clinicians)||[]).find(function(x){return t.indexOf(x.name)>=0});return k?k.id:null}
-function stories(){var p=prog(),met=p.met||{};
- body('<h2 id="qg-title">Companion storylines</h2><p class="qg-lede">Each of Open Book\'s clinicians walks one short storyline with you as a companion guide. Inside a storyline, Call Your Guide becomes that clinician\'s signature summon. Same rules: free, uses your turn, then a short cooldown. These are game stories, not a promise of who will be your therapist.</p><div class="qg-menu">'+
- Q.companions.map(function(x){var c=comp(x.id);if(!c)return '';return '<button type="button" data-story="'+c.id+'">'+esc(c.storyline.split(':')[0])+' <small>with '+esc(c.name)+', '+esc(c.cred)+' · signature summon: '+esc(c.summon)+(c.tele?' · Telehealth only (Draper-based)':'')+(met[c.id]?' · walked ✓':'')+'</small></button>'}).join('')+
- '</div><div class="qg-row"><button type="button" class="qg-link" data-back>Back to the title page</button></div>');
- dlg.querySelectorAll('[data-story]').forEach(function(b){b.onclick=function(){start('story',0,false,b.dataset.story)}});dlg.querySelector('[data-back]').onclick=title}
-function storyDone(){var c=comp(S.comp),p=prog();p.met=p.met||{};p.met[c.id]=1;p.helped=merge(p.helped,S.helped);saveProg(p);dlg.style.setProperty('--fog','0');
- body('<h2 id="qg-title">'+esc(c.storyline.split(':')[0])+': the sky clears</h2><p class="qg-lede">'+esc(c.storyline)+'. You walked it with '+esc(c.first)+'.</p><article class="qg-card gc" aria-label="Guide card"><p class="qg-tag">Guide card</p><h3>'+esc(c.name)+', '+esc(c.cred)+'</h3><p>Signature summon: '+esc(c.summon)+'.'+(c.tele?' Telehealth only (Draper-based).':'')+'</p><p class="qg-small">Game bonuses are story flavor, not claims about anyone\'s clinical work.</p></article><div class="qg-menu"><a class="qg-menu-a" href="#match" data-quiz>Want to walk with a real guide?</a><button type="button" data-back>Back to the storylines</button></div>');
- dlg.querySelector('[data-back]').onclick=stories}
-function pick(){var p=prog(),met=p.met||{},top=quizTop(),ids=Q.companions.filter(function(x){return met[x.id]&&comp(x.id)}).map(function(x){return x.id});
- var sug=top&&ids.indexOf(top)>=0?top:null;
- body('<h2 id="qg-title">Who walks with you?</h2><p class="qg-lede">Before the Outer Gate, choose a companion you\'ve met in their storyline, or the generic Guide. Anyone is fine.</p>'+(top&&!sug?'<p class="qg-small">Your quiz match, '+esc(comp(top)?comp(top).name:'')+', is waiting in their storyline if you\'d like to meet them first.</p>':'')+
- '<div class="qg-menu" role="group" aria-label="Choose a companion"><button type="button" data-pick="">Your Guide <small>no name, no details</small></button>'+ids.map(function(id){var c=comp(id);return '<button type="button" data-pick="'+id+'">'+esc(c.name)+', '+esc(c.cred)+' <small>signature summon: '+esc(c.summon)+(id===sug?' · suggested by your quiz match':'')+'</small></button>'}).join('')+'</div>'+
- (ids.length?'':'<p class="qg-small">Walk a companion storyline to meet a named guide.</p>')+'<div class="qg-row"><button type="button" class="qg-link" data-back>Back to the title page</button></div>');
- dlg.querySelectorAll('[data-pick]').forEach(function(b){b.onclick=function(){start('boss',0,false,b.dataset.pick||null)}});dlg.querySelector('[data-back]').onclick=title}
-function say(t){var l=dlg.querySelector('.qg-live');if(!l){l=document.createElement('p');l.className='qg-live sr';l.setAttribute('aria-live','polite');dlg.appendChild(l)}l.textContent='';setTimeout(function(){l.textContent=t},30)}
-function start(mode,phase,withGuide,cid){if(!prog().intro)return intro(function(t){start._t=t;start(mode,phase,withGuide,cid)});var keep=S&&S.comp;S=newState(mode,phase);MODE=mode;S.comp=cid!==undefined?cid:(mode==='boss'?(prog().comp||null):keep||null);if(mode==='boss'){var pp=prog();pp.comp=S.comp;saveProg(pp)}S.tut=start._t;start._t=undefined;if(withGuide&&!S.guide.present){S.guide.present=true;S.guide.turnsLeft=sessTurns(S);S.guide.cooldown=0}
- if(mode==='boss'){var p=prog();p.phase=Math.max(p.phase||0,phase);saveProg(p);
-  if(Q.boss[phase].id==='lantern'&&!S.value)return askValue()}
- S.current=draw(S);render(null)}
-function askValue(){sky();body('<h2 id="qg-title">'+Q.boss[S.phase].name+'</h2><p>'+Q.boss[S.phase].intro+'</p><form class="qg-val"><label for="qg-v">One value that matters to you (optional, stays on this screen)</label><input id="qg-v" maxlength="40" autocomplete="off" placeholder="for example kindness, family, courage"><button type="submit">Enter the Lantern Room</button></form>','#qg-v');
- dlg.querySelector('form').onsubmit=function(e){e.preventDefault();S.value=$('#qg-v').value.trim()||'what matters to you';S.current=draw(S);render(null)}}
-function meter(label,v,max,cls){var pv=S&&S._pm&&S._pm[cls]!=null?S._pm[cls]:v;S&&(S._pm=S._pm||{},S._pm[cls]=v);return '<div class="qg-meter '+cls+'" role="meter" aria-label="'+label+'" aria-valuemin="0" aria-valuemax="'+max+'" aria-valuenow="'+v+'" aria-valuetext="'+label+' '+v+' of '+max+'"><span>'+label+': <b>'+v+'</b>/'+max+'</span><i style="width:'+(100*pv/max)+'%" data-w="'+(100*v/max)+'"></i></div>'}
-function render(res,fsel){S._res=res;sky();var s=sym(S.current),P=S.mode==='boss'?Q.boss[S.phase]:null,g=S.guide,G=Q.guide,nd=g.present&&S.selfRound!==S.round?needed():null;
- function offer(){if(!nd)return '';var who=C?C.first:'Your Guide';return '<aside class="qg-offer" aria-label="'+esc(who)+' offers a spell"><p class="qg-say"><b>'+esc(who)+':</b> "This is '+esc(/^the /i.test(s.name)?s.name.replace(/^the /i,'the '):'the '+s.name)+'. Want to try '+esc(nd.name)+' together? '+esc(nd.fits||'')+'"</p><div class="qg-row"><button type="button" data-teach="'+nd.id+'">Cast it with me</button><button type="button" class="qg-link" data-self>I\'ll choose myself</button></div></aside>'}
- var wname=s.weather==='fog'?'Gray Fog':'Storm Wind',mname=S.mode==='story'?'Weather':S.mode==='fog'?'Fog':S.mode==='storm'?'Storm':(P.weather==='both'?'Fogstorm':P.weather==='fog'?'Fog':'Storm');
- var C=comp(S.comp),GN=C?C.first:'Your Guide';var gtxt=g.present?(g.turnsLeft>=99?GN+' is here for this phase':GN+' is here · session candle: '+g.turnsLeft+' turn'+(g.turnsLeft>1?'s':'')+' left'):g.cooldown>0?G.cooldownLine+' ('+g.cooldown+' turn'+(g.cooldown>1?'s':'')+')':(C?'Call '+C.first+': '+C.summon:'Call Your Guide');
- var spells=Q.spells.map(function(x){var locked=x.kind==='guided'&&!g.present,rep=S.lastSpell===x.id,dis=locked||rep;
-  return '<div class="qg-sw"><button type="button" class="qg-spell '+x.kind+'" data-spell="'+x.id+'"'+(dis?' aria-disabled="true"':'')+' aria-describedby="qgr-'+x.id+'">'+(x.kind==='guided'?'<span class="duo" aria-hidden="true"></span>':'')+esc(x.name)+'<small id="qgr-'+x.id+'">'+(locked?'🔒 Needs '+(C?C.first:'your Guide'):rep?'Just cast; try another':x.kind==='guided'?'Guided spell':'Solo spell')+'</small></button><button type="button" class="qg-i" data-info="'+x.id+'" aria-label="About '+esc(x.name)+': steps and what it\'s strong against">i</button></div>'}).join('');
- var rs=res&&sym(res.symptom),rx=res&&sp(res.action);
- var why=!res?'':rx?(res.matched?'<br>Why it matched: '+esc(rx.name)+' is strong against '+esc(rs.name)+'. '+esc(rx.fits||''):'<br>Why it was a partial fit: '+esc(rx.name)+' isn\'t the best match for '+esc(rs.name)+', so it cleared a little. That\'s still progress.'):'';
- var last=res?('<div class="qg-result'+(res.matched?' match':'')+(res.taught?' taught':'')+'">'+(res.matched?'<b>Match.</b> ':'')+(rx?'You cast '+esc(rx.name)+(res.taught?' together with '+esc(GN):'')+'. ':'')+esc(res.msg||'')+why+'<br>'+(res.cleared?'Cleared '+res.cleared+' from the '+mname+' meter. ':'')+esc(rs.name)+(res.drain?' drained '+res.drain+' Resolve.':' drained no Resolve this turn.')+(res.rested?' You recovered 3 Resolve.':'')+(res.hint?'<br><em>'+esc(res.hint)+'</em>':'')+(res.lock?'<br><em>'+esc(res.lock)+'</em>':'')+(res.rain?'<br><em>The storm rains: your next Rest is free.</em>':'')+(res.left?'<br>'+esc(GN)+': "'+esc(res.left)+'" <a href="#match" data-quiz>Real guides exist too. Find yours</a>':'')+(res.summoned&&C?'<br>'+esc(C.summon)+': '+esc(C.first)+' joins you.':'')+(res.summoned?'<br><a href="#match" data-quiz>Real guides exist too. Find yours</a>':'')+'</div>'):(P?'<p class="qg-intro">'+esc(P.intro)+'</p>':'');
- body('<h2 id="qg-title">'+(P?esc(P.name):S.mode==='story'?esc(C.storyline.split(':')[0]):(S.mode==='fog'?'The Gray Fog':'The Storm Wind'))+'</h2>'+
- '<div class="qg-meters">'+meter('Resolve',S.resolve,20,'res')+meter(mname,S.meter,S.max,'wx')+'</div>'+last+
- '<article class="qg-card '+s.weather+(RM?'':' in')+'" aria-label="The weather casts '+esc(s.name)+'"><p class="qg-tag">'+wname+' casts · drain '+s.drain+(s.guideOnly?' · guided only':'')+'</p><h3>'+esc(s.name)+'</h3><p>'+esc(s.flavor)+'</p></article>'+
- offer()+'<div class="qg-guide'+(g.present?' on':'')+(res&&res.summoned?' arrive':'')+'">'+(C?'<p class="qg-small">Companion: '+esc(C.name)+', '+esc(C.cred)+(C.tele?' · through a glowing window (telehealth only)':'')+'</p>':'')+'<button type="button" class="qg-summon" data-act="summon"'+((g.present||g.cooldown>0)?' aria-disabled="true"':'')+'><span class="lantern" aria-hidden="true"></span>'+esc(gtxt)+'<small>'+(g.present?esc(G.summonLines[0]):esc(G.tagline)+' Costs no Resolve.')+'</small></button>'+(S.value?'<p class="qg-small">Your value: '+esc(S.value)+'</p>':'')+'</div>'+
- '<div class="qg-grid" role="group" aria-label="Spells">'+spells+'</div>'+
- '<div class="qg-row"><button type="button" class="qg-rest" data-act="rest">'+(S.freeRest&&!S.freeRestUsed?'Rest in the rain (free)':'Pause to rest (+3 Resolve)')+'</button><button type="button" class="qg-link" data-act="menu">Leave to the title page</button></div>',fsel||(res?'.qg-result':nd?'.qg-offer':'h2'));
- var b=dlg.querySelector('.qg-body');
- b.querySelectorAll('[data-spell]').forEach(function(x){x.onclick=function(){var id=x.dataset.spell,sp1=sp(id);if(x.getAttribute('aria-disabled')){say(x.querySelector('small').textContent);return}scroll(sp1)}});
- b.querySelector('[data-act=summon]').onclick=function(e){if(e.currentTarget.getAttribute('aria-disabled')){say(gtxt);return}act('summon')};
- b.querySelector('[data-act=rest]').onclick=function(){act('rest')};
- b.querySelectorAll('[data-info]').forEach(function(x){x.onclick=function(){panel(spellInfo(sp(x.dataset.info)))}});
- var tb=b.querySelector('[data-teach]');if(tb){tb.onclick=function(){var x=sp(tb.dataset.teach);x.kind==='guided'?scroll(x):teach(x)};b.querySelector('[data-self]').onclick=function(){S.selfRound=S.round;render(S._res,'.qg-grid .qg-spell')}}
- requestAnimationFrame(function(){requestAnimationFrame(function(){b.querySelectorAll('.qg-meter i[data-w]').forEach(function(i){i.style.width=i.dataset.w+'%'})})});
- tutorial();b.querySelector('[data-act=menu]').onclick=title;
- if(res)say(b.querySelector('.qg-result').textContent+' Next: '+s.name+'.')}
-function scroll(x){var s=sym(S.current),tk=x.toolkit?' <a href="#'+x.toolkit+'" class="qg-tk" data-tk="'+x.toolkit+'">Open this charm in the library</a>':'';
- var grat=x.id==='gratitude';
- body('<h2 id="qg-title">'+esc(x.name)+'</h2><p class="qg-flavor">'+esc(x.flavor)+'</p>'+(grat?'<p class="qg-say">'+esc(guideName())+': "This '+(s.weather==='fog'?'fog':'storm')+' is real, and it\'s heavy."</p>':'')+'<ol class="qg-steps">'+x.steps.map(function(t){return '<li>'+esc(t)+'</li>'}).join('')+'</ol><p class="qg-small">Source: '+esc(x.source)+'.'+tk+'</p>'+
- (x.id==='guidedstep'?'<p class="qg-small">In the game, this step happens with your Guide. Real exposure work is paced with a therapist.</p>':'')+
- '<p class="qg-small">Try the skill for real if you like, then cast it.</p><div class="qg-row">'+(grat?'<button type="button" data-cast="named">Name one small glow</button>'+((comp(S.comp)||{c:{}}).c.gratitudeLovedOne&&S.guide.present?'<button type="button" data-cast="named">Name a glow with a loved one</button>':'')+'<button type="button" data-cast="notToday">Not today</button>':'<button type="button" data-cast="1">Cast '+esc(x.name)+'</button>')+'<button type="button" class="qg-link" data-back>Back to the weather</button></div>','h2');
- dlg.querySelectorAll('[data-cast]').forEach(function(b){b.onclick=function(){act(x.id,{choice:b.dataset.cast})}});dlg.querySelector('[data-back]').onclick=function(){render(null)};
- var t=dlg.querySelector('[data-tk]');t&&(t.onclick=function(e){e.preventDefault();close();var i=[].slice.call(document.querySelectorAll('.chapter')).findIndex(function(c){return c.id==='toolkit'});window.obcTurnTo&&obcTurnTo(i);setTimeout(function(){var el=document.getElementById(x.toolkit);el&&el.scrollIntoView({block:'center'})},RM?0:900)})}
-function act(a,opt){var r=resolveTurn(S,a,opt);if(r.error){say(r.error==='needsguide'?'Needs your Guide.':r.error==='repeat'?'You just cast that. Try another spell.':'Not available right now.');return}
- var p=prog();p.practiced=p.practiced||{};if(a!=='summon'&&a!=='rest')p.practiced[a]=(p.practiced[a]||0)+1;if(a==='summon')p.summons=(p.summons||0)+1;saveProg(p);
- if(window.obcSound){try{if(r.matched)obcSound.chime(2);else if(r.summoned)obcSound.chime(0)}catch(e){}}
- dlg.classList.remove('pulse');void dlg.offsetWidth;if(r.matched||r.summoned)dlg.classList.add('pulse');
- if(S.over==='clear')fx('match');if(S.over==='clear'&&S.mode==='story')return storyDone();if(S.over==='clear')return S.mode==='boss'&&S.phase<3?phaseDone():victory();if(S.over==='rest')return regroup();
- S.current=draw(S);render(r);if(r.summoned)fx('summon');else if(sp(a)){fx('cast');fx(r.matched?'match':'miss')}}
-function phaseDone(){var P=Q.boss[S.phase],n=S.phase+1,p=prog();p.phase=Math.max(p.phase||0,n);p.helped=merge(p.helped,S.helped);saveProg(p);sky();
- body('<h2 id="qg-title">'+esc(P.name)+': cleared</h2><div class="qg-clearing" aria-hidden="true"><i class="keep"></i><i class="mist m1"></i><i class="mist m2"></i></div><p class="qg-lede">'+esc(P.outro)+'</p><div class="qg-row"><button type="button" data-qnext>Continue to '+esc(Q.boss[n].name)+'</button></div>');dlg.querySelector('[data-qnext]').onclick=function(){start('boss',n)}}
+function body(h,focusSel){var b=dlg.querySelector('.qg-body');b.innerHTML=h;var f=focusSel===false?null:b.querySelector(focusSel||'h2');if(f){if(!/BUTTON|A/.test(f.tagName))f.setAttribute('tabindex','-1');f.focus()}}
+function say(t){var l=dlg&&dlg.querySelector('.qg-live');if(!l)return;l.textContent='';setTimeout(function(){l.textContent=t},30)}
+function toast(t){var b=dlg.querySelector('.qg-toast');if(!b)return;b.textContent=t;b.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(function(){b.classList.remove('on')},1800)}
+function close(){if(dlg&&dlg.open)dlg.close();stopLoop();var b=$('#qg-open');b&&b.focus()}
+function stopLoop(){if(raf)cancelAnimationFrame(raf);raf=0;held=null}
+function loop(draw1){stopLoop();var cv=dlg.querySelector('canvas.qg-cv');if(!cv)return;var c=cv.getContext('2d');c.imageSmoothingEnabled=false;var last=performance.now();
+ (function f(t){var dt=Math.min(64,t-last);last=t;if(!dlg.open||!cv.isConnected){raf=0;return}draw1(c,t,dt);drawParts(c,dt);raf=requestAnimationFrame(f)})(last)}
+function burst(x,y,col,n){if(RM)return;for(var i=0;i<n;i++){var a=Math.random()*6.283,v=.04+Math.random()*.08;PARTS.push({x:x,y:y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:600,c:col})}}
+function drawParts(c,dt){PARTS=PARTS.filter(function(p){p.l-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;if(p.l<=0)return false;c.fillStyle=p.c;c.fillRect(Math.round(p.x),Math.round(p.y),2,2);return true});
+ FLO=FLO.filter(function(f){f.l-=dt;if(f.l<=0)return false;c.font='bold 12px ui-monospace,Menlo,Consolas,monospace';c.fillStyle='#1a1a2b';c.fillText(f.t,f.x+1,f.y+1-(RM?0:(900-f.l)/40));c.fillStyle=f.c;c.fillText(f.t,f.x,f.y-(RM?0:(900-f.l)/40));return true})}
+
+/* ---------- scenes ---------- */
+function title(){SCENE='title';stopLoop();var p=prog(),has=p.x!=null;dlg.dataset.scene='title';
+ body('<div class="qg-title-card"><canvas class="qg-cv qg-title-cv" width="160" height="56" aria-hidden="true"></canvas><h2 id="qg-title">The Fogstorm</h2><p class="qg-sub">A tiny retro RPG about coping skills</p></div>'+
+ '<p class="qg-lede">Walk the valley, meet symptom clouds, and clear them with real coping skills. When you need help, call one of the Open Book clinicians as your guide.</p>'+
+ '<div class="qg-menu"><button type="button" class="qg-btn" data-go="play">'+(has?'Continue':'New game')+(has?' <small>Lv '+level(p)+' · '+((p.cleared||[]).length)+' of '+SPAWN.length+' clouds cleared'+(p.phase?' · castle phase '+(p.phase+1):'')+'</small>':'')+'</button><button type="button" class="qg-btn" data-go="how">How to play</button><button type="button" class="qg-btn" data-go="practice">Practice a spell <small>read the real steps</small></button></div>'+
+ '<p class="qg-small">Progress is saved only in this browser. Nothing is sent to the practice. <button type="button" class="qg-link" data-go="reset">Reset my game</button></p>',has?'[data-go=play]':'h2');
+ var cv=dlg.querySelector('.qg-title-cv'),c=cv.getContext('2d');(function d(t){if(!cv.isConnected||SCENE!=='title')return;c.clearRect(0,0,160,56);c.fillStyle='#24344a';c.fillRect(0,40,160,16);px(c,CLOUD,FOGPAL,92,8+(RM?0:Math.round(Math.sin(t/400))),{s:2});px(c,HERO.side,PAL,40,14,{s:2});if(!RM)raf=requestAnimationFrame(d)})(0);
+ dlg.querySelectorAll('[data-go]').forEach(function(b){b.onclick=function(){var g=b.dataset.go;if(g==='reset'){stopLoop();localStorage.removeItem(KEY);P=null;title();say('Your game was reset.');toast('Game reset')}else if(g==='how')panel('<h2 id="qg-ph">How to play</h2>'+HOWTO());else if(g==='practice')practice();else map()}})}
+function hudHtml(){var p=prog();return '<div class="qg-hud" role="status"><span>Lv '+level(p)+'</span><span class="qg-hp" aria-label="Resolve '+P.resolve+' of '+maxRes(p)+'">Resolve <b>'+P.resolve+'</b>/'+maxRes(p)+'<i><em style="width:'+(100*P.resolve/maxRes(p))+'%"></em></i></span><span>Clouds '+((p.cleared||[]).length)+'/'+SPAWN.length+'</span></div>'}
+function map(){SCENE='map';dlg.dataset.scene='map';if(!MAP)buildMap();if(!P)newPlayer();spawn();
+ body('<h2 id="qg-title" class="sr">The valley map</h2>'+hudHtml()+'<div class="qg-stage"><canvas class="qg-cv qg-map" width="'+MW*TS+'" height="'+MH*TS+'" role="img" aria-label="Top-down pixel map: your traveler, the Fog Fields to the west, the Storm Ridge to the east, the Open Book office in the middle and the castle to the north"></canvas><div class="qg-toast" aria-hidden="true"></div></div>'+
+ '<p class="qg-status" id="qg-status"></p><div class="qg-controls"><div class="qg-pad" role="group" aria-label="Move">'+['up','left','right','down'].map(function(d){return '<button type="button" class="qg-d '+d+'" data-dir="'+d+'" aria-label="Walk '+d+'"><span aria-hidden="true">'+{up:'▲',down:'▼',left:'◀',right:'▶'}[d]+'</span></button>'}).join('')+'</div>'+
+ '<div class="qg-side"><button type="button" class="qg-btn" data-near>Face the nearest cloud</button><button type="button" class="qg-btn" data-castle>Go to the castle</button><button type="button" class="qg-link" data-menu>Title screen</button></div></div>',false);
+ var pad=dlg.querySelectorAll('[data-dir]');pad.forEach(function(b){var d=b.dataset.dir,iv=null;function go(e){e.preventDefault();held=d;step(d)}function stop(){if(held===d)held=null}
+  b.addEventListener('pointerdown',go);b.addEventListener('pointerup',stop);b.addEventListener('pointerleave',stop);b.addEventListener('pointercancel',stop);b.addEventListener('click',function(e){if(e.detail===0)step(d)})});
+ dlg.querySelector('[data-near]').onclick=function(){var e=nearest();if(e)encounter(e);else say('No clouds left in the fields. Try the castle.')};
+ dlg.querySelector('[data-castle]').onclick=bossIntro;dlg.querySelector('[data-menu]').onclick=function(){savePos();title()};
+ status();var cvf=dlg.querySelector('.qg-map');cvf.setAttribute('tabindex','0');cvf.focus();loop(drawMap)}
+function status(){var el=dlg&&dlg.querySelector('#qg-status');if(!el||!P)return;var z=zone(P.x,P.y),t=tile(P.x,P.y),e=nearest();
+ el.textContent=(t==='H'?'At the Open Book office. ':z==='fog'?'In the Fog Fields. ':z==='storm'?'On the Storm Ridge. ':'On the valley path. ')+(e?'Nearest cloud: '+(Math.abs(e.x-P.x)+Math.abs(e.y-P.y))+' steps away.':'All field clouds cleared.')}
+function encounter(e){if(SCENE!=='map')return;held=null;savePos();var st=newBattle('enemy',e.weather);st.enemy=e.id;startBattle(st)}
+function bossIntro(){if(SCENE==='map')savePos();held=null;var p=prog(),ph=p.phase||0;SCENE='bossintro';stopLoop();var Ph=Q.boss[ph];
+ body('<h2 id="qg-title">The Fogstorm over the Castle</h2><p class="qg-lede">The big storm has four phases. '+(ph?'You are on phase '+(ph+1)+' of 4.':'')+'</p><div class="qg-msg"><b>'+esc(Ph.name)+'</b><br>'+esc(Ph.intro)+'</div><div class="qg-menu"><button type="button" class="qg-btn" data-b>Enter '+esc(Ph.name)+'</button><button type="button" class="qg-btn" data-m>Back to the map</button></div>','[data-b]');
+ dlg.querySelector('[data-b]').onclick=function(){startBattle(newBattle('boss',null,ph))};dlg.querySelector('[data-m]').onclick=map}
+var BA={eFlash:0,pFlash:0,guide:null,gT:0,shake:0};
+function startBattle(st){B=st;SCENE='battle';dlg.dataset.scene='battle';BA={eFlash:0,pFlash:0,guide:null,gT:0};var s=sym(B.current);
+ battleUI(null,s.name+' rolls in! '+s.flavor);say(s.name+' appears. '+s.flavor+' Choose Spells, Call Guide or Rest.')}
+function hpBar(lbl,v,m,cls){return '<div class="qg-bar '+cls+'" role="meter" aria-label="'+esc(lbl)+'" aria-valuemin="0" aria-valuemax="'+m+'" aria-valuenow="'+v+'" aria-valuetext="'+esc(lbl)+' '+v+' of '+m+'"><span>'+esc(lbl)+' <b>'+v+'</b>/'+m+'</span><i><em style="width:'+(100*v/m)+'%"></em></i></div>'}
+function battleUI(menu,msg,fsel){var s=sym(B.current),Ph=phaseOf(B),g=guideReady(B);
+ var top=Ph?'<p class="qg-phase">'+esc(Ph.name)+' · Castle phase '+(B.phase+1)+' of 4'+(B.freeRest&&!B.freeRestUsed?' · next Rest is free':'')+'</p>':'';
+ var m='';
+ if(menu==='spells')m='<div class="qg-list" role="group" aria-label="Spells">'+Q.spells.map(function(x){var g1=x.kind==='guided',rep=B.lastSpell===x.id;return '<button type="button" class="qg-btn sp'+(g1?' locked':'')+'" data-spell="'+x.id+'"'+((g1||rep)?' aria-disabled="true"':'')+'>'+esc(x.name.replace(' (solo)',''))+'<small>'+(g1?'Only with a guide':rep?'Just cast':'Solo')+'</small></button>'}).join('')+'</div><div class="qg-row"><button type="button" class="qg-btn" data-back>Back</button></div>';
+ else if(menu==='guides')m='<p class="qg-small">Choose who helps. They cast the right spell for '+esc(s.name)+': no Resolve cost, 3 HP. Portraits are stylized pixel art, not likenesses.</p><div class="qg-list guides" role="group" aria-label="Open Book clinicians">'+clins().map(function(k){return '<button type="button" class="qg-btn gd" data-clin="'+k.id+'"><canvas width="12" height="12" data-face="'+k.id+'" aria-hidden="true"></canvas><span>'+esc(k.name)+'<small>'+esc(k.cred)+((k.settings||[]).join()==='telehealth'?' · telehealth only':'')+'</small></span></button>'}).join('')+'</div><div class="qg-row"><button type="button" class="qg-btn" data-back>Back</button></div>';
+ else m='<div class="qg-cmd" role="group" aria-label="Battle commands"><button type="button" class="qg-btn" data-m="spells">Spells</button><button type="button" class="qg-btn" data-m="guides"'+(g?'':' aria-disabled="true"')+'>Call Guide<small>'+(g?'free · 3 HP':'resting '+B.cooldown+' turn'+(B.cooldown>1?'s':''))+'</small></button><button type="button" class="qg-btn" data-m="rest">Rest<small>+3 Resolve</small></button></div>';
+ body('<h2 id="qg-title" class="qg-bt">'+esc(s.name)+' <small>'+(s.weather==='fog'?'Gray Fog':'Storm Wind')+' symptom</small></h2>'+top+
+ '<div class="qg-stage battle"><canvas class="qg-cv qg-bcv" width="320" height="150" role="img" aria-label="Battle: your traveler faces '+esc(s.name)+'"></canvas></div>'+
+ '<div class="qg-bars">'+hpBar(s.name+(Ph?' (phase HP)':'')+' HP',B.meter,B.max,'e')+hpBar('Your Resolve',B.resolve,B.maxRes,'p')+'</div>'+
+ '<div class="qg-msg" id="qg-msg">'+msg+'</div>'+m,fsel||(menu?'.qg-list .qg-btn':'.qg-cmd .qg-btn'));
+ dlg.querySelectorAll('[data-face]').forEach(function(cv){var c=cv.getContext('2d');px(c,FACE,facePal(cv.dataset.face),0,0)});
+ var bk=dlg.querySelector('[data-back]');bk&&(bk.onclick=function(){battleUI(null,msg)});
+ dlg.querySelectorAll('[data-m]').forEach(function(b){b.onclick=function(){var k=b.dataset.m;if(b.getAttribute('aria-disabled')){say('Your guides are resting for '+B.cooldown+' more turn'+(B.cooldown>1?'s':'')+'. Try a spell or Rest.');return}if(k==='rest')return act('rest');battleUI(k,msg)}});
+ dlg.querySelectorAll('[data-spell]').forEach(function(b){b.onclick=function(){if(b.getAttribute('aria-disabled')){say(b.querySelector('small').textContent==='Just cast'?'You just cast that. Try another spell.':'That spell is only cast with a guide. Use Call Guide.');return}act(b.dataset.spell)}});
+ dlg.querySelectorAll('[data-clin]').forEach(function(b){b.onclick=function(){act('guide',{clinician:b.dataset.clin})}});
+ loop(drawBattle)}
+function drawBattle(c,t,dt){var s=sym(B.current),boss=B.mode==='boss';
+ c.fillStyle=s.weather==='fog'?'#5d666b':'#2c3d52';c.fillRect(0,0,320,150);c.fillStyle=s.weather==='fog'?'#7f9a7e':'#7d8d99';c.fillRect(0,108,320,42);
+ c.fillStyle=s.weather==='fog'?'#6b856b':'#66747f';for(var i=0;i<320;i+=24)c.fillRect(i+((i/24)%2)*8,116+((i/24)%3)*8,4,2);
+ if(boss){c.fillStyle='#3a3c47';c.fillRect(230,40,70,70);c.fillRect(222,30,14,80);c.fillRect(294,30,14,80);c.fillStyle='#14141c';c.fillRect(256,80,18,30)}
+ c.fillStyle='rgba(0,0,0,.25)';c.fillRect(196,104,72,6);c.fillRect(36,128,56,6);
+ if(BA.eFlash>0)BA.eFlash-=dt;if(BA.pFlash>0)BA.pFlash-=dt;
+ var bob=RM?0:Math.round(Math.sin(t/350)*2),ef=BA.eFlash>0&&Math.floor(BA.eFlash/80)%2===0,pf=BA.pFlash>0&&Math.floor(BA.pFlash/80)%2===0;
+ px(c,CLOUD,boss?BOSSPAL:s.weather==='fog'?FOGPAL:STORMPAL,boss?190:204,(boss?14:44)+bob,{s:boss?6:4,flash:ef});
+ if(!RM&&s.weather==='storm'){c.fillStyle='rgba(143,176,201,.6)';for(var j=0;j<14;j++)c.fillRect((j*23+t/6)%320,(j*31+t/2)%108,1,4)}
+ var ib=RM?0:(Math.floor(t/450)%2);px(c,HERO.side,PAL,40,72+ib,{s:4,flash:pf});
+ if(BA.guide){BA.gT-=dt;if(BA.gT<=0)BA.guide=null;else{var a=RM?1:Math.min(1,(1800-BA.gT)/250,BA.gT/300);c.globalAlpha=Math.max(0,a);px(c,FACE,facePal(BA.guide),104,70,{s:3});c.globalAlpha=1}}}
+function act(a,opt){var s=sym(B.current),r=turn(B,a,opt);if(r.error){say({cooldown:'Your guides are resting. Try a spell or Rest.',needsguide:'That spell is only cast with a guide.',repeat:'You just cast that. Try another spell.'}[r.error]||'Not available.');return}
+ var p=prog();p.practiced=p.practiced||{};var used=r.spell||a;if(a!=='rest')p.practiced[used]=(p.practiced[used]||0)+1;saveProg(p);
+ var x=sp(r.spell||a),k=r.clinician&&clin(r.clinician),line='';
+ if(k)line='<b>'+esc(k.name)+', '+esc(k.cred)+'</b> casts <b>'+esc(x.name.replace(' (solo)',''))+'</b> with you. '+(r.gratitude?'First they name how heavy this is. Then you can name one small good thing, or just say "not today." Both count. ':'')+'<b>3 damage</b>, no Resolve spent.<br><span class="qg-tip">Tip: '+esc(r.tip)+'</span>';
+ else if(a==='rest')line='You rest and recover 3 Resolve.'+(r.free?' The storm rains, so nothing drains this turn.':'');
+ else line='You cast <b>'+esc(x.name.replace(' (solo)',''))+'</b>. '+(r.matched?'<b>It fits!</b> '+r.cleared+' damage. '+esc(x.fits||''):'Partial fit: '+r.cleared+' damage. '+esc(r.hint||''));
+ if(r.drain)line+='<br>'+esc(s.name)+' drains '+r.drain+' Resolve.';else if(a!=='rest'||r.free)line+='<br>'+esc(s.name)+' can\'t drain you this turn.';else line+='<br>'+esc(s.name)+' drains nothing.';
+ if(r.lock)line+='<br><em>'+esc(r.lock)+'</em>';if(r.rain)line+='<br><em>The storm rains: your next Rest is free.</em>';
+ if(window.obcSound){try{if(r.matched)obcSound.chime(2)}catch(e){}}
+ if(P)P.resolve=B.resolve;
+ BA.eFlash=r.cleared?400:0;BA.pFlash=r.drain?400:0;if(k){BA.guide=k.id;BA.gT=1800;burst(128,86,'#f3c95a',16)}
+ if(r.cleared){burst(232,70,r.matched?'#fff3c4':'#c9cfd2',r.matched?18:6);FLO.push({t:'-'+r.cleared,x:236,y:40,l:900,c:'#fff3c4'})}
+ if(r.drain)FLO.push({t:'-'+r.drain,x:56,y:70,l:900,c:'#f08a8a'});if(r.rested)FLO.push({t:'+3',x:76,y:70,l:900,c:'#9fe0a8'});
+ if(B.over==='clear')return setTimeout(function(){won(line)},RM?0:650);
+ if(B.over==='rest')return setTimeout(regroup,RM?0:650);
+ var next=sym(B.current);if(B.mode==='boss'&&next.id!==s.id)line+='<br>The storm shifts: <b>'+esc(next.name)+'</b>. '+esc(next.flavor);
+ battleUI(null,line,'#qg-msg');var m=dlg.querySelector('#qg-msg');m&&m.setAttribute('tabindex','-1');say(dlg.querySelector('#qg-msg').textContent)}
 function merge(a,b){a=a||{};for(var k in b)a[k]=(a[k]||0)+b[k];return a}
-function victory(){var p=prog();p.helped=merge(p.helped,S.helped);if(S.mode==='boss'){p.wins=(p.wins||0)+1;p.phase=0;p.comp=null}saveProg(p);dlg.style.setProperty('--fog','0');dlg.classList.add('won');if(!RM){var lf=document.createElement('div');lf.className='qg-lift';lf.setAttribute('aria-hidden','true');dlg.appendChild(lf);setTimeout(function(){lf.remove()},3200)}
- var top=Object.keys(S.helped).sort(function(a,b){return S.helped[b]-S.helped[a]}).slice(0,3);var got=bonus().indexOf('gratitude')>=0;
- var boss=S.mode==='boss';
- body('<h2 id="qg-title">'+(boss?'The castle is yours again':'The sky clears')+'</h2><p class="qg-lede">'+(boss?'The castle is yours again. The weather will return some days. You carry the spells, and you know guides can walk with you.':'The weather will return some days. You carry the spells, and you know guides can walk with you.')+'</p>'+
- (boss?'<div class="qg-castle" aria-hidden="true"><i class="banner b1"></i><i class="banner b2"></i><i class="lamp l1"></i><i class="lamp l2"></i><i class="lamp l3"></i></div>':'')+
+function won(line){var p=prog();p.helped=merge(p.helped,B.helped);
+ if(B.kind==='enemy'){var before=level(p);p.cleared=(p.cleared||[]).concat([B.enemy]);p.xp=(p.xp||0)+1;var up=level(p)>before;p.resolve=Math.min(maxRes(p),B.resolve+(up?2:0));P.resolve=p.resolve;saveProg(p);ENEMIES=ENEMIES.filter(function(e){return e.id!==B.enemy});var s=sym(B.current);SCENE='won';stopLoop();
+  body('<h2 id="qg-title">'+esc(s.name)+' clears!</h2><div class="qg-msg">'+line+'</div><p class="qg-lede">+1 experience.'+(up?' <b>Level up!</b> You are now level '+level(p)+' with '+maxRes(p)+' max Resolve.':'')+'</p><div class="qg-menu"><button type="button" class="qg-btn" data-m>Back to the map</button></div>','[data-m]');
+  if(window.obcSound){try{obcSound.chime(3)}catch(e){}}dlg.querySelector('[data-m]').onclick=map;return}
+ var Ph=Q.boss[B.phase];P.resolve=B.resolve;
+ if(B.phase<3){p.phase=B.phase+1;p.resolve=B.resolve;saveProg(p);SCENE='won';stopLoop();var n=Q.boss[B.phase+1];
+  body('<h2 id="qg-title">'+esc(Ph.name)+': cleared</h2><div class="qg-msg">'+line+'</div><p class="qg-lede">'+esc(Ph.outro)+'</p><div class="qg-msg"><b>Next: '+esc(n.name)+'</b><br>'+esc(n.intro)+'</div><div class="qg-menu"><button type="button" class="qg-btn" data-n>Continue</button><button type="button" class="qg-btn" data-m>Back to the map</button></div>','[data-n]');
+  dlg.querySelector('[data-n]').onclick=function(){startBattle(newBattle('boss',null,B.phase+1))};dlg.querySelector('[data-m]').onclick=map;return}
+ p.wins=(p.wins||0)+1;p.phase=0;p.cleared=[];p.resolve=maxRes(p);P.resolve=p.resolve;saveProg(p);victory(line)}
+function victory(line){SCENE='victory';stopLoop();var top=Object.keys(B.helped).sort(function(a,b){return B.helped[b]-B.helped[a]}).slice(0,3),got=BONUS.indexOf('gratitude')>=0;
+ body('<h2 id="qg-title">The castle is yours again</h2><div class="qg-msg">'+line+'</div><p class="qg-lede">The Fogstorm lifts. The weather will roll back in some days, and the clouds return to the fields. You carry the spells, and you know guides can walk with you.</p>'+
  '<section class="qg-skill" aria-label="Your skill card"><h3>Spells that helped most</h3>'+(top.length?'<ul>'+top.map(function(id){var x=sp(id);return '<li><b>'+esc(x.name)+'</b>: '+esc(x.steps.join(' '))+'</li>'}).join('')+'</ul>':'<p>Every spell you tried counts.</p>')+'</section>'+
- '<div class="qg-row"><button type="button" data-print>Print my skill card</button><button type="button" data-again>Play again</button></div>'+
+ '<div class="qg-row"><button type="button" class="qg-btn" data-print>Print my skill card</button><button type="button" class="qg-btn" data-again>Back to the map</button></div>'+
  '<p class="qg-small">Have you found all five hidden runes in the book? They reveal a code word for the office.</p>'+
- (boss?'<button type="button" class="qg-rune'+(got?' found':'')+'" aria-label="'+(got?'Bonus Gratitude Rune, found':'A faint rune glows on the castle wall. Touch the Gratitude Rune')+'" aria-pressed="'+got+'">ᚷ</button>':''));
- dlg.querySelector('[data-print]').onclick=printCard;dlg.querySelector('[data-again]').onclick=function(){dlg.classList.remove('won');title()};
- var rn=dlg.querySelector('.qg-rune');rn&&(rn.onclick=function(){var b=bonus();if(b.indexOf('gratitude')<0)b.push('gratitude');rn.classList.add('found');rn.setAttribute('aria-pressed','true');rn.setAttribute('aria-label','Bonus Gratitude Rune, found');hud();say('Bonus rune found: the Gratitude Rune. It is separate from the five hidden runes.');try{obcSound.chime(3)}catch(e){}})}
+ '<button type="button" class="qg-rune'+(got?' found':'')+'" aria-label="'+(got?'Bonus Gratitude Rune, found':'A faint rune glows on the castle wall. Touch the Gratitude Rune')+'" aria-pressed="'+got+'">ᚷ</button>');
+ dlg.querySelector('[data-print]').onclick=printCard;dlg.querySelector('[data-again]').onclick=map;
+ var rn=dlg.querySelector('.qg-rune');rn.onclick=function(){if(BONUS.indexOf('gratitude')<0)BONUS.push('gratitude');rn.classList.add('found');rn.setAttribute('aria-pressed','true');rn.setAttribute('aria-label','Bonus Gratitude Rune, found');hud();say('Bonus rune found: the Gratitude Rune. It is separate from the five hidden runes.');try{obcSound.chime(3)}catch(e){}}}
 function printCard(){var c=dlg.querySelector('.qg-skill').innerHTML,w=window.open('','_blank');if(!w)return;w.document.write('<title>My skill card</title><body style="font-family:Georgia,serif;max-width:560px;margin:24px auto">'+c+'<p style="font-size:.85em">Educational game, not therapy. Crisis: call or text 988. Utah: SafeUT (safeut.org). Emergency: 911.</p></body>');w.document.close();w.focus();w.print()}
-function regroup(){var p=prog();p.helped=merge(p.helped,S.helped);saveProg(p);dlg.style.setProperty('--fog','.6');var mode=S.mode,ph=S.phase;
- body('<h2 id="qg-title">Rest and Regroup</h2><p class="qg-lede">Even the bravest travelers rest. The fog isn\'t your fault, and resting isn\'t losing.</p><div class="qg-menu"><button type="button" data-r="again">Try again '+(mode==='boss'?'from this phase':'')+'</button><button type="button" data-r="practice">Practice one spell</button><button type="button" data-r="guide">Try again with your Guide beside you</button><a class="qg-menu-a" href="#match" data-quiz>Talk to a real guide</a></div>');
- dlg.querySelector('[data-r=again]').onclick=function(){start(mode,ph)};dlg.querySelector('[data-r=practice]').onclick=practice;dlg.querySelector('[data-r=guide]').onclick=function(){start(mode,ph,true)}}
-function practice(){body('<h2 id="qg-title">Practice a spell</h2><p>No weather here. Read a spell\'s real steps at your own pace.</p><div class="qg-grid">'+Q.spells.map(function(x){return '<details class="qg-prac"><summary>'+esc(x.name)+(x.kind==='guided'?' (guided)':'')+'</summary><ol>'+x.steps.map(function(t){return '<li>'+esc(t)+'</li>'}).join('')+'</ol><p class="qg-small">'+esc(x.source)+'</p></details>'}).join('')+'</div><div class="qg-row"><button type="button" data-back>Back to the title page</button></div>');dlg.querySelector('[data-back]').onclick=title}
-function hud(){var h=$('#runes-hud');if(!h)return;var b=bonus().indexOf('gratitude')>=0,el=$('#qg-bonus');if(b&&!el){el=document.createElement('span');el.id='qg-bonus';el.className='qg-bonus';el.textContent=' · Bonus rune: Gratitude ✓';h.appendChild(el)}}
-function open(){var b=$('#qg-open');b&&b.setAttribute('aria-busy','true');load().then(function(){if(!dlg)shell();b&&b.removeAttribute('aria-busy');if(!dlg.open)dlg.showModal();title()})}
+function regroup(){var p=prog();p.helped=merge(p.helped,B.helped);p.resolve=maxRes(p);p.x=OFFICE.x+1;p.y=OFFICE.y;saveProg(p);P=null;newPlayer();SCENE='regroup';stopLoop();var boss=B.mode==='boss';
+ body('<h2 id="qg-title">Rest and Regroup</h2><p class="qg-lede">Even the bravest travelers rest. The weather isn\'t your fault, and resting isn\'t losing. You wake up by the Open Book office with full Resolve. Nothing is lost'+(boss?'; the castle waits at the same phase.':'.')+'</p><div class="qg-menu"><button type="button" class="qg-btn" data-m>Back to the map</button><button type="button" class="qg-btn" data-p>Practice a spell</button><a class="qg-btn qg-menu-a" href="#match" data-quiz>Talk to a real guide</a></div>','[data-m]');
+ dlg.querySelector('[data-m]').onclick=map;dlg.querySelector('[data-p]').onclick=practice}
+function practice(){SCENE='practice';stopLoop();body('<h2 id="qg-title">Practice a spell</h2><p>No battles here. Read each spell\'s real steps at your own pace.</p><div class="qg-pracs">'+Q.spells.map(function(x){return '<details class="qg-prac"><summary>'+esc(x.name)+(x.kind==='guided'?' (with a guide)':'')+'</summary><ol>'+x.steps.map(function(t){return '<li>'+esc(t)+'</li>'}).join('')+'</ol><p class="qg-small">'+esc(x.source)+'</p></details>'}).join('')+'</div><div class="qg-row"><button type="button" class="qg-btn" data-back>Back to the title screen</button></div>');dlg.querySelector('[data-back]').onclick=title}
+function hud(){var h=$('#runes-hud');if(!h)return;var b=BONUS.indexOf('gratitude')>=0,el=$('#qg-bonus');if(b&&!el){el=document.createElement('span');el.id='qg-bonus';el.className='qg-bonus';el.textContent=' · Bonus rune: Gratitude ✓';h.appendChild(el)}}
+function open(){var b=$('#qg-open');b&&b.setAttribute('aria-busy','true');return load().then(function(){if(!dlg)shell();b&&b.removeAttribute('aria-busy');if(!dlg.open)dlg.showModal();title()})}
 function init(){var b=$('#qg-open');if(b)b.addEventListener('click',open);hud()}
-window.obcQuest={comp:comp,start:start,open:open,resolveTurn:resolveTurn,newState:newState,draw:draw,get state(){return S},set state(v){S=v},act:function(a,o){act(a,o)},render:function(){render(null)},load:load};
+window.obcQuest={open:open,map:map,title:title,step:step,turn:turn,newBattle:newBattle,draw:draw,rightSpell:rightSpell,encounter:function(id){var e=ENEMIES.find(function(x){return x.id===id})||ENEMIES[0];e&&encounter(e)},boss:function(ph){var p=prog();p.phase=ph||0;saveProg(p);startBattle(newBattle('boss',null,ph||0))},act:function(a,o){act(a,o)},
+ get battle(){return B},get player(){return P},get scene(){return SCENE},get enemies(){return ENEMIES},rows:ROWS,load:load};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
