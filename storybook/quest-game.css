@@ -89,3 +89,58 @@ dialog.qg.pulse .qg-sky .sun{animation:qgPulse .9s ease-out}
  .qg-sky .fog,.qg-sky .sun,.qg-sky .wind{transition:opacity .3s linear}
  .qg-castle .banner,.qg-castle .lamp{animation:none!important;opacity:1}
 }
+
+/* rev 4: help, tutorial, teaching moment, motion */
+dialog.qg [hidden]{display:none!important}
+.qg-help-btn{position:absolute;top:10px;right:58px;z-index:3;font:inherit;font-size:.85rem;min-height:40px;padding:6px 12px;border-radius:20px;border:1px solid #8a6a32;background:rgba(255,250,236,.95);color:var(--ink);cursor:pointer}
+.qg-help-btn:focus-visible,.qg-i:focus-visible{box-shadow:0 0 0 3px var(--gold);outline:none}
+.qg-panel{position:relative;z-index:1;flex:1 1 auto;overflow:auto;padding:22px 26px 10px}
+.qg-how li{margin:6px 0}
+.qg-sw{position:relative;display:grid}
+.qg-sw .qg-spell{padding-right:34px}
+.qg-i{position:absolute;top:6px;right:6px;width:28px;height:28px;border-radius:50%;border:1px solid #8a6a32;background:#fff6dd;font:italic 700 .85rem Georgia,serif;color:#1f5a5e;cursor:pointer;z-index:1}
+.qg-i::before{content:"";position:absolute;inset:-8px}
+.qg-callout{border:2px solid var(--gold);border-radius:10px;padding:8px 12px;margin:8px 0;background:#fff8e2;box-shadow:0 0 14px rgba(243,217,139,.7)}
+.qg-callout p{margin:0}
+.qg-callout .qg-row{margin:6px 0 0}
+.qg-hl{outline:3px dashed var(--gold);outline-offset:3px;border-radius:10px}
+.qg-offer{border:1px solid var(--gold);border-radius:10px;padding:8px 12px;margin:8px 0;background:linear-gradient(#fffaf0,#f6ead0);box-shadow:0 0 12px rgba(243,217,139,.55)}
+.qg-offer p{margin:0}
+.qg-offer .qg-row{margin:8px 0 2px}
+.qg-steps li.now{font-weight:600;text-shadow:0 0 8px rgba(243,217,139,.9)}
+.qg-meter.res{animation:qgBreathe 3.2s ease-in-out infinite}
+@keyframes qgBreathe{50%{box-shadow:0 0 0 3px rgba(243,217,139,.35)}}
+.qg-meter i{transition:width .9s cubic-bezier(.3,.7,.3,1)}
+.qg-card.in.fog{animation:qgFogIn .9s ease-out both}
+.qg-card.in.storm{animation:qgStormIn .7s cubic-bezier(.2,.8,.3,1.2) both}
+@keyframes qgFogIn{from{opacity:0;transform:translateX(-40px);filter:blur(6px)}}
+@keyframes qgStormIn{from{opacity:0;transform:translate(40px,-14px) rotate(-2deg)}}
+.qg-result.match{animation:qgInk 1.4s ease-out}
+@keyframes qgInk{from{text-shadow:0 0 14px rgba(243,190,80,1);color:#8a5a10}}
+.qg-result:not(.match){animation:qgFade .8s ease-out}
+@keyframes qgFade{from{opacity:.3}}
+.qg-guide.arrive .qg-summon{animation:qgArrive 1.2s ease-out}
+@keyframes qgArrive{from{box-shadow:0 0 0 0 rgba(243,217,139,.95)}to{box-shadow:0 0 0 22px rgba(243,217,139,0),0 0 16px rgba(243,217,139,.8)}}
+.qg-fx{position:absolute;left:50%;top:45%;width:0;height:0;z-index:4;pointer-events:none}
+.qg-fx i{position:absolute;left:-5px;top:-5px;width:10px;height:10px;border-radius:50%;opacity:0;will-change:transform,opacity}
+.qg-fx.cast i{background:radial-gradient(circle,#1f5a5e,rgba(31,90,94,0) 70%);animation:qgCast 1s ease-out both}
+.qg-fx.match i{width:12px;height:12px;background:radial-gradient(circle,#fff3c4,#f0a83a 55%,transparent 72%);animation:qgBurst 1.2s ease-out both}
+.qg-fx.miss i{background:radial-gradient(circle,rgba(150,155,160,.9),transparent 70%);animation:qgFizzle 1s ease-out both}
+.qg-fx.summon i{left:-60px;top:-60px;width:120px;height:120px;border:3px solid rgba(243,217,139,.9);background:radial-gradient(circle,rgba(255,236,170,.55),transparent 65%);animation:qgSummon 1.3s ease-out both}
+@keyframes qgCast{0%{opacity:.9;transform:translate(0,0) scale(.4)}100%{opacity:0;transform:translate(calc(var(--dx)*.6),calc(var(--dy)*.6 - 30px)) scale(1.4)}}
+@keyframes qgBurst{0%{opacity:1;transform:translate(0,0) scale(.3)}70%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1)}}
+@keyframes qgFizzle{0%{opacity:.8;transform:translate(0,0)}100%{opacity:0;transform:translate(calc(var(--dx)*.3),calc(var(--dy)*.3 + 30px)) scale(.4)}}
+@keyframes qgSummon{0%{opacity:0;transform:scale(.2)}40%{opacity:1}100%{opacity:0;transform:scale(2.4)}}
+.qg-clearing{position:relative;height:90px;margin:6px 0;overflow:hidden;border-radius:10px;background:linear-gradient(#cfe0e2,#f6ead0)}
+.qg-clearing .keep{position:absolute;left:50%;bottom:0;width:150px;height:70px;margin-left:-75px;background:#3a4a4e;clip-path:polygon(0 100%,0 30%,10% 30%,10% 15%,20% 15%,20% 30%,40% 30%,40% 0,60% 0,60% 30%,80% 30%,80% 15%,90% 15%,90% 30%,100% 30%,100% 100%)}
+.qg-clearing .mist{position:absolute;inset:0 -30%;background:radial-gradient(ellipse at 40% 60%,rgba(150,158,162,.95),transparent 65%);animation:qgClear 2.4s ease-in forwards}
+.qg-clearing .m2{animation-delay:.4s;background:radial-gradient(ellipse at 65% 40%,rgba(170,176,180,.9),transparent 60%)}
+@keyframes qgClear{to{transform:translateX(45%);opacity:0}}
+.qg-lift{position:absolute;inset:0;z-index:4;pointer-events:none;background:linear-gradient(rgba(150,158,162,.85),rgba(190,196,198,.6) 60%,transparent);animation:qgLift 3s ease-in forwards}
+@keyframes qgLift{to{transform:translateY(-100%);opacity:0}}
+@media (max-width:640px){.qg-help-btn{top:8px;right:54px;padding:4px 10px}.qg-panel{padding:16px 14px 8px}}
+@media (prefers-reduced-motion:reduce){
+ .qg-meter.res,.qg-card.in,.qg-result,.qg-guide.arrive .qg-summon,.qg-clearing .mist{animation:none!important}
+ .qg-clearing .mist{opacity:0}
+ .qg-fx,.qg-lift{display:none!important}
+}
