@@ -165,8 +165,8 @@ function newPlayer(){var p=prog(),rg=p.region&&REG[p.region]?p.region:'town',r=R
 function savePos(){var p=prog();p.region=P.region;p.x=P.x;p.y=P.y;p.resolve=P.resolve;saveProg(p)}
 var DIRS={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
 function step(dir){if(SCENE!=='map'||!P||P.moving||TALK)return false;P.dir=dir;var d=DIRS[dir],nx=P.x+d[0],ny=P.y+d[1],th=thing(nx,ny);if(th){held=null;interact(th);return false}if(!walk(nx,ny)){status();return false}
- P.moving={sx:P.x,sy:P.y,t:0};P.x=nx;P.y=ny;P.frame^=1;if(RM){P.moving=null;P.fx=nx;P.fy=ny;arrive()}return true}
-function goRegion(k,x,y){P.region=k;P.x=x;P.y=y;P.fx=x;P.fy=y;P.moving=null;held=null;savePos();map();toast(REG[k].name)}
+ petFollow(P.x,P.y,dir);P.moving={sx:P.x,sy:P.y,t:0};P.x=nx;P.y=ny;P.frame^=1;if(RM){P.moving=null;P.fx=nx;P.fy=ny;arrive()}return true}
+function goRegion(k,x,y){P.region=k;P.x=x;P.y=y;P.fx=x;P.fy=y;P.moving=null;held=null;PETJOB=null;PET=null;savePos();map();toast(REG[k].name)}
 function arrive(){savePos();var t=tile(P.x,P.y);
  if(t==='E'){var ex=R().exits[P.x+','+P.y];if(ex){if(ex.need&&!regionClear(ex.need)){var n=REG[ex.need].clouds.length-REG[ex.need].clouds.filter(function(e){return (prog().cleared||[]).indexOf(e[0])>=0}).length;P.x-=Math.sign(P.x-10)||0;P.fx=P.x;savePos();held=null;return talk([{who:'',text:'The '+(ex.need==='marsh'?'fog':'wind')+' is too thick to pass yet. Clear the '+n+' cloud'+(n>1?'s':'')+' left in '+REG[ex.need].name+' first.'}])}return goRegion(ex.to,ex.x,ex.y)}}
  if(t==='D'){P.y+=1;P.fy=P.y;savePos();return prog().done?office():bossIntro()}
@@ -187,6 +187,7 @@ function drawMap(c,t,dt){var r=R(),lf=lifted(r.lift);c.drawImage(mapCanvas(P.reg
  ENEMIES.forEach(function(e){wander(e,dt);var bob=RM?0:Math.round(Math.sin(t/300+e.x)*1);c.fillStyle='rgba(0,0,0,.16)';c.fillRect(e.fx*TS+3,e.fy*TS+14,11,2);cloudAt(c,CLOUD,e.weather==='fog'?FOGPAL:STORMPAL,e.fx*TS+1,e.fy*TS+1+bob,1,t)});
  if(P.moving){P.moving.t+=dt/150;var k=Math.min(1,P.moving.t);P.fx=P.moving.sx+(P.x-P.moving.sx)*k;P.fy=P.moving.sy+(P.y-P.moving.sy)*k;if(k>=1){P.moving=null;P.fx=P.x;P.fy=P.y;arrive();if(SCENE==='map'&&held&&!TALK)step(held)}}
  else if(touching()&&SCENE==='map'&&!TALK)encounter(touching());
+ petDraw(c,t,dt);
  var rows=P.dir==='up'?HERO.up:P.dir==='down'?HERO.down:HERO.side,wf=P.moving&&!RM?(P.moving.t<.5?(P.frame?3:1):0):0;rows=walkF(rows,wf);var ib=(!RM&&!P.moving&&Math.floor(t/500)%2)?1:0;c.fillStyle='rgba(0,0,0,.22)';c.fillRect(P.fx*TS+4,P.fy*TS+14,9,2);
  px(c,rows,PAL,P.fx*TS+2,P.fy*TS+1+ib,{flip:P.dir==='left'});
  /* fog layer: gray wash until the region is cleared, then it fades away and color returns */
@@ -298,31 +299,33 @@ function title(){MUS('title');SCENE='title';stopLoop();endTalk();var p=prog(),ha
  '<div class="qg-menu"><button type="button" class="qg-btn" data-go="play">'+(has?'Continue':'New game')+(has?' <small>Lv '+level(p)+' · '+esc(REG[p.region||'town'].name)+' · '+((p.cleared||[]).length)+' of '+allClouds().length+' clouds cleared'+(p.phase?' · Fogstorm phase '+(p.phase+1):'')+((p.inv||[]).length?' · bag: Golden Fidget Toy':'')+'</small>':'')+'</button><button type="button" class="qg-btn" data-go="how">How to play</button><button type="button" class="qg-btn" data-go="practice">Practice a spell <small>read the real steps</small></button></div>'+
  '<p class="qg-small">'+sndBtn()+'</p><p class="qg-small">Progress is saved only in this browser. Nothing is sent to the practice. <button type="button" class="qg-link" data-go="reset">Reset my game</button></p>',has?'[data-go=play]':'h2');
  var cv=dlg.querySelector('.qg-title-cv'),c=cv.getContext('2d');(function d(t){if(!cv.isConnected||SCENE!=='title')return;c.clearRect(0,0,160,56);c.fillStyle='#24344a';c.fillRect(0,40,160,16);px(c,CLOUD,FOGPAL,92,8+(RM?0:Math.round(Math.sin(t/400))),{s:2});px(c,HERO.side,PAL,40,14,{s:2});if(!RM)raf=requestAnimationFrame(d)})(0);
- dlg.querySelectorAll('[data-go]').forEach(function(b){b.onclick=function(){var g=b.dataset.go;if(g==='reset'){stopLoop();localStorage.removeItem(KEY);P=null;title();say('Your game was reset.');toast('Game reset')}else if(g==='how')panel('<h2 id="qg-ph">How to play</h2>'+HOWTO());else if(g==='practice')practice();else if(!prog().intro)intro();else map()}})}
+ dlg.querySelectorAll('[data-go]').forEach(function(b){b.onclick=function(){var g=b.dataset.go;if(g==='reset'){stopLoop();localStorage.removeItem(KEY);P=null;title();say('Your game was reset.');toast('Game reset')}else if(g==='how')panel('<h2 id="qg-ph">How to play</h2>'+HOWTO());else if(g==='practice')practice();else if(!prog().intro)intro();else if(!prog().pet)petPick(map);else map()}})}
 
 /* opening: wake in the fog, meet the lantern-keeper */
 var IN={t0:0,up:false};
 function intro(){SCENE='intro';dlg.dataset.scene='intro';IN={t0:performance.now(),up:false};
- body('<h2 id="qg-title" class="sr">Opening: Lanternfall Town</h2><div class="qg-stage"><canvas class="qg-cv qg-icv" width="320" height="150" role="img" aria-label="Pixel art: a fog-covered town at dusk. Your traveler wakes on the street as Makayla, the lantern-keeper, walks over with her lantern."></canvas></div><div class="qg-row"><button type="button" class="qg-link" data-skip>Skip the opening</button></div>',false);
+ body('<h2 id="qg-title" class="sr">Opening: Lanternfall Town</h2><div class="qg-stage"><canvas class="qg-cv qg-icv" width="320" height="150" role="img" aria-label="Pixel art: a fog-covered town at dusk. Your traveler wakes on the street as Makayla, the lantern-keeper, walks over with her lantern, with Kenneth the orange cat and Ragnar the shaggy brown dog."></canvas></div><div class="qg-row"><button type="button" class="qg-link" data-skip>Skip the opening</button></div>',false);
  dlg.querySelector('[data-skip]').onclick=endIntro;loop(drawIntro);
  var W='Makayla, the lantern-keeper';
  talk([{who:'',text:'You wake on a cold cobblestone street. A thick gray fog has rolled over Lanternfall Town.'},
   {who:W,text:'Easy now, traveler. I\'m Makayla. I keep the lanterns lit. You\'ve been sleeping in the fog a while.'},
   {who:W,text:'This fog isn\'t ordinary weather. It\'s symptoms: the heavy, tired kind, and the racing, worried kind. They roll in. They are not you.'},
   {who:W,text:'East, past the Gray Fog Marsh and the Storm Wind Cliffs, the Fogstorm sits on the old threshold. Beyond it is the Open Book office. It\'s warm in there. Safe.'},
+  {who:W,text:'These two followed me out tonight. Kenneth is an orange cat who loves warm laps. Ragnar is a shaggy brown dog who never leaves a friend behind.'},
+  {who:W,text:'They\'re looking for someone to keep company. In a moment, you can choose which one walks with you.'},
   {who:W,text:'You won\'t walk alone. Call a guide when you need one, and rest at any lantern. Go on. East is that way.'}],endIntro);
 }
-function endIntro(){var p=prog();p.intro=1;if(p.x==null){p.region='town';p.x=REG.town.start.x;p.y=REG.town.start.y}saveProg(p);P=null;map()}
+function endIntro(){var p=prog();p.intro=1;if(p.x==null){p.region='town';p.x=REG.town.start.x;p.y=REG.town.start.y}saveProg(p);P=null;PET=null;if(!p.pet)return petPick(map);map()}
 function drawIntro(c,t){IN.up=!TALK||TALK.i>=1;var k=Math.min(1,RM?1:(t-IN.t0)/2600);c.fillStyle='#4e5a66';c.fillRect(0,0,320,150);
  for(var i=0;i<5;i++){var hx=10+i*64;c.fillStyle='#3a434d';c.fillRect(hx,44,44,46);c.fillStyle='#5c2730';c.fillRect(hx-4,34,52,12);c.fillStyle='#e9c46a';c.fillRect(hx+8,58,8,8);c.fillRect(hx+28,58,8,8)}
  c.fillStyle='#8c8577';c.fillRect(0,90,320,60);c.fillStyle='#7a7366';for(var j=0;j<320;j+=16)c.fillRect(j+((j/16)%2)*8,98+((j/16)%3)*12,10,3);
  c.fillStyle='#3b2a1a';c.fillRect(250,54,4,44);c.fillStyle='#1a1a2b';c.fillRect(244,44,16,14);c.fillStyle='#f3c95a';c.fillRect(247,47,10,8);c.fillStyle='rgba(243,201,90,'+(RM?.18:.14+.06*Math.sin(t/400))+')';c.fillRect(226,28,52,52);
  if(!IN.up){c.save();c.translate(120,118);c.rotate(-Math.PI/2);px(c,HERO.side,PAL,0,0,{s:2});c.restore()}else px(c,HERO.side,PAL,110,84+(RM?0:Math.floor(t/500)%2),{s:2});
- var kx=RM?170:330-160*k;px(c,GIRL.side,REG.town.npcs[0].pal,kx,84,{s:2,flip:true});c.fillStyle='#f3c95a';c.fillRect(kx-2,104,4,5);
+ var kx=RM?170:330-160*k;px(c,GIRL.side,REG.town.npcs[0].pal,kx,84,{s:2,flip:true});c.fillStyle='#f3c95a';c.fillRect(kx-2,104,4,5);if(k>=1||RM){var pb=RM?0:Math.floor(t/600)%2;drawPet(c,'kenneth',kx+30,108+pb,'down',0,2);drawPet(c,'ragnar',kx+60,108+(1-pb),'down',0,2)}
  c.fillStyle='rgba(200,205,210,.35)';c.fillRect(0,0,320,150);if(!RM){c.fillStyle='rgba(230,233,236,.18)';var o=(t/70)%80;for(var q=-1;q<5;q++){c.fillRect(q*80+o,24+q*9,60,7);c.fillRect(q*80-o+30,70+q*11,48,6)}}}
 
 function hudHtml(){var p=prog(),n=(p.inv||[]).length;return '<div class="qg-hud" role="status"><span title="Growth '+gxp(p)+'">Lv '+level(p)+'</span><span class="qg-hp" aria-label="Resolve '+P.resolve+' of '+maxRes(p)+'">Resolve <b>'+P.resolve+'</b>/'+maxRes(p)+'<i><em style="width:'+(100*P.resolve/maxRes(p))+'%"></em></i></span><span>'+esc(R().name)+'</span><span>Clouds '+((p.cleared||[]).length)+'/'+allClouds().length+'</span><button type="button" class="qg-link qg-bagbtn" data-bag>Bag ('+(n+(p.cards||[]).length)+')</button>'+sndBtn()+'</div>'}
-function map(){MUS(R().weather&&!lifted(R().lift)?R().weather:'town');SCENE='map';dlg.dataset.scene='map';dlg.dataset.menu='';if(!P)newPlayer();spawn();var r=R();
+function map(){MUS(R().weather&&!lifted(R().lift)?R().weather:'town');SCENE='map';dlg.dataset.scene='map';dlg.dataset.menu='';if(!P)newPlayer();spawn();if(!PET||PET.id!==prog().pet||PET.P!==P){petReset();PET&&(PET.P=P)}var r=R();
  body('<h2 id="qg-title" class="sr">'+esc(r.name)+' map</h2>'+hudHtml()+'<div class="qg-stage"><canvas class="qg-cv qg-map" width="'+MW*TS+'" height="'+MH*TS+'" role="img" aria-label="Top-down pixel map of '+esc(r.name)+(lifted(r.lift)?'':', covered in fog')+'. Your traveler, people to talk to, signs'+(r.clouds.length?', symptom clouds':'')+' and a lantern."></canvas><div class="qg-toast" aria-hidden="true"></div></div>'+
  '<p class="qg-status" id="qg-status"></p><div class="qg-controls"><div class="qg-pad" role="group" aria-label="Move">'+['up','left','right','down'].map(function(d){return '<button type="button" class="qg-d '+d+'" data-dir="'+d+'" aria-label="Walk '+d+'"><span aria-hidden="true">'+{up:'▲',down:'▼',left:'◀',right:'▶'}[d]+'</span></button>'}).join('')+'</div>'+
  '<div class="qg-side"><button type="button" class="qg-btn" data-look>Talk / look <small>E key</small></button><button type="button" class="qg-btn" data-near>Face the nearest cloud</button><button type="button" class="qg-link" data-menu>Title screen</button></div></div>',false);
@@ -393,7 +396,7 @@ function drawBattle(c,t,dt){var s=sym(B.current),boss=B.mode==='boss';
  var bob=RM?0:Math.round(Math.sin(t/350)*2),ef=BA.eFlash>0&&Math.floor(BA.eFlash/80)%2===0,pf=BA.pFlash>0&&Math.floor(BA.pFlash/80)%2===0;
  cloudAt(c,CLOUD,boss?BOSSPAL:s.weather==='fog'?FOGPAL:STORMPAL,boss?190:204,(boss?14:44)+bob,boss?6:4,t,ef);
  if(!RM&&s.weather==='storm'){c.fillStyle='rgba(143,176,201,.6)';for(var j=0;j<14;j++)c.fillRect((j*23+t/6)%320,(j*31+t/2)%108,1,4)}
- var ib=RM?0:(Math.floor(t/450)%2);px(c,walkF(HERO.side,0),PAL,40,72+ib,{s:4,flash:pf});
+ var ib=RM?0:(Math.floor(t/450)%2);px(c,walkF(HERO.side,0),PAL,40,72+ib,{s:4,flash:pf});var pp=prog().pet;if(PETS[pp])drawPet(c,pp,2,100+(1-ib),'side',0,3);
  if(BA.guide){BA.gT-=dt;if(BA.gT<=0)BA.guide=null;else{var a=RM?1:Math.min(1,(1800-BA.gT)/250,BA.gT/300);c.globalAlpha=Math.max(0,a);c.fillStyle='#f4ecd8';c.fillRect(97,61,54,54);c.fillStyle='#1a1a2b';c.fillRect(98,62,52,52);px(c,faceRows(BA.guide),facePal(BA.guide),100,64,{s:3});c.globalAlpha=1}}}
 function act(a,opt){var s=sym(B.current),r=turn(B,a,opt);if(r.error){say({cooldown:'Your guides are resting. Try a spell or Rest.',needsguide:'That spell is only cast with a guide.',repeat:'You just cast that. Try another spell.',fearopp:'Opposite Action for fear is done with your Guide.'}[r.error]||'Not available.');return}
  var p=prog();p.practiced=p.practiced||{};var used=r.spell||a;if(a!=='rest')p.practiced[used]=(p.practiced[used]||0)+1;if(r.clinician){p.guides=p.guides||{};p.guides[r.clinician]=(p.guides[r.clinician]||0)+1}if(r.matched&&!r.clinician&&used==='breath'&&(p.quests||{}).jo==='on'){p.quests.jo='ready'}saveProg(p);
@@ -416,11 +419,11 @@ function act(a,opt){var s=sym(B.current),r=turn(B,a,opt);if(r.error){say({cooldo
  battleUI(null,line,'#qg-msg');var m=dlg.querySelector('#qg-msg');m&&m.setAttribute('tabindex','-1');say(dlg.querySelector('#qg-msg').textContent)}
 function merge(a,b){a=a||{};for(var k in b)a[k]=(a[k]||0)+b[k];return a}
 function won(line){var p=prog();p.helped=merge(p.helped,B.helped);
- if(B.kind==='enemy'){var before=level(p);p.gxp=gxp(p)+1;p.cleared=(p.cleared||[]).concat([B.enemy]);p.xp=(p.xp||0)+1;var up=level(p)>before;p.resolve=Math.min(maxRes(p),B.resolve+(up?2:0));if(up)setTimeout(function(){levelUp(level())},50);P.resolve=p.resolve;
+ if(B.kind==='enemy'){var before=level(p);p.gxp=gxp(p)+1;p.cleared=(p.cleared||[]).concat([B.enemy]);p.xp=(p.xp||0)+1;var pj=null,pa=p.pet&&PETS[p.pet];if(pa){var rem=ENEMIES.filter(function(e){return e.id!==B.enemy&&p.cleared.indexOf(e.id)<0}).sort(function(a,b){return (Math.abs(a.x-P.x)+Math.abs(a.y-P.y))-(Math.abs(b.x-P.x)+Math.abs(b.y-P.y))});if(rem.length){pj=rem[0];p.cleared.push(pj.id);p.gxp+=1;p.xp+=1;PETJOB={id:pj.id,x:pj.x,y:pj.y,weather:pj.weather,t0:null}}}var up=level(p)>before;p.resolve=Math.min(maxRes(p),B.resolve+(up?2:0));if(up)setTimeout(function(){levelUp(level())},50);P.resolve=p.resolve;
   var rk=P.region,r=REG[rk],lift=r.clouds.length&&regionClear(rk,p)&&(p.rcleared||[]).indexOf(rk)<0;if(lift)p.rcleared=(p.rcleared||[]).concat([rk]);
-  saveProg(p);ENEMIES=ENEMIES.filter(function(e){return e.id!==B.enemy});var s=sym(B.current);SCENE='won';stopLoop();dlg.dataset.menu='';
+  saveProg(p);ENEMIES=ENEMIES.filter(function(e){return e.id!==B.enemy&&!(pj&&e.id===pj.id)});var s=sym(B.current);SCENE='won';stopLoop();dlg.dataset.menu='';
   var left=r.clouds.filter(function(e){return p.cleared.indexOf(e[0])<0}).length;
-  body('<h2 id="qg-title">'+esc(s.name)+' clears!</h2><div class="qg-msg">'+line+'</div><p class="qg-lede">+1 growth for clearing it.'+(up?' <b>Level up!</b> You are now level '+level(p)+' with '+maxRes(p)+' max Resolve. Your skills grew stronger.':'')+(nextAt(p)!=null?' Next level at '+nextAt(p)+' growth (you have '+gxp(p)+').':'')+(lift?'':' '+left+' cloud'+(left===1?'':'s')+' left in '+esc(r.name)+'.')+'</p>'+
+  body('<h2 id="qg-title">'+esc(s.name)+' clears!</h2><div class="qg-msg">'+line+'</div><p class="qg-lede">+1 growth for clearing it.'+(up?' <b>Level up!</b> You are now level '+level(p)+' with '+maxRes(p)+' max Resolve. Your skills grew stronger.':'')+(nextAt(p)!=null?' Next level at '+nextAt(p)+' growth (you have '+gxp(p)+').':'')+(lift?'':' '+left+' cloud'+(left===1?'':'s')+' left in '+esc(r.name)+'.')+'</p>'+(pj?'<div class="qg-msg qg-petmsg">'+esc(pa.clear)+' <span class="qg-xp">+1 growth</span> (another cloud cleared)</div>':'')+
    (lift?'<div class="qg-msg qg-lift"><b>'+esc(r.name)+' is clear!</b><br>The last cloud thins out. Something is changing out there.</div>':'')+
    '<div class="qg-menu"><button type="button" class="qg-btn" data-m>'+(lift?'Watch the fog lift':'Back to the map')+'</button></div>','[data-m]');
   if(window.obcSound){try{obcSound.chime(3)}catch(e){}}
@@ -440,6 +443,42 @@ function victory(line){SCENE='victory';stopLoop();dlg.dataset.menu='';var top=Ob
  dlg.querySelector('[data-print]').onclick=printCard;dlg.querySelector('[data-office]').onclick=office;
  var rn=dlg.querySelector('.qg-rune');rn.onclick=function(){if(BONUS.indexOf('gratitude')<0)BONUS.push('gratitude');rn.classList.add('found');rn.setAttribute('aria-pressed','true');rn.setAttribute('aria-label','Bonus Gratitude Rune, found');hud();say('Bonus rune found: the Gratitude Rune. It is separate from the five hidden runes.');try{obcSound.chime(3)}catch(e){}}}
 function printCard(){var c=dlg.querySelector('.qg-skill').innerHTML,w=window.open('','_blank');if(!w)return;w.document.write('<title>My skill card</title><body style="font-family:Georgia,serif;max-width:560px;margin:24px auto">'+c+'<p style="font-size:.85em">Educational game, not therapy. Crisis: call or text 988. Utah: SafeUT (safeut.org). Emergency: 911.</p></body>');w.document.close();w.focus();w.print()}
+
+/* support animals: Kenneth (orange tabby cat) and Ragnar (shaggy brown dog). Original pixel sprites, 12x10. */
+var PETS={kenneth:{name:'Kenneth',kind:'orange cat',pal:{k:'#2b1a10',a:'#e08a2e',b:'#b0601a',w:'#fff1dc',p:'#e88a8a'},
+ blurb:'An orange cat who loves warm laps and slow blinks.',clear:'Kenneth curled up beside the fog and it faded.',
+ side:['.......k..k.','......kakkak','.k....kaaaak','kak...kakaak','kak...kawwpk','.kakkkkaaak.','.kabababaak.','.kaaaaaaaak.','..kak..kak..','..kk...kk...'],
+ down:['..k......k..','.kak....kak.','.kaakkkkaak.','.kaaaaaaaak.','.kakaaaakak.','.kaawppwaak.','..kaaaaaak..','.kabaaaabak.','.kaaaaaaaak.','..kk....kk..'],
+ up:['..k......k..','.kak....kak.','.kaakkkkaak.','.kaaaaaaaak.','.kabaaaabak.','.kaaaaaaaak.','..kaaaaaak..','.kabababak.k','.kaaaaaaaakk','..kk....kk..']},
+ ragnar:{name:'Ragnar',kind:'shaggy brown dog',pal:{k:'#24160c',a:'#8a5a33',b:'#5c3a1e',l:'#c09060',t:'#e07a8a'},
+ blurb:'A shaggy brown dog who never leaves a friend behind.',clear:'Ragnar gave a happy bark and the cloud puffed away.',
+ side:['......kkkk..','k....kaaaak.','bk..kbakaalk','.bk.kbaaallk','.bkkkbbatk..','.kbababaaak.','kbabababaabk','.kbaaaaaabk.','..kak..kak..','..kk...kk...'],
+ down:['...kkkkkk...','..kaaaaaak..','.kbakaakabk.','kbbaaaaaabbk','kbbalkklabbk','..kalttlak..','.kbabababak.','kbabababaabk','.kbaaaaaabk.','..kk....kk..'],
+ up:['...kkkkkk...','..kaaaaaak..','.kbaaaaaabk.','kbbaaaaaabbk','kbbabaabbabk','..kaaaaaak..','.kbabababak.','kbabababaabk','.kbaaaaaabk.','..kk....kk..']}};
+var PETW=new Map();
+function petRows(id,dir,f){var a=PETS[id],r=dir==='up'?a.up:dir==='down'?a.down:a.side;if(!f)return r;var key=id+dir+f,o=PETW.get(key);if(o)return o;o=r.slice();
+ if(dir==='side'||dir==='left'||dir==='right'){o[8]=f===1?'.kak....kak.':'...kak.kak..';o[9]=f===1?'.kk......kk.':'...kk..kk...'}else{o[9]=f===1?'..kk.....k..':'...k....kk..'}PETW.set(key,o);return o}
+function drawPet(c,id,x,y,dir,f,s){px(c,petRows(id,dir,f),PETS[id].pal,x,y,{s:s||1,flip:dir==='left'})}
+var PET=null,PETJOB=null;
+function petReset(){var p=prog();PET=p.pet&&PETS[p.pet]&&P?{id:p.pet,x:P.x,y:P.y,fx:P.fx,fy:P.fy,dir:'down',walk:0}:null}
+function petFollow(sx,sy,dir){if(!PET)return;PET.x=sx;PET.y=sy;PET.dir=dir}
+function petDraw(c,t,dt){if(!PET)return;var tx=PET.x,ty=PET.y,sp=RM?1:Math.min(1,dt/110);
+ if(PETJOB){if(PETJOB.t0==null){PETJOB.t0=t;PETJOB.sx=PET.fx;PETJOB.sy=PET.fy;toast(PETS[PET.id].clear);SFX('chest')}var e=RM?2000:t-PETJOB.t0,J=PETJOB;
+  var k=Math.min(1,e/800),ex=J.x,ey=J.y-.6;if(e<800){PET.fx=J.sx+(ex-J.sx)*k;PET.fy=J.sy+(ey-J.sy)*k;PET.dir=Math.abs(ex-J.sx)>Math.abs(ey-J.sy)?(ex<J.sx?'left':'right'):(ey<J.sy?'up':'down')}
+  var fade=e<800?1:Math.max(0,1-(e-800)/600);if(fade>0){c.globalAlpha=fade;cloudAt(c,CLOUD,J.weather==='fog'?FOGPAL:STORMPAL,J.x*TS+1,J.y*TS+1-(1-fade)*6,1,t);c.globalAlpha=1}
+  if(e>=800&&!J.puff){J.puff=1;burst(J.x*TS+8,J.y*TS+8,'#e6eaec',14);burst(J.x*TS+8,J.y*TS+6,'#fff3c4',8)}
+  var hop=e>=800&&e<1300?-Math.round(Math.sin((e-800)/500*Math.PI)*4):0;var wf=e<800?(Math.floor(e/110)%2?1:3):0;
+  c.fillStyle='rgba(0,0,0,.2)';c.fillRect(PET.fx*TS+4,PET.fy*TS+14,9,2);drawPet(c,PET.id,PET.fx*TS+2,PET.fy*TS+5+hop,PET.dir==='up'||PET.dir==='down'?PET.dir:PET.dir==='left'?'left':'side',wf);
+  if(e>1500)PETJOB=null;return}
+ var dx=tx-PET.fx,dy=ty-PET.fy,mv=Math.abs(dx)+Math.abs(dy)>.04;PET.fx+=dx*sp;PET.fy+=dy*sp;if(!mv){PET.fx=tx;PET.fy=ty}
+ if(mv&&Math.abs(dx)+Math.abs(dy)>.3)PET.face=Math.abs(dx)>Math.abs(dy)?(dx<0?'left':'side'):(dy<0?'up':'down');var d=PET.face||'down';
+ var wf=mv&&!RM?(Math.floor(t/120)%2?1:3):0,ib=(!RM&&!mv&&Math.floor(t/600)%2)?1:0;
+ c.fillStyle='rgba(0,0,0,.2)';c.fillRect(PET.fx*TS+4,PET.fy*TS+14,9,2);drawPet(c,PET.id,PET.fx*TS+2,PET.fy*TS+5+ib,d,wf)}
+function petPick(next){SCENE='petpick';stopLoop();dlg.dataset.scene='petpick';dlg.dataset.menu='';
+ body('<h2 id="qg-title">Choose your support animal</h2><p class="qg-lede">Support animals can\'t make the fog go away, but they keep you company while you face it. A calm, furry friend at your side can make a hard day feel a little lighter.</p><div class="qg-pets" role="group" aria-label="Support animals">'+
+  Object.keys(PETS).map(function(id){var a=PETS[id];return '<button type="button" class="qg-btn qg-petbtn" data-pet="'+id+'"><canvas width="48" height="40" class="qg-cv" data-petcv="'+id+'" aria-hidden="true"></canvas><span><b>'+a.name+'</b>, '+a.kind+'<small>'+esc(a.blurb)+'</small></span></button>'}).join('')+'</div><p class="qg-small">Your friend follows you on the road. Each time you clear a cloud, they gently clear another one nearby.</p>','[data-pet]');
+ var cvs=dlg.querySelectorAll('[data-petcv]');(function d(t){if(SCENE!=='petpick')return;cvs.forEach(function(cv){var c=cv.getContext('2d');c.imageSmoothingEnabled=false;c.clearRect(0,0,48,40);drawPet(c,cv.dataset.petcv,0,(RM?0:Math.floor(t/500)%2)*2,'down',0,4)});if(!RM)raf=requestAnimationFrame(d)})(0);
+ dlg.querySelectorAll('[data-pet]').forEach(function(b){b.onclick=function(){var p=prog();p.pet=b.dataset.pet;saveProg(p);toast(PETS[p.pet].name+' will walk with you');say(PETS[p.pet].name+' will walk with you.');(next||map)()}})}
 
 /* ---------- the final room: a calm counselor's office (no enemies) ---------- */
 var OF={who:null,t0:0,enter:0};
@@ -484,14 +523,14 @@ function drawOffice(c,t,dt){var e=RM?1:Math.min(1,(t-OF.t0)/1400);
  /* counselor and traveler */
  var k=OF.who,cy=118,hx=RM?120:Math.round(60+60*e);px(c,HERO.side,clinPal(k),200,cy+(RM?0:Math.floor(t/800)%2),{s:2,flip:true});
  var held=ITEM>0;if(held){px(c,HERO.down,PAL,hx,cy,{s:2});var a=RM?1:Math.min(1,(t-ITEM)/600);c.fillStyle='rgba(255,226,140,'+(.25*a)+')';c.beginPath();c.arc(hx+12,cy-12,18,0,6.283);c.fill();var fy=cy-26+(RM?0:Math.round(-4*a));var gg=c.createRadialGradient(hx+12,fy+6,1,hx+12,fy+6,22);gg.addColorStop(0,'rgba(255,240,170,'+(.55*a)+')');gg.addColorStop(1,'rgba(255,240,170,0)');c.fillStyle=gg;c.fillRect(hx-12,fy-16,48,44);drawFidget(c,hx+6,fy,1,t);if(!RM){var gl=(t/500)%6;c.fillStyle='rgba(255,255,255,'+(gl<1?1-gl:0)+')';c.fillRect(hx+8,fy+2,1,1);c.fillRect(hx+15,fy+8,1,1)}}
- else px(c,HERO.side,PAL,hx,cy+(RM||e<1?0:Math.floor(t/600)%2),{s:2});
+ else px(c,HERO.side,PAL,hx,cy+(RM||e<1?0:Math.floor(t/600)%2),{s:2});var op=prog().pet;if(PETS[op])drawPet(c,op,hx-28,cy+10+(RM?0:Math.floor(t/700)%2),e<1?'side':'down',e<1&&!RM?(Math.floor(t/120)%2?1:3):0,2);
  var lg=RM?.34:.3+.04*Math.sin(t/900),gr=c.createRadialGradient(96,40,6,96,40,230);gr.addColorStop(0,'rgba(255,214,140,'+lg+')');gr.addColorStop(.45,'rgba(255,190,110,.12)');gr.addColorStop(1,'rgba(60,30,20,.28)');c.fillStyle=gr;c.fillRect(0,0,320,180);
  c.fillStyle='rgba(255,244,210,.10)';c.beginPath();c.moveTo(134,58);c.lineTo(190,58);c.lineTo(236,170);c.lineTo(150,170);c.closePath();c.fill();
  if(!RM){c.fillStyle='rgba(255,240,200,.5)';for(var d=0;d<5;d++){var dx=(d*61+t/40)%120,dy=(d*37+t/55)%100;c.fillRect(140+Math.round(dx*.6),60+Math.round(dy),1,1)}}}
 function bag(){var p=prog(),has=(p.inv||[]).indexOf('fidget')>=0,k=has&&clin(p.fidgetFrom),cs=p.cards||[],ql=questList();
- panel('<h2 id="qg-ph">Your bag</h2><p class="qg-small">Level '+level(p)+' · growth '+gxp(p)+(nextAt(p)!=null?' (next level at '+nextAt(p)+')':' (max level)')+' · spells deal +'+bonus(p)+' damage</p>'+(has?'<div class="qg-item"><canvas width="24" height="24" class="qg-cv qg-itemcv" aria-hidden="true"></canvas><div><b>Golden Fidget Toy</b><p class="qg-small">A small golden fidget cube: click the buttons, roll the dial, slide the switch. Something for busy hands while your breathing slows down.'+(k?' Given to you by '+esc(k.name)+', '+esc(k.cred)+', at the Open Book office.':'')+'</p></div></div>':'<p class="qg-lede">Something golden waits at the end of the road.</p>')+'<h3 class="qg-h3">Coping-skill cards ('+cs.length+' of '+Object.keys(CARDS).length+')</h3>'+(cs.length?'<ul class="qg-cards">'+cs.map(function(id){var c=CARDS[id];return '<li class="qg-card"><canvas width="48" height="64" class="qg-cv" data-card="'+id+'" aria-hidden="true"></canvas><div><b>'+esc(c.name)+'</b><p class="qg-small">'+esc(c.text)+'</p></div></li>'}).join('')+'</ul>':'<p class="qg-small">None yet. Look for treasure chests out on the road, and help the townsfolk.</p>')+(ql?'<h3 class="qg-h3">Side quests</h3><ul class="qg-small">'+ql+'</ul>':''));
+ panel('<h2 id="qg-ph">Your bag</h2><p class="qg-small">Level '+level(p)+' · growth '+gxp(p)+(nextAt(p)!=null?' (next level at '+nextAt(p)+')':' (max level)')+' · spells deal +'+bonus(p)+' damage</p>'+(has?'<div class="qg-item"><canvas width="24" height="24" class="qg-cv qg-itemcv" aria-hidden="true"></canvas><div><b>Golden Fidget Toy</b><p class="qg-small">A small golden fidget cube: click the buttons, roll the dial, slide the switch. Something for busy hands while your breathing slows down.'+(k?' Given to you by '+esc(k.name)+', '+esc(k.cred)+', at the Open Book office.':'')+'</p></div></div>':'<p class="qg-lede">Something golden waits at the end of the road.</p>')+(PETS[p.pet]?'<div class="qg-item"><canvas width="36" height="30" class="qg-cv qg-petbag" aria-hidden="true"></canvas><div><b>Support animal: '+PETS[p.pet].name+'</b><p class="qg-small">'+esc(PETS[p.pet].kind.charAt(0).toUpperCase()+PETS[p.pet].kind.slice(1))+'. '+esc(PETS[p.pet].blurb)+' Walks with you and clears a cloud each time you clear one.</p></div></div>':'')+'<h3 class="qg-h3">Coping-skill cards ('+cs.length+' of '+Object.keys(CARDS).length+')</h3>'+(cs.length?'<ul class="qg-cards">'+cs.map(function(id){var c=CARDS[id];return '<li class="qg-card"><canvas width="48" height="64" class="qg-cv" data-card="'+id+'" aria-hidden="true"></canvas><div><b>'+esc(c.name)+'</b><p class="qg-small">'+esc(c.text)+'</p></div></li>'}).join('')+'</ul>':'<p class="qg-small">None yet. Look for treasure chests out on the road, and help the townsfolk.</p>')+(ql?'<h3 class="qg-h3">Side quests</h3><ul class="qg-small">'+ql+'</ul>':''));
  dlg.querySelectorAll('[data-card]').forEach(function(cv){drawCard(cv.getContext('2d'),cv.dataset.card,0,0,2)});
- var cv=dlg.querySelector('.qg-itemcv');if(cv){var c=cv.getContext('2d');px(c,FIDGET,FIDPAL,0,0,{s:2})}}
+ var pc=dlg.querySelector('.qg-petbag');if(pc){var c2=pc.getContext('2d');c2.imageSmoothingEnabled=false;drawPet(c2,p.pet,0,0,'down',0,3)}var cv=dlg.querySelector('.qg-itemcv');if(cv){var c=cv.getContext('2d');px(c,FIDGET,FIDPAL,0,0,{s:2})}}
 function regroup(){var p=prog();p.helped=merge(p.helped,B.helped);p.resolve=maxRes(p);var rk=(P&&P.region)||p.region||'town',L=REG[rk].lantern;p.region=rk;p.x=L.x;p.y=L.y;saveProg(p);P=null;newPlayer();SCENE='regroup';stopLoop();dlg.dataset.menu='';var boss=B.mode==='boss';
  body('<h2 id="qg-title">Rest and Regroup</h2><p class="qg-lede">Even the bravest travelers rest. The weather isn\'t your fault, and resting isn\'t losing. You wake up by the lantern with full Resolve. Nothing is lost'+(boss?'; the Fogstorm waits at the same phase.':'.')+'</p><div class="qg-menu"><button type="button" class="qg-btn" data-m>Back to the map</button><button type="button" class="qg-btn" data-p>Practice a spell</button><a class="qg-btn qg-menu-a" href="#match" data-quiz>Talk to a real guide</a></div>','[data-m]');
  dlg.querySelector('[data-m]').onclick=map;dlg.querySelector('[data-p]').onclick=practice}
@@ -577,7 +616,7 @@ function MUS(m){if(m!==undefined)MCUR=m;clearInterval(MT);MT=null;if(!MCUR||!snd
 function toggleSnd(){var on=!sndOn();try{localStorage.setItem(SKEY,on?'1':'0')}catch(e){}if(on){actx();if(AC&&AC.state!=='running')AC.resume().then(function(){MUS();SFX('chest')});else{MUS();SFX('chest')}}else{clearInterval(MT);MT=null}
  dlg.querySelectorAll('[data-snd]').forEach(function(b){b.textContent='Sound: '+(on?'on':'off');b.setAttribute('aria-pressed',String(on))});say('Sound '+(on?'on':'off'))}
 function init(){var b=$('#qg-open');if(b)b.addEventListener('click',open);hud()}
-window.obcQuest={open:open,map:map,title:title,step:step,turn:turn,newBattle:newBattle,draw:draw,rightSpell:rightSpell,look:look,next:nextLine,office:office,officeScene:officeScene,bag:bag,intro:intro,
+window.obcQuest={petPick:petPick,pets:PETS,get pet(){return PET},get petJob(){return PETJOB},open:open,map:map,title:title,step:step,turn:turn,newBattle:newBattle,draw:draw,rightSpell:rightSpell,look:look,next:nextLine,office:office,officeScene:officeScene,bag:bag,intro:intro,
  encounter:function(id){var e=ENEMIES.find(function(x){return x.id===id})||ENEMIES[0];e&&encounter(e)},boss:function(ph){var p=prog();p.phase=ph||0;saveProg(p);startBattle(newBattle('boss',null,ph||0))},act:function(a,o){act(a,o)},
  go:function(k,x,y){if(!P)newPlayer();var r=REG[k];goRegion(k,x!=null?x:r.start.x,y!=null?y:r.start.y)},
  level:function(){return level()},growth:function(){return gxp()},extra:EXTRA,cards:CARDS,get battle(){return B},get player(){return P},get scene(){return SCENE},get enemies(){return ENEMIES},get talking(){return TALK&&{i:TALK.i,n:TALK.lines.length,who:TALK.lines[TALK.i].who}},regions:REG,load:load};
