@@ -107,3 +107,16 @@ canvas.qg-cv,.qg-list canvas{image-rendering:pixelated;image-rendering:crisp-edg
 .qg-box{display:flow-root}.qg-stage.office{height:auto}
 /* graphics pass: bevelled battle frame */
 .qg-stage.battle canvas{border:3px double #e8d9a8;box-shadow:inset 0 0 0 2px #2a2238,0 0 0 2px #2a2238}
+/* features: level up, cards, sound */
+.qg-lvl{position:fixed;left:50%;top:22%;transform:translateX(-50%);z-index:50;background:#2a2238;border:3px double #f3c95a;color:#fff6d8;padding:.8em 1.2em;text-align:center;display:flex;flex-direction:column;gap:.3em;box-shadow:0 0 0 2px #1a1a2b,0 0 24px rgba(243,201,90,.55);animation:qgLvl 2.4s ease-out both;pointer-events:none;max-width:88vw}
+.qg-lvl b{color:#f3c95a;font-size:1.15em}
+@keyframes qgLvl{0%{opacity:0;transform:translate(-50%,16px) scale(.9)}12%{opacity:1;transform:translate(-50%,0) scale(1.04)}20%{transform:translate(-50%,0) scale(1)}85%{opacity:1}100%{opacity:0;transform:translate(-50%,-10px)}}
+@media (prefers-reduced-motion:reduce){.qg-lvl{animation:none}}
+.qg-xp{color:#9fe0a8;font-weight:700}
+.qg-h3{margin:.9em 0 .4em;font-size:1em;color:#f3c95a}
+.qg-cards{list-style:none;padding:0;margin:0;display:grid;gap:.6em}
+.qg-card{display:flex;gap:.7em;align-items:flex-start}
+.qg-card canvas{width:48px;height:64px;image-rendering:pixelated;flex:none}
+.qg-card p{margin:.2em 0 0}
+.qg-btn.sp.new{border-color:#9fe0a8}
+.qg-hud .qg-snd{margin-left:auto}
