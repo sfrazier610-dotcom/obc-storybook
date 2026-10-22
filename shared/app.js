@@ -7,6 +7,7 @@ const mb=$('.menu');mb.addEventListener('click',()=>{const o=mb.getAttribute('ar
 $('#q-concerns').innerHTML=Object.entries(C).map(([k,v])=>`<label><input type="checkbox" name="concern" value="${k}">${esc(v)}</label>`).join('');
 $('#q-mods').innerHTML=Object.entries(M).map(([k,v])=>`<label><input type="checkbox" name="mod" value="${k}">${esc(v)}</label>`).join('');
 const AGE={under8:'children under 8',child8:'children 8–12',teen:'teens',adult:'adults'};
+function ageText(g){const o=[];if(g.includes('under8')&&g.includes('child8'))o.push('children (including under 8)');else{if(g.includes('under8'))o.push('children under 8');if(g.includes('child8'))o.push('children 8–12');}if(g.includes('teen'))o.push('teens');if(g.includes('adult'))o.push('adults');return o.join(', ');}
 function score(c,a){let pts=0,max=0,why=[],gaps=[];
  a.concerns.forEach(x=>{max+=3;if(c.concerns.includes(x)){pts+=3;why.push(`Lists ${C[x]} (+3)`);}else gaps.push(`${C[x]} not listed`);});
  max+=2;if(c.ages===null||(c.agesPending&&!c.ages.includes(a.age)&&a.age!=='under8')){pts+=1;why.push('Age range not publicly listed (+1, confirm)');}else if(c.ages.includes(a.age)){pts+=2;why.push(`Works with ${AGE[a.age]}${c.agesLabel?' ('+c.agesLabel+')':''} (+2)`);}else gaps.push(`Doesn't list ${AGE[a.age]}`);
@@ -17,9 +18,9 @@ window.obcScore=score;
 $('#quiz').addEventListener('submit',e=>{e.preventDefault();const f=new FormData(e.target);
  const a={concerns:f.getAll('concern'),age:f.get('age'),format:f.get('format'),mods:f.getAll('mod'),setting:f.get('setting')};
  if(a.age==='under8'&&!D.clinicians.some(c=>c.ages&&c.ages.includes('under8'))){$('#results').innerHTML='<div class="card under8-note" role="status"><p>For children under 8, please call us at <a href="tel:3855246665">(385) 524-6665</a> and we\'ll help you find the right fit or a trusted referral.</p></div>';$('#results').scrollIntoView&&$('#results').focus&&0;return;}
- const r=D.clinicians.map(c=>score(c,a)).sort((x,y)=>y.pct-x.pct||y.pts-x.pts);
+ const r=D.clinicians.filter(c=>a.age!=='under8'||!c.ages||c.ages.includes('under8')).map(c=>score(c,a)).sort((x,y)=>y.pct-x.pct||y.pts-x.pts);
  const setNote=a.setting==='either'?'':`<p class="note">You chose ${a.setting==='inperson'?'in person':'telehealth'}. The practice offers both, but per-clinician availability isn't published, so please confirm with scheduling.</p>`;
- const T=window.THEME||{};$('#results').innerHTML=`<h3>${T.resultsTitle||'Your ranked matches'} (all ${r.length} clinicians)</h3>${setNote}<ol class="ranked">`+r.map((x,i)=>`<li class="card"><div class="rhead"><span class="rank">#${i+1}</span><strong>${esc(x.c.name)}</strong>, ${esc(x.c.cred)}<span class="pct">${x.pct}% fit (${x.pts}/${x.max} pts)</span></div>
+ const T=window.THEME||{};$('#results').innerHTML=`<h3>${T.resultsTitle||'Your ranked matches'} (${a.age==='under8'?r.length+' clinicians who see children under 8':'all '+r.length+' clinicians'})</h3>${setNote}${a.age==='under8'?'<p class="note">For children under 8, you can also call us at <a href="tel:3855246665">(385) 524-6665</a> and we\'ll help you find the right fit.</p>':''}<ol class="ranked">`+r.map((x,i)=>`<li class="card"><div class="rhead"><span class="rank">#${i+1}</span><strong>${esc(x.c.name)}</strong>, ${esc(x.c.cred)}<span class="pct">${x.pct}% fit (${x.pts}/${x.max} pts)</span></div>
  <div class="bar" role="img" aria-label="${x.pct} percent"><span style="width:${x.pct}%"></span></div>
  <p><strong>Why:</strong></p><ul>${x.why.map(w=>`<li>${esc(w)}</li>`).join('')||'<li>No overlap with your selections</li>'}</ul>
  ${x.gaps.length?`<p class="gaps"><strong>Not listed:</strong> ${esc(x.gaps.join('; '))}</p>`:''}
@@ -33,7 +34,7 @@ function team(){const c=fc.value,m=fm.value,a=$('#f-age').value,q=$('#f-q').valu
  const list=D.clinicians.filter(x=>(!c||x.concerns.includes(c))&&(!m||x.mods.includes(m))&&(!a||x.ages===null||x.ages.includes(a))&&(!q||JSON.stringify(x).toLowerCase().includes(q)));
  $('#team-count').textContent=`Showing ${list.length} of ${D.clinicians.length} clinicians`+(a?' (clinicians with unlisted age ranges are included)':'');
  $('#team-grid').innerHTML=list.map(x=>`<article class="card"><div class="avatar" aria-hidden="true">${x.name.split(' ').map(s=>s[0]).join('')}</div><h3>${esc(x.name)}</h3><p class="cred">${esc(x.cred)}</p><p>${esc(x.card||x.style)}</p>${x.bio?`<details class="bio"><summary>Read full bio</summary><p>${esc(x.bio)}</p></details>`:''}
- ${x.award?`<p class="award">${esc(x.award)}</p>`:''}<p><strong>Ages:</strong> ${x.agesLabel?esc(x.agesLabel):x.ages?x.ages.map(k=>AGE[k]||k).join(', ')+(x.agesPending?'; other ages: confirm':''):'Confirm'} · <strong>Formats:</strong> ${x.formats?x.formats.join(', '):'Confirm'}</p>
+ ${x.award?`<p class="award">${esc(x.award)}</p>`:''}<p><strong>Ages:</strong> ${x.agesLabel?esc(x.agesLabel):x.ages?ageText(x.ages)+(x.agesPending?'; other ages: confirm':''):'Confirm'} · <strong>Formats:</strong> ${x.formats?x.formats.join(', '):'Confirm'}</p>
  <p class="tags">${x.concerns.map(k=>`<span>${esc(C[k])}</span>`).join('')}</p><p><strong>Approaches:</strong> ${x.mods.length?x.mods.map(k=>esc(M[k])).join(', '):'Confirm'}</p></article>`).join('')||'<p>No one matches every filter. Try removing one.</p>';}
 [fc,fm,$('#f-age'),$('#f-q')].forEach(el=>el.addEventListener('input',team));team();
 // modalities
