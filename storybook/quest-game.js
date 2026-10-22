@@ -25,6 +25,9 @@ var PAL={k:'#1a1a2b',h:'#5a3a22',s:'#e2ad84',c:'#1f6f73',d:'#134a4d',y:'#f3c95a'
 var HERO={down:['....kkkk....','...khhhhk...','..khhhhhhk..','..kssssssk..','..ksksskskk.','...kssssk...','..kccccccky.','.kccdccdccy.','.kccccccck..','..kcccccck..','..kddddddk..','...kb..bk...','...kb..bk...','...kk..kk...'],
  side:['....kkkk....','...khhhhk...','..khhhhhhk..','..khsssssk..','..khssksk...','...kssssk...','..kccccccky.','.kccccdccy..','.kccccccck..','..kcccccck..','..kddddddk..','...kb..bk...','...kb..bk...','...kk..kk...'],
  up:['....kkkk....','...khhhhk...','..khhhhhhk..','..khhhhhhk..','..khhhhhhk..','...khhhhk...','..kccccccky.','.kccccccccy.','.kccccccck..','..kcccccck..','..kddddddk..','...kb..bk...','...kb..bk...','...kk..kk...']};
+/* Makayla, the lantern-keeper: original sprite, long hair and a dress */
+var GIRL={down:['...kkkkkk...','..khhhhhhk..','.khhhhhhhhk.','.khsssssshk.','.khsksskshk.','.khhsssshhk.','.khkcccckhk.','..kccddcck.y','..kcccccck..','.kcccccccck.','.kddddddddk.','...kb..bk...','...kb..bk...','...kk..kk...'],
+ side:['...kkkkkk...','..khhhhhhk..','.khhhhhhhhk.','.khhsssssk..','.khhssksk...','.khhssssk...','.khhkcccck..','..khccdccky.','..kcccccck..','.kcccccccck.','.kddddddddk.','...kb..bk...','...kb..bk...','...kk..kk...']};
 function legsB(r){r=r.slice();r[11]='..kb....bk..';r[12]='..kb....bk..';r[13]='..kk....kk..';return r}
 var CLOUD=['....kkkkkk....','..kkggggggkk..','.kggllggggggk.','kgglllgggggggk','kggggggggggggk','kggwkggggwkggk','kggkkggggkkggk','kggggggggggggk','kgggggkkgggggk','.kggggggggggk.','..kgkggggkgk..','...k.kggk.k...'];
 var FOGPAL={k:'#3d4246',g:'#9aa3a8',l:'#c9cfd2',w:'#eef2f3'},STORMPAL={k:'#1d2c3d',g:'#5d7891',l:'#8fb0c9',w:'#f3c95a'},BOSSPAL={k:'#14141c',g:'#4b4e5c',l:'#767a8a',w:'#f3c95a'};
@@ -44,7 +47,7 @@ function drawFidget(c,x,y,s,t){px(c,FIDGET,FIDPAL,x,y,{s:s});if(RM)return;var w=
 var REG={
  town:{name:'Lanternfall Town',lift:'done',rows:['TTTTTTTTTTTTTTTTTTTT','TGGGGGGGGGGGGGGGGGGT','TGHGGHGGGGGGGHGGHGGT','TG.GG.GGGGGGGG.GG.GT','TG................GT','TGG.GGGGGGGGGGGG.GGT','TGG.GGGWWWWGGGGG.GGT','TGG.GGGWWWWGGGGG...E','TGG.GGGGGGGGGGGG.GGT','TGG......L.......GGT','TGGGGGGGG.GGGGGGGGGT','TGGGGGGGG.GGGGGGGGGT','TTTTTTTTTTTTTTTTTTTT'],
   start:{x:9,y:10},lantern:{x:9,y:9},exits:{'19,7':{to:'marsh',x:1,y:6}},clouds:[],
-  npcs:[{id:'keeper',x:11,y:9,pal:bodyPal('#d8d8d8','#5b4a8a','#3b2f5c','#f3c95a'),name:'Wren, the lantern-keeper',lines:['Head east, traveler. The Gray Fog Marsh is first, then the Storm Wind Cliffs.','Rest at any lantern like this one when your Resolve runs low. Resting is part of the journey.']},
+  npcs:[{id:'keeper',x:11,y:9,spr:'girl',pal:bodyPal('#7a3b22','#5b4a8a','#3b2f5c','#f3c95a'),name:'Makayla, the lantern-keeper',lines:['Head east, traveler. The Gray Fog Marsh is first, then the Storm Wind Cliffs.','Rest at any lantern like this one when your Resolve runs low. Resting is part of the journey.']},
    {id:'baker',x:6,y:3,pal:bodyPal('#8a5a33','#c96a4a','#8a3f2a'),name:'Pell, the baker',lines:['The fog rolled in so slowly that nobody noticed at first. That happens with symptoms too.','Someone told me naming it out loud is the first step. So: it is foggy. There. I said it.']},
    {id:'kid',x:15,y:5,pal:bodyPal('#2a1c14','#3d8a4f','#24572f'),name:'Mira',lines:['Are you going to the Open Book office? I heard it is warm in there, with a big comfy couch.']}],
   signs:[{x:18,y:6,text:'East: Gray Fog Marsh. Then the Storm Wind Cliffs. Then the old threshold, and the Open Book office beyond it.'}]},
@@ -113,7 +116,7 @@ function wander(e,dt){if(RM)return;e.t-=dt;if(e.moving){e.moving.t+=dt/400;var k
 function drawMap(c,t,dt){var r=R(),lf=lifted(r.lift);c.drawImage(mapCanvas(P.region),0,0);
  if(!RM){c.fillStyle='#5d9bc8';var wy=Math.floor(t/400)%3;r.rows.forEach(function(row,y){for(var x=0;x<MW;x++)if(row[x]==='W'&&(x+y)%2===0)c.fillRect(x*TS+3,y*TS+5+wy,6,1)})}
  r.rows.forEach(function(row,y){for(var x=0;x<MW;x++)if(row[x]==='L'){var g=RM?.22:.16+.08*Math.sin(t/500+x);c.fillStyle='rgba(243,201,90,'+g+')';c.fillRect(x*TS-6,y*TS-6,28,28)}});
- r.npcs.forEach(function(n){var ib=(!RM&&Math.floor(t/700+n.x)%2)?1:0;px(c,HERO.down,n.pal,n.x*TS+2,n.y*TS+1+ib)});
+ r.npcs.forEach(function(n){var ib=(!RM&&Math.floor(t/700+n.x)%2)?1:0;px(c,(n.spr==='girl'?GIRL:HERO).down,n.pal,n.x*TS+2,n.y*TS+1+ib)});
  ENEMIES.forEach(function(e){wander(e,dt);var bob=RM?0:Math.round(Math.sin(t/300+e.x)*1);px(c,CLOUD,e.weather==='fog'?FOGPAL:STORMPAL,e.fx*TS+1,e.fy*TS+2+bob)});
  if(P.moving){P.moving.t+=dt/150;var k=Math.min(1,P.moving.t);P.fx=P.moving.sx+(P.x-P.moving.sx)*k;P.fy=P.moving.sy+(P.y-P.moving.sy)*k;if(k>=1){P.moving=null;P.fx=P.x;P.fy=P.y;arrive();if(SCENE==='map'&&held&&!TALK)step(held)}}
  else if(touching()&&SCENE==='map'&&!TALK)encounter(touching());
@@ -228,11 +231,11 @@ function title(){SCENE='title';stopLoop();endTalk();var p=prog(),has=p.x!=null||
 /* opening: wake in the fog, meet the lantern-keeper */
 var IN={t0:0,up:false};
 function intro(){SCENE='intro';dlg.dataset.scene='intro';IN={t0:performance.now(),up:false};
- body('<h2 id="qg-title" class="sr">Opening: Lanternfall Town</h2><div class="qg-stage"><canvas class="qg-cv qg-icv" width="320" height="150" role="img" aria-label="Pixel art: a fog-covered town at dusk. Your traveler wakes on the street as a lantern-keeper walks over."></canvas></div><div class="qg-row"><button type="button" class="qg-link" data-skip>Skip the opening</button></div>',false);
+ body('<h2 id="qg-title" class="sr">Opening: Lanternfall Town</h2><div class="qg-stage"><canvas class="qg-cv qg-icv" width="320" height="150" role="img" aria-label="Pixel art: a fog-covered town at dusk. Your traveler wakes on the street as Makayla, the lantern-keeper, walks over with her lantern."></canvas></div><div class="qg-row"><button type="button" class="qg-link" data-skip>Skip the opening</button></div>',false);
  dlg.querySelector('[data-skip]').onclick=endIntro;loop(drawIntro);
- var W='Wren, the lantern-keeper';
+ var W='Makayla, the lantern-keeper';
  talk([{who:'',text:'You wake on a cold cobblestone street. A thick gray fog has rolled over Lanternfall Town.'},
-  {who:W,text:'Easy now, traveler. I\'m Wren. I keep the lanterns lit. You\'ve been sleeping in the fog a while.'},
+  {who:W,text:'Easy now, traveler. I\'m Makayla. I keep the lanterns lit. You\'ve been sleeping in the fog a while.'},
   {who:W,text:'This fog isn\'t ordinary weather. It\'s symptoms: the heavy, tired kind, and the racing, worried kind. They roll in. They are not you.'},
   {who:W,text:'East, past the Gray Fog Marsh and the Storm Wind Cliffs, the Fogstorm sits on the old threshold. Beyond it is the Open Book office. It\'s warm in there. Safe.'},
   {who:W,text:'You won\'t walk alone. Call a guide when you need one, and rest at any lantern. Go on. East is that way.'}],endIntro);
@@ -243,7 +246,7 @@ function drawIntro(c,t){IN.up=!TALK||TALK.i>=1;var k=Math.min(1,RM?1:(t-IN.t0)/2
  c.fillStyle='#8c8577';c.fillRect(0,90,320,60);c.fillStyle='#7a7366';for(var j=0;j<320;j+=16)c.fillRect(j+((j/16)%2)*8,98+((j/16)%3)*12,10,3);
  c.fillStyle='#3b2a1a';c.fillRect(250,54,4,44);c.fillStyle='#1a1a2b';c.fillRect(244,44,16,14);c.fillStyle='#f3c95a';c.fillRect(247,47,10,8);c.fillStyle='rgba(243,201,90,'+(RM?.18:.14+.06*Math.sin(t/400))+')';c.fillRect(226,28,52,52);
  if(!IN.up){c.save();c.translate(120,118);c.rotate(-Math.PI/2);px(c,HERO.side,PAL,0,0,{s:2});c.restore()}else px(c,HERO.side,PAL,110,84+(RM?0:Math.floor(t/500)%2),{s:2});
- var kx=RM?170:330-160*k;px(c,HERO.side,REG.town.npcs[0].pal,kx,84,{s:2,flip:true});c.fillStyle='#f3c95a';c.fillRect(kx-2,104,4,5);
+ var kx=RM?170:330-160*k;px(c,GIRL.side,REG.town.npcs[0].pal,kx,84,{s:2,flip:true});c.fillStyle='#f3c95a';c.fillRect(kx-2,104,4,5);
  c.fillStyle='rgba(200,205,210,.35)';c.fillRect(0,0,320,150);if(!RM){c.fillStyle='rgba(230,233,236,.18)';var o=(t/70)%80;for(var q=-1;q<5;q++){c.fillRect(q*80+o,24+q*9,60,7);c.fillRect(q*80-o+30,70+q*11,48,6)}}}
 
 function hudHtml(){var p=prog(),n=(p.inv||[]).length;return '<div class="qg-hud" role="status"><span>Lv '+level(p)+'</span><span class="qg-hp" aria-label="Resolve '+P.resolve+' of '+maxRes(p)+'">Resolve <b>'+P.resolve+'</b>/'+maxRes(p)+'<i><em style="width:'+(100*P.resolve/maxRes(p))+'%"></em></i></span><span>'+esc(R().name)+'</span><span>Clouds '+((p.cleared||[]).length)+'/'+allClouds().length+'</span><button type="button" class="qg-link qg-bagbtn" data-bag>Bag ('+n+')</button></div>'}
