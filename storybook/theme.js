@@ -2,7 +2,7 @@
 const RM=matchMedia('(prefers-reduced-motion: reduce)').matches,$=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const desk=()=>matchMedia('(min-width:1000px)').matches;
 const toast=t=>{const e=$('#toast');e.textContent=t;e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),3200);};
-function spark(x,y){if(RM)return;const s=document.createElement('span');s.className='sparkle';s.textContent='✦';s.style.left=x+'px';s.style.top=y+'px';document.body.appendChild(s);setTimeout(()=>s.remove(),900);}
+function spark(x,y){if(RM)return;const s=document.createElement('span');s.className='sparkle';s.textContent='•';s.style.left=x+'px';s.style.top=y+'px';document.body.appendChild(s);setTimeout(()=>s.remove(),900);}
 document.addEventListener('click',e=>{if(e.target.closest('.btn'))spark(e.clientX,e.clientY);});
 
 // ---- cover ----
@@ -79,7 +79,7 @@ let found=0;const glyphs=['ᚠ','ᚱ','ᛟ','ᛉ','ᛞ'];window.obcRunes={};
 try{['obc_runes_found','obc_bonus_runes','obc_reward_seen'].forEach(k=>localStorage.removeItem(k))}catch(e){}
 const saved=[];function saveRunes(){}
 const counted=new Set();function markFound(b){b.classList.add('found');b.classList.remove('hiddenrune');b.setAttribute('aria-label','A glimmer, found');if(counted.has(b.dataset.rune))return;counted.add(b.dataset.rune);found++;$('#rune-count').textContent=found;if(found===5)showRewardBtn();}
-function showRewardBtn(){const h=$('#runes-hud');if(h.querySelector('.reward-btn'))return;const x=h.querySelector('.rune-hint-line');x&&x.remove();const b=document.createElement('button');b.type='button';b.className='reward-btn';b.textContent='✦ View your reward';b.onclick=()=>obcOpenRoom();h.appendChild(b);}
+function showRewardBtn(){const h=$('#runes-hud');if(h.querySelector('.reward-btn'))return;const x=h.querySelector('.rune-hint-line');x&&x.remove();const b=document.createElement('button');b.type='button';b.className='reward-btn';b.textContent='📖 View your reward';b.onclick=()=>obcOpenRoom();h.appendChild(b);}
 function collect(b,e){if(b.classList.contains('found'))return;markFound(b);saveRunes();
  found<5?obcSound.chime(found):obcSound.flourish();const r=b.getBoundingClientRect();spark(e&&e.clientX||r.left+r.width/2,e&&e.clientY||r.top+r.height/2);
  toast(found<5?`A rune glows. ${5-found} still hidden.`:'All five runes glow. A bookcase swings open…');if(found===5)setTimeout(obcOpenRoom,RM?0:700);}
@@ -101,7 +101,7 @@ const r5=mkRune('lantern',4,lw,'r-lantern hiddenrune');
 saved.forEach(k=>{if(!counted.has(k)&&glyphs.length){counted.add(k);found++;}});$('#rune-count').textContent=found;if(found>=5)showRewardBtn();
 // faint hints (v11)
 (()=>{const h=$('#runes-hud');if(found<5){const l=document.createElement('span');l.className='rune-hint-line';l.textContent=' · 5 runes hide in these pages…';h.appendChild(l);}
- [['#home .page.right','A candle in the painting waits to be lit…'],['#match .page.right','Finish the ritual, and something may glimmer…'],['#services .page.left','Look closely at the margins…'],['#toolkit .page.right','Some charms keep secrets on their backs…'],['#locations .page.left','A lantern longs for a spark…']].forEach(([q,t])=>{const pg=$(q);if(!pg)return;const p=document.createElement('p');p.className='rune-whisper';p.textContent='✧ '+t;pg.appendChild(p);});})();
+ [['#home .page.right','A candle in the painting waits to be lit…'],['#match .page.right','Finish the ritual, and something may glimmer…'],['#services .page.left','Look closely at the margins…'],['#toolkit .page.right','Some charms keep secrets on their backs…'],['#locations .page.left','A lantern longs for a spark…']].forEach(([q,t])=>{const pg=$(q);if(!pg)return;const p=document.createElement('p');p.className='rune-whisper';p.textContent='• '+t;pg.appendChild(p);});})();
 // periodic subtle shimmer on an unfound rune
 if(!RM)setInterval(()=>{if(document.hidden)return;const u=Object.values(obcRunes).filter(x=>!x.classList.contains('found'));if(!u.length)return;const x=u[Math.floor(Math.random()*u.length)];x.classList.remove('shim');void x.offsetWidth;x.classList.add('shim');},4500);
 const K=['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];let ki=0;

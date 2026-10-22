@@ -223,7 +223,7 @@ function turn(st,action,opt){opt=opt||{};var G=Q.guide,s=sym(st.current),Ph=phas
   if(x==='guidedstep'&&s.id==='gate')st.gateOpen=true;if(x==='gratitude')out.gratitude=true;
   st.helped[x]=(st.helped[x]||0)+1;st.meter-=3;st.cooldown=(Ph&&Ph.guide==='auto')?0:G.cooldownTurns+1}
  else if(action==='rest'){out.wise=st.resolve<=st.maxRes/2;if(st.freeRest&&!st.freeRestUsed){st.freeRestUsed=true;out.drain=0;out.free=true}else out.drain=Math.ceil(s.drain/2);st.resolve=Math.min(st.maxRes,st.resolve+3);out.rested=3}
- else{var S1=sp(action);if(!S1)return {error:'nospell'};if(S1.kind==='guided')return {error:'needsguide'};if(st.lastSpell===action)return {error:'repeat'};
+ else{var S1=sp(action);if(!S1)return {error:'nospell'};if(S1.kind==='guided')return {error:'needsguide'};if(S1.guideOnlyFor&&s.weather===S1.guideOnlyFor)return {error:'fearopp'};if(st.lastSpell===action)return {error:'repeat'};
   var match=fitsSp(s,action),triple=Ph&&Ph.tripleSpell===action;
   if(match){out.matched=true;out.cleared=S1.base*(triple?3:2)+(st.bonus||0);out.drain=0}
   else if(triple){out.cleared=S1.base*3+(st.bonus||0);out.drain=Math.ceil(s.drain/2)}
@@ -347,7 +347,7 @@ function faces(){dlg.querySelectorAll('[data-face]').forEach(function(cv){var c=
 function battleUI(menu,msg,fsel){var s=sym(B.current),Ph=phaseOf(B),g=guideReady(B);dlg.dataset.menu=menu||'';
  var top=Ph?'<p class="qg-phase">'+esc(Ph.name)+' · Fogstorm phase '+(B.phase+1)+' of 4'+(B.freeRest&&!B.freeRestUsed?' · next Rest is free':'')+'</p>':'';
  var m='';
- if(menu==='spells'){var LV=level();m='<div class="qg-list" role="group" aria-label="Spells">'+Q.spells.concat(EXTRA).map(function(x){var g1=x.kind==='guided',lk=x.lv&&LV<x.lv,rep=B.lastSpell===x.id;return '<button type="button" class="qg-btn sp'+(g1||lk?' locked':'')+(x.lv&&!lk?' new':'')+'" data-spell="'+x.id+'"'+((g1||rep||lk)?' aria-disabled="true"':'')+'>'+esc(x.name.replace(' (solo)',''))+'<small>'+(g1?'Only with a guide':lk?'Unlocks at Lv '+x.lv:rep?'Just cast':x.lv?'Learned at Lv '+x.lv:'Solo')+'</small></button>'}).join('')+'</div><div class="qg-row"><button type="button" class="qg-btn" data-back>Back</button></div>'}
+ if(menu==='spells'){var LV=level();m='<div class="qg-list" role="group" aria-label="Spells">'+Q.spells.concat(EXTRA).map(function(x){var g1=x.kind==='guided'||!!(x.guideOnlyFor&&sym(B.current).weather===x.guideOnlyFor),lk=x.lv&&LV<x.lv,rep=B.lastSpell===x.id;return '<button type="button" class="qg-btn sp'+(g1||lk?' locked':'')+(x.lv&&!lk?' new':'')+'" data-spell="'+x.id+'"'+((g1||rep||lk)?' aria-disabled="true"':'')+'>'+esc(x.name.replace(' (solo)',''))+'<small>'+(g1?(x.guideOnlyFor?'With your Guide for fear':'Only with a guide'):lk?'Unlocks at Lv '+x.lv:rep?'Just cast':x.lv?'Learned at Lv '+x.lv:'Solo')+'</small></button>'}).join('')+'</div><div class="qg-row"><button type="button" class="qg-btn" data-back>Back</button></div>'}
  else if(menu==='guides')m=guideList('Choose who helps. They cast the right spell for '+esc(s.name)+': no Resolve cost, 3 HP.')+'<div class="qg-row"><button type="button" class="qg-btn" data-back>Back</button></div>';
  else m='<div class="qg-cmd" role="group" aria-label="Battle commands"><button type="button" class="qg-btn" data-m="spells">Spells</button><button type="button" class="qg-btn" data-m="guides"'+(g?'':' aria-disabled="true"')+'>Call Guide<small>'+(g?'free · 3 HP':'resting '+B.cooldown+' turn'+(B.cooldown>1?'s':''))+'</small></button><button type="button" class="qg-btn" data-m="rest">Rest<small>+3 Resolve</small></button></div>';
  body('<h2 id="qg-title" class="qg-bt">'+esc(s.name)+' <small>'+(s.weather==='fog'?'Gray Fog':'Storm Wind')+' symptom</small></h2>'+top+
@@ -357,7 +357,7 @@ function battleUI(menu,msg,fsel){var s=sym(B.current),Ph=phaseOf(B),g=guideReady
  faces();
  var bk=dlg.querySelector('[data-back]');bk&&(bk.onclick=function(){battleUI(null,msg)});
  dlg.querySelectorAll('[data-m]').forEach(function(b){b.onclick=function(){var k=b.dataset.m;if(b.getAttribute('aria-disabled')){say('Your guides are resting for '+B.cooldown+' more turn'+(B.cooldown>1?'s':'')+'. Try a spell or Rest.');return}if(k==='rest')return act('rest');battleUI(k,msg)}});
- dlg.querySelectorAll('[data-spell]').forEach(function(b){b.onclick=function(){if(b.getAttribute('aria-disabled')){var sm=b.querySelector('small').textContent;if(/^Unlocks/.test(sm)){say(sm+'. Make right choices to grow.');return}say(sm==='Just cast'?'You just cast that. Try another spell.':'That spell is only cast with a guide. Use Call Guide.');return}act(b.dataset.spell)}});
+ dlg.querySelectorAll('[data-spell]').forEach(function(b){b.onclick=function(){if(b.getAttribute('aria-disabled')){var sm=b.querySelector('small').textContent;if(/^Unlocks/.test(sm)){say(sm+'. Make right choices to grow.');return}if(/for fear/.test(sm)){say('Opposite Action for fear is done with your Guide.');var mm=dlg.querySelector('#qg-msg');mm&&(mm.innerHTML='<em>Opposite Action for fear is done with your Guide.</em> Try Call Guide, or another spell.');return}say(sm==='Just cast'?'You just cast that. Try another spell.':'That spell is only cast with a guide. Use Call Guide.');return}act(b.dataset.spell)}});
  dlg.querySelectorAll('[data-clin]').forEach(function(b){b.onclick=function(){act('guide',{clinician:b.dataset.clin})}});
  loop(drawBattle)}
 /* battle scene */
@@ -395,7 +395,7 @@ function drawBattle(c,t,dt){var s=sym(B.current),boss=B.mode==='boss';
  if(!RM&&s.weather==='storm'){c.fillStyle='rgba(143,176,201,.6)';for(var j=0;j<14;j++)c.fillRect((j*23+t/6)%320,(j*31+t/2)%108,1,4)}
  var ib=RM?0:(Math.floor(t/450)%2);px(c,walkF(HERO.side,0),PAL,40,72+ib,{s:4,flash:pf});
  if(BA.guide){BA.gT-=dt;if(BA.gT<=0)BA.guide=null;else{var a=RM?1:Math.min(1,(1800-BA.gT)/250,BA.gT/300);c.globalAlpha=Math.max(0,a);c.fillStyle='#f4ecd8';c.fillRect(97,61,54,54);c.fillStyle='#1a1a2b';c.fillRect(98,62,52,52);px(c,faceRows(BA.guide),facePal(BA.guide),100,64,{s:3});c.globalAlpha=1}}}
-function act(a,opt){var s=sym(B.current),r=turn(B,a,opt);if(r.error){say({cooldown:'Your guides are resting. Try a spell or Rest.',needsguide:'That spell is only cast with a guide.',repeat:'You just cast that. Try another spell.'}[r.error]||'Not available.');return}
+function act(a,opt){var s=sym(B.current),r=turn(B,a,opt);if(r.error){say({cooldown:'Your guides are resting. Try a spell or Rest.',needsguide:'That spell is only cast with a guide.',repeat:'You just cast that. Try another spell.',fearopp:'Opposite Action for fear is done with your Guide.'}[r.error]||'Not available.');return}
  var p=prog();p.practiced=p.practiced||{};var used=r.spell||a;if(a!=='rest')p.practiced[used]=(p.practiced[used]||0)+1;if(r.clinician){p.guides=p.guides||{};p.guides[r.clinician]=(p.guides[r.clinician]||0)+1}if(r.matched&&!r.clinician&&used==='breath'&&(p.quests||{}).jo==='on'){p.quests.jo='ready'}saveProg(p);
  var gain=r.clinician?2:r.matched?2:(a==='rest'&&r.wise)?1:0;
  var x=sp(r.spell||a),k=r.clinician&&clin(r.clinician),line='';

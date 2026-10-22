@@ -119,4 +119,5 @@ canvas.qg-cv,.qg-list canvas{image-rendering:pixelated;image-rendering:crisp-edg
 .qg-card canvas{width:48px;height:64px;image-rendering:pixelated;flex:none}
 .qg-card p{margin:.2em 0 0}
 .qg-btn.sp.new{border-color:#9fe0a8}
-.qg-hud .qg-snd{margin-left:auto}
+.qg-hud .qg-snd{white-space:nowrap}
+@media(min-width:700px){.qg-hud{flex-wrap:nowrap;white-space:nowrap;gap:6px 9px;font-size:.72rem;padding:4px 6px}.qg-hud>*{flex:none}.qg-hud .qg-bar i{width:46px}}

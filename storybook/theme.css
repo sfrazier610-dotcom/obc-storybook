@@ -325,7 +325,7 @@ body{background:radial-gradient(ellipse at 50% 0%,#2a1f5c 0,#141038 38%,#070818 
 @media(prefers-reduced-motion:reduce){.reward,.rw-glow,.lantern-wrap .spot{animation:none!important}}
 /* v12 constant sparkle on unfound runes */
 .rune:not(.found){animation:runePulse 2.6s ease-in-out infinite;will-change:opacity}
-.rune:not(.found)::before,.rune:not(.found)::after{content:"✦";position:absolute;font-size:10px;line-height:1;color:#fff3c4;text-shadow:0 0 6px #f3c96a;pointer-events:none;opacity:0;animation:runeGlint 2.6s ease-in-out infinite;will-change:transform,opacity}
+.rune:not(.found)::before,.rune:not(.found)::after{content:"•";position:absolute;font-size:10px;line-height:1;color:#fff3c4;text-shadow:0 0 6px #f3c96a;pointer-events:none;opacity:0;animation:runeGlint 2.6s ease-in-out infinite;will-change:transform,opacity}
 .rune:not(.found)::before{top:4px;right:6px}
 .rune:not(.found)::after{bottom:6px;left:5px;font-size:8px;animation-delay:-1.3s}
 @keyframes runePulse{0%,100%{opacity:.22;text-shadow:0 0 2px rgba(243,201,106,.3)}50%{opacity:1;color:#f6d27a;text-shadow:0 0 10px #f3c96a,0 0 22px rgba(255,220,140,.8)}}

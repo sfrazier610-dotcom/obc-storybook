@@ -13,6 +13,6 @@
   A.classList.remove('cast','done','swish');void A.offsetWidth;A.classList.add('swish','casting');
   var S=window.obcSound;try{if(S&&S.muted&&!S.muted())S.chime(2)}catch(e){}
   t1=setTimeout(function(){A.classList.remove('armed');A.classList.add('cast');sparks()},650);
-  t2=setTimeout(function(){A.classList.add('done');A.classList.remove('swish','casting');A.querySelector('.aw-hint').textContent='Tap the pen to write it again ✦';busy=false},650+3200)}
+  t2=setTimeout(function(){A.classList.add('done');A.classList.remove('swish','casting');A.querySelector('.aw-hint').textContent='Tap the pen to write it again ◎';busy=false},650+3200)}
  W.addEventListener('click',cast);
 })();
