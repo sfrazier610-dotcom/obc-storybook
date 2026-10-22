@@ -144,3 +144,4 @@ dialog.qg [hidden]{display:none!important}
  .qg-clearing .mist{opacity:0}
  .qg-fx,.qg-lift{display:none!important}
 }
+@media (max-width:640px){dialog.qg .qg-body h2,dialog.qg .qg-panel h2{padding-right:128px}}
