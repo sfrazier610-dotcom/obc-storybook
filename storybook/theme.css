@@ -362,3 +362,36 @@ body{background:radial-gradient(ellipse at 50% 0%,#2a1f5c 0,#141038 38%,#070818 
 .aw-past{justify-content:center;background:rgba(200,155,60,.07);border-style:dashed}
 .aw-past .aw-seal{flex-basis:38px;height:38px;font-size:.8rem}
 .awards.cast .aw-past-list .aw:nth-child(1){animation:awInk 1s 2.8s forwards}
+/* v17 quest layer (original art; storybook only) */
+#book{box-shadow:0 0 0 6px #3b3a38,0 0 0 9px #57534c,0 0 0 11px #2a2926,0 20px 60px rgba(0,0,0,.6),0 0 90px rgba(255,150,60,.12)!important}
+.torch{position:absolute;top:38%;width:14px;height:46px;background:linear-gradient(#6b4a2a,#3a2614);border-radius:3px;pointer-events:none;z-index:3}
+.torch-l{left:-26px}.torch-r{right:-26px}
+.torch i{position:absolute;left:50%;top:-22px;width:18px;height:26px;margin-left:-9px;border-radius:50% 50% 45% 45%;background:radial-gradient(circle at 50% 70%,#fff3c4,#ffb347 45%,rgba(255,110,40,0) 70%);filter:blur(.5px);animation:torchF 1.4s ease-in-out infinite alternate;box-shadow:0 0 30px 12px rgba(255,150,60,.25)}
+@keyframes torchF{0%{transform:scale(1,1)}50%{transform:scale(.9,1.12) translateX(1px)}100%{transform:scale(1.05,.95) translateX(-1px)}}
+@media (max-width:900px){.torch{display:none}}
+.sheet{border:1px solid #8a6a32!important;background:linear-gradient(rgba(255,250,236,.94),rgba(246,234,206,.94))!important;position:relative}
+.sheet::before{content:"";position:absolute;inset:5px;border:1px dashed rgba(138,106,50,.45);border-radius:inherit;pointer-events:none}
+.sheet-tag{margin:0 0 6px;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:#7a2b2b}
+.sheet-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0}
+.sheet-stats div{text-align:center;border:1px solid #b8924a;border-radius:8px;padding:6px 2px;background:rgba(255,255,255,.55)}
+.sheet-stats dt{font-size:.68rem;line-height:1.15;color:#5a4320}.sheet-stats dd{margin:2px 0 0;font-size:1.2rem;font-weight:700;color:#1f3a4d}
+@media (max-width:480px){.sheet-stats{grid-template-columns:repeat(2,1fr)}}
+.sheet-approaches{border-left:3px solid #b8924a;padding-left:8px}
+.quest-intro{font-style:italic;color:#5a4320;margin:0 0 10px}
+#results.rolling{visibility:hidden}
+.d20-roll{display:flex;flex-direction:column;align-items:center;gap:6px;margin:12px 0;color:#5a4320;font-style:italic}
+.d20-roll svg{width:84px;height:84px;animation:d20 1.2s cubic-bezier(.2,.7,.3,1)}
+.d-out{fill:#24435a;stroke:#d9b25a;stroke-width:2}.d-in{fill:#2f587a;stroke:#d9b25a;stroke-width:1.2}.d-edge{stroke:#d9b25a;stroke-width:1;fill:none;opacity:.7}.d20-roll text{fill:#f3d98b;font-size:20px}
+@keyframes d20{0%{transform:translateY(-30px) rotate(0) scale(.6)}60%{transform:translateY(4px) rotate(600deg) scale(1.05)}100%{transform:translateY(0) rotate(720deg) scale(1)}}
+.quest-map{margin:14px 0 0;padding:10px;border-radius:10px;background:radial-gradient(ellipse at center,#f6e7c1,#e3c98f 75%,#c9a96a);box-shadow:inset 0 0 30px rgba(90,60,20,.45);border:1px solid #9a7a40}
+.quest-map figcaption{font-variant:small-caps;letter-spacing:.1em;color:#5a3a1a;text-align:center;margin-bottom:4px}
+.quest-map svg{width:100%;height:auto;display:block}
+.qm-road{fill:none;stroke:#7a4a1a;stroke-width:2.5;stroke-dasharray:6 6}
+.qm-pt{fill:#7a2b2b;stroke:#f6e7c1;stroke-width:2}.quest-map a:hover .qm-pt,.quest-map a:focus .qm-pt{fill:#c8962e}
+.quest-map text{font-size:13px;fill:#3a2410;font-style:italic}.quest-map .qm-land{font-weight:700;font-style:normal}.qm-n{font-size:11px}
+.qm-tower{fill:#4a3a2a;stroke:#2a1a0a}.qm-mtn{fill:none;stroke:#8a6a3a;stroke-width:1.5;opacity:.6}
+.quest-map a:focus{outline:none}.quest-map a:focus-visible text{text-decoration:underline}
+.skill.scroll{border:0!important;border-top:10px solid #b8924a!important;border-bottom:10px solid #b8924a!important;border-radius:4px!important;background:linear-gradient(#f9efd6,#f2e2bc)!important;box-shadow:0 6px 14px rgba(0,0,0,.25)}
+.skill.scroll .cat::before{content:"Spell scroll · ";color:#7a2b2b}
+@media (prefers-reduced-motion:reduce){.torch i,.d20-roll svg{animation:none}}
+@media (max-width:480px){.quest-map text{font-size:17px}.quest-map .qm-n{font-size:14px}}
