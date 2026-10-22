@@ -391,3 +391,10 @@ body{background:radial-gradient(ellipse at 50% 0%,#2a1f5c 0,#141038 38%,#070818 
 .skill.scroll .cat::before{content:"Spell scroll · ";color:#7a2b2b}
 @media (prefers-reduced-motion:reduce){.torch i,.d20-roll svg{animation:none}}
 @media (max-width:480px){.quest-map text{font-size:17px}.quest-map .qm-n{font-size:14px}}
+/* v18 original art pass */
+.quest-map{background:#e9d6a8 url(img/map-bg.webp) center/cover!important}
+.sheet{background-image:linear-gradient(rgba(255,250,236,.94),rgba(246,234,206,.94)),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cpath d='M2 38V14Q2 2 14 2h24' fill='none' stroke='%23b8924a' stroke-width='2'/%3E%3Ccircle cx='8' cy='8' r='2.5' fill='%23b8924a'/%3E%3Cpath d='M14 8h12M8 14v12' stroke='%23b8924a' stroke-width='1'/%3E%3C/svg%3E")!important;background-repeat:no-repeat!important;background-position:0 0,6px 6px!important}
+.sheet::after{content:"";position:absolute;right:6px;bottom:6px;width:40px;height:40px;pointer-events:none;transform:rotate(180deg);background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cpath d='M2 38V14Q2 2 14 2h24' fill='none' stroke='%23b8924a' stroke-width='2'/%3E%3Ccircle cx='8' cy='8' r='2.5' fill='%23b8924a'/%3E%3Cpath d='M14 8h12M8 14v12' stroke='%23b8924a' stroke-width='1'/%3E%3C/svg%3E") no-repeat}
+.aw-penrow::before,.aw-penrow::after{content:"";position:absolute;top:14px;width:70px;height:36px;opacity:.75;pointer-events:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 70 36'%3E%3Cpath d='M68 18C50 18 46 4 34 6S26 26 16 22 6 10 2 16' fill='none' stroke='%23f3d98b' stroke-width='1.4' stroke-linecap='round'/%3E%3Ccircle cx='34' cy='6' r='1.6' fill='%23f3d98b'/%3E%3Cpath d='M16 22l-2 4 4-1z' fill='%23f3d98b'/%3E%3C/svg%3E") no-repeat center/contain}
+.aw-penrow::before{left:calc(50% - 190px)}.aw-penrow::after{right:calc(50% - 190px);transform:scaleX(-1)}
+@media (max-width:480px){.aw-penrow::before,.aw-penrow::after{width:44px;top:10px}.aw-penrow::before{left:2px}.aw-penrow::after{right:2px}}
