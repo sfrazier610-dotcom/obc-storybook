@@ -351,3 +351,8 @@ body{background:radial-gradient(ellipse at 50% 0%,#2a1f5c 0,#141038 38%,#070818 
 .rune.found{background:none;scale:1}
 @media(prefers-reduced-motion:reduce){.rune .gl{display:none}.rune:not(.found){opacity:.5;scale:1}.rune:not(.found)::after{animation:none!important;display:none}}
 .card details.bio{margin:6px 0 10px}.card details.bio summary{cursor:pointer;color:var(--wine);font-weight:600}.card details.bio p{margin:6px 0 0;line-height:1.5}
+/* v15 2025 award */
+.aw-past-list{margin-top:10px}
+.aw-past{justify-content:center;background:rgba(200,155,60,.07);border-style:dashed}
+.aw-past .aw-seal{flex-basis:38px;height:38px;font-size:.8rem}
+.awards.cast .aw-past-list .aw:nth-child(1){animation:awInk 1s 2.8s forwards}
