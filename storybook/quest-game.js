@@ -30,7 +30,7 @@ var EXTRA=[{id:'boxbreath',lv:2,kind:'solo',base:3,name:'Box Breathing',fits:'Ev
 function exSp(id){return EXTRA.find(function(x){return x.id===id})}
 function fitsSp(s,id){var e=exSp(id);return s.weakTo.indexOf(id)>=0||!!(e&&e.for.indexOf(s.id)>=0)}
 function addXP(n,why){var p=prog(),b=level(p);p.gxp=gxp(p)+n;saveProg(p);var a=level(p);if(a>b){if(B)B.bonus=bonus(p),B.maxRes=maxRes(p);if(P)P.resolve=Math.min(maxRes(p),(P.resolve||0)+2);if(B)B.resolve=Math.min(B.maxRes,B.resolve+2);levelUp(a)}return a>b}
-function levelUp(l){var u=EXTRA.filter(function(x){return x.lv===l})[0];SFX('level');var d=document.createElement('div');d.className='qg-lvl';d.setAttribute('role','status');
+function levelUp(l,n){if(PETJOB&&(n||0)<60){return setTimeout(function(){levelUp(l,(n||0)+1)},250)}var u=EXTRA.filter(function(x){return x.lv===l})[0];SFX('level');var d=document.createElement('div');d.className='qg-lvl';d.setAttribute('role','status');
  d.innerHTML='<b>Level up! Lv '+l+'</b><span>Your skills grew stronger. Your spells now deal +'+(l-1)+' damage.</span>'+(u?'<span>New spell: '+esc(u.name)+'</span>':'');
  (dlg||document.body).appendChild(d);setTimeout(function(){d.remove()},RM?2600:2400);if(!RM){burst(160,60,'#f3c95a',20);burst(160,60,'#9fe0a8',14)}}
 
@@ -301,17 +301,27 @@ function title(){MUS('title');SCENE='title';stopLoop();endTalk();var p=prog(),ha
  var cv=dlg.querySelector('.qg-title-cv'),c=cv.getContext('2d');(function d(t){if(!cv.isConnected||SCENE!=='title')return;c.clearRect(0,0,160,56);c.fillStyle='#24344a';c.fillRect(0,40,160,16);px(c,CLOUD,FOGPAL,92,8+(RM?0:Math.round(Math.sin(t/400))),{s:2});px(c,HERO.side,PAL,40,14,{s:2});if(!RM)raf=requestAnimationFrame(d)})(0);
  dlg.querySelectorAll('[data-go]').forEach(function(b){b.onclick=function(){var g=b.dataset.go;if(g==='reset'){stopLoop();localStorage.removeItem(KEY);P=null;title();say('Your game was reset.');toast('Game reset')}else if(g==='how')panel('<h2 id="qg-ph">How to play</h2>'+HOWTO());else if(g==='practice')practice();else if(!prog().intro)intro();else if(!prog().pet)petPick(map);else map()}})}
 
+/* return visit: continue or start over */
+function wbGo(){if(!prog().intro)intro();else if(!prog().pet)petPick(map);else map()}
+function welcome(){MUS('title');SCENE='welcome';stopLoop();endTalk();var p=prog(),pa=p.pet&&PETS[p.pet];dlg.dataset.scene='welcome';dlg.dataset.menu='';
+ body('<h2 id="qg-title">Welcome back, traveler</h2><p class="qg-lede">Your journey is saved in this browser. Pick up where you left off, or begin again from the start.</p>'+
+ '<div class="qg-menu qg-wb"><button type="button" class="qg-btn" data-wb="go">Continue your journey <small>Lv '+level(p)+' · '+esc(REG[p.region||'town'].name)+(pa?' · with '+esc(pa.name)+' the '+esc(pa.kind):'')+'</small></button>'+
+ '<button type="button" class="qg-btn" data-wb="new">Start a new game <small>back to the opening with Makayla</small></button></div><p class="qg-small"><button type="button" class="qg-link" data-wb="title">Go to the title screen</button></p>','[data-wb=go]');
+ dlg.querySelectorAll('[data-wb]').forEach(function(b){b.onclick=function(){var g=b.dataset.wb;if(g==='go')wbGo();else if(g==='title')title();else wbConfirm()}})}
+function wbConfirm(){SCENE='welcome';body('<h2 id="qg-title">Start a new game?</h2><p class="qg-lede">This clears your progress. Your cards and fidget toy will reset too.</p>'+
+ '<div class="qg-menu qg-wb"><button type="button" class="qg-btn" data-wb="yes">Yes, start a new game</button><button type="button" class="qg-btn" data-wb="no">Keep my progress</button></div>','[data-wb=no]');
+ dlg.querySelectorAll('[data-wb]').forEach(function(b){b.onclick=function(){if(b.dataset.wb==='yes'){stopLoop();localStorage.removeItem(KEY);P=null;PET=null;PETJOB=null;toast('New game started');intro()}else welcome()}})}
 /* opening: wake in the fog, meet the lantern-keeper */
 var IN={t0:0,up:false};
 function intro(){SCENE='intro';dlg.dataset.scene='intro';IN={t0:performance.now(),up:false};
- body('<h2 id="qg-title" class="sr">Opening: Lanternfall Town</h2><div class="qg-stage"><canvas class="qg-cv qg-icv" width="320" height="150" role="img" aria-label="Pixel art: a fog-covered town at dusk. Your traveler wakes on the street as Makayla, the lantern-keeper, walks over with her lantern, with Kenneth the orange cat and Ragnar the shaggy brown dog."></canvas></div><div class="qg-row"><button type="button" class="qg-link" data-skip>Skip the opening</button></div>',false);
+ body('<h2 id="qg-title" class="sr">Opening: Lanternfall Town</h2><div class="qg-stage"><canvas class="qg-cv qg-icv" width="320" height="150" role="img" aria-label="Pixel art: a fog-covered town at dusk. Your traveler wakes on the street as Makayla, the lantern-keeper, walks over with her lantern, with Kenneth the orange cat and Ragnar the German Shepherd."></canvas></div><div class="qg-row"><button type="button" class="qg-link" data-skip>Skip the opening</button></div>',false);
  dlg.querySelector('[data-skip]').onclick=endIntro;loop(drawIntro);
  var W='Makayla, the lantern-keeper';
  talk([{who:'',text:'You wake on a cold cobblestone street. A thick gray fog has rolled over Lanternfall Town.'},
   {who:W,text:'Easy now, traveler. I\'m Makayla. I keep the lanterns lit. You\'ve been sleeping in the fog a while.'},
   {who:W,text:'This fog isn\'t ordinary weather. It\'s symptoms: the heavy, tired kind, and the racing, worried kind. They roll in. They are not you.'},
   {who:W,text:'East, past the Gray Fog Marsh and the Storm Wind Cliffs, the Fogstorm sits on the old threshold. Beyond it is the Open Book office. It\'s warm in there. Safe.'},
-  {who:W,text:'These two followed me out tonight. Kenneth is an orange cat who loves warm laps. Ragnar is a shaggy brown dog who never leaves a friend behind.'},
+  {who:W,text:'These two followed me out tonight. Kenneth is an orange cat who loves warm laps. Ragnar is a German Shepherd with tall ears who never leaves a friend behind.'},
   {who:W,text:'They\'re looking for someone to keep company. In a moment, you can choose which one walks with you.'},
   {who:W,text:'You won\'t walk alone. Call a guide when you need one, and rest at any lantern. Go on. East is that way.'}],endIntro);
 }
@@ -444,17 +454,17 @@ function victory(line){SCENE='victory';stopLoop();dlg.dataset.menu='';var top=Ob
  var rn=dlg.querySelector('.qg-rune');rn.onclick=function(){if(BONUS.indexOf('gratitude')<0)BONUS.push('gratitude');rn.classList.add('found');rn.setAttribute('aria-pressed','true');rn.setAttribute('aria-label','Bonus Gratitude Rune, found');hud();say('Bonus rune found: the Gratitude Rune. It is separate from the five hidden runes.');try{obcSound.chime(3)}catch(e){}}}
 function printCard(){var c=dlg.querySelector('.qg-skill').innerHTML,w=window.open('','_blank');if(!w)return;w.document.write('<title>My skill card</title><body style="font-family:Georgia,serif;max-width:560px;margin:24px auto">'+c+'<p style="font-size:.85em">Educational game, not therapy. Crisis: call or text 988. Utah: SafeUT (safeut.org). Emergency: 911.</p></body>');w.document.close();w.focus();w.print()}
 
-/* support animals: Kenneth (orange tabby cat) and Ragnar (shaggy brown dog). Original pixel sprites, 12x10. */
+/* support animals: Kenneth (orange tabby cat) and Ragnar (German Shepherd). Original pixel sprites, 12x10. */
 var PETS={kenneth:{name:'Kenneth',kind:'orange cat',pal:{k:'#2b1a10',a:'#e08a2e',b:'#b0601a',w:'#fff1dc',p:'#e88a8a'},
  blurb:'An orange cat who loves warm laps and slow blinks.',clear:'Kenneth curled up beside the fog and it faded.',
  side:['.......k..k.','......kakkak','.k....kaaaak','kak...kakaak','kak...kawwpk','.kakkkkaaak.','.kabababaak.','.kaaaaaaaak.','..kak..kak..','..kk...kk...'],
  down:['..k......k..','.kak....kak.','.kaakkkkaak.','.kaaaaaaaak.','.kakaaaakak.','.kaawppwaak.','..kaaaaaak..','.kabaaaabak.','.kaaaaaaaak.','..kk....kk..'],
  up:['..k......k..','.kak....kak.','.kaakkkkaak.','.kaaaaaaaak.','.kabaaaabak.','.kaaaaaaaak.','..kaaaaaak..','.kabababak.k','.kaaaaaaaakk','..kk....kk..']},
- ragnar:{name:'Ragnar',kind:'shaggy brown dog',pal:{k:'#24160c',a:'#8a5a33',b:'#5c3a1e',l:'#c09060',t:'#e07a8a'},
- blurb:'A shaggy brown dog who never leaves a friend behind.',clear:'Ragnar gave a happy bark and the cloud puffed away.',
- side:['......kkkk..','k....kaaaak.','bk..kbakaalk','.bk.kbaaallk','.bkkkbbatk..','.kbababaaak.','kbabababaabk','.kbaaaaaabk.','..kak..kak..','..kk...kk...'],
- down:['...kkkkkk...','..kaaaaaak..','.kbakaakabk.','kbbaaaaaabbk','kbbalkklabbk','..kalttlak..','.kbabababak.','kbabababaabk','.kbaaaaaabk.','..kk....kk..'],
- up:['...kkkkkk...','..kaaaaaak..','.kbaaaaaabk.','kbbaaaaaabbk','kbbabaabbabk','..kaaaaaak..','.kbabababak.','kbabababaabk','.kbaaaaaabk.','..kk....kk..']}};
+ ragnar:{name:'Ragnar',kind:'German Shepherd',pal:{k:'#1a1008',a:'#c98a4a',b:'#a0582a',s:'#2a1c12',m:'#20140c',l:'#e0b070',t:'#e07a8a'},
+ blurb:'A loyal German Shepherd who never leaves a friend behind.',clear:'Ragnar gave a happy bark and the cloud puffed away.',
+ side:['......k.k...','......kbkbk.','.....kbaaak.','kk...kakaakk','kbbkkkaaammk','kbbkssssaak.','.kkssssssbk.','..kaaaaaabk.','..kak..kak..','..kk...kk...'],
+ down:['..k......k..','.kbk....kbk.','.kbak..kabk.','.kaaakkaaak.','.kakaaaakak.','..kammmmak..','...kammak...','.kbsssssbk..','.kaaaaaaaak.','..kk....kk..'],
+ up:['..k......k..','.kbk....kbk.','.kbak..kabk.','.kaaaaaaaak.','.kaaaaaaaak.','..kbaaaabk..','.kssssssssk.','.kbsssssbkbk','.kaaaaaaaakb','..kk....kk..']}};
 var PETW=new Map();
 function petRows(id,dir,f){var a=PETS[id],r=dir==='up'?a.up:dir==='down'?a.down:a.side;if(!f)return r;var key=id+dir+f,o=PETW.get(key);if(o)return o;o=r.slice();
  if(dir==='side'||dir==='left'||dir==='right'){o[8]=f===1?'.kak....kak.':'...kak.kak..';o[9]=f===1?'.kk......kk.':'...kk..kk...'}else{o[9]=f===1?'..kk.....k..':'...k....kk..'}PETW.set(key,o);return o}
@@ -536,7 +546,7 @@ function regroup(){var p=prog();p.helped=merge(p.helped,B.helped);p.resolve=maxR
  dlg.querySelector('[data-m]').onclick=map;dlg.querySelector('[data-p]').onclick=practice}
 function practice(){SCENE='practice';stopLoop();dlg.dataset.menu='';body('<h2 id="qg-title">Practice a spell</h2><p>No battles here. Read each spell\'s real steps at your own pace.</p><div class="qg-pracs">'+Q.spells.map(function(x){return '<details class="qg-prac"><summary>'+esc(x.name)+(x.kind==='guided'?' (with a guide)':'')+'</summary><ol>'+x.steps.map(function(t){return '<li>'+esc(t)+'</li>'}).join('')+'</ol><p class="qg-small">'+esc(x.source)+'</p></details>'}).join('')+'</div><div class="qg-row"><button type="button" class="qg-btn" data-back>Back to the title screen</button></div>');dlg.querySelector('[data-back]').onclick=title}
 function hud(){var h=$('#runes-hud');if(!h)return;var b=BONUS.indexOf('gratitude')>=0,el=$('#qg-bonus');if(b&&!el){el=document.createElement('span');el.id='qg-bonus';el.className='qg-bonus';el.textContent=' · Bonus rune: Gratitude ✓';h.appendChild(el)}}
-function open(){var b=$('#qg-open');b&&b.setAttribute('aria-busy','true');return load().then(function(){if(!dlg)shell();b&&b.removeAttribute('aria-busy');if(!dlg.open)dlg.showModal();title()})}
+function open(){var b=$('#qg-open');b&&b.setAttribute('aria-busy','true');return load().then(function(){if(!dlg)shell();b&&b.removeAttribute('aria-busy');if(!dlg.open)dlg.showModal();var p=prog();if(p.x!=null||p.intro)welcome();else title()})}
 
 /* ---------- coping-skill cards (found in chests and earned from side quests) ---------- */
 var CARDS={tinystep:{name:'One Tiny Step',col:'#6fae5e',art:'foot',text:'When everything feels like too much, pick the smallest next action: shoes on, one glass of water, one email. Small steps still count.'},
