@@ -475,3 +475,24 @@ body{background:radial-gradient(ellipse at 50% 0%,#2a1f5c 0,#141038 38%,#070818 
 #team-grid .avatar.has-portrait{position:relative;width:104px;height:104px;overflow:hidden;padding:0}
 #team-grid .avatar .portrait{position:absolute;inset:7px;width:calc(100% - 14px);height:calc(100% - 14px);border-radius:50%;object-fit:cover;filter:sepia(.18) saturate(.92) contrast(1.02);box-shadow:inset 0 0 12px rgba(60,30,10,.5)}
 #team-grid .avatar.has-portrait::after{content:"";position:absolute;inset:7px;border-radius:50%;box-shadow:inset 0 0 14px rgba(70,35,10,.45);pointer-events:none}
+/* Magic carpet (original artwork) */
+.carpet-wrap{text-align:center;margin:10px 0 14px}
+.carpet-btn{background:none;border:0;padding:6px 10px;cursor:pointer;color:var(--wine);font:600 1.05rem "Cormorant Garamond",Georgia,serif;border-radius:var(--r)}
+.carpet-btn svg{display:block;width:200px;max-width:70vw;height:auto;margin:0 auto;animation:carpetBob 3.2s ease-in-out infinite;filter:drop-shadow(0 4px 6px rgba(43,29,16,.25))}
+.carpet-btn:hover svg,.carpet-btn:focus-visible svg{transform:translateY(-4px) rotate(-2deg)}
+.carpet-btn:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.carpet-cap{display:block;margin-top:2px;text-decoration:underline;text-underline-offset:3px}
+.carpet-gone svg{visibility:hidden}
+@keyframes carpetBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.carpet-dlg{position:fixed;inset:0;z-index:9000;background:rgba(8,21,26,.6);display:grid;place-items:center;padding:16px}
+.carpet-dlg[hidden]{display:none}
+.carpet-dlg-box{position:relative;background:var(--card);color:var(--ink);border:2px solid var(--gold);border-radius:14px;padding:26px 28px 22px;max-width:360px;width:100%;text-align:center;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+.carpet-dlg-box h3{margin:0 0 16px;color:var(--wine);font-size:1.5rem}
+.carpet-choices{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.carpet-choices .btn{min-width:120px;cursor:pointer}
+.carpet-x{position:absolute;top:6px;right:8px;background:none;border:0;font-size:1.7rem;line-height:1;cursor:pointer;color:var(--muted);padding:4px 8px}
+.carpet-x:focus-visible,.carpet-choices .btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.carpet-fly{position:fixed;z-index:9500;pointer-events:none;animation:carpetFly 1.25s cubic-bezier(.5,0,.75,.2) forwards}
+.carpet-fly svg{width:100%;height:100%}
+@keyframes carpetFly{0%{transform:translate(0,0) rotate(0)}25%{transform:translate(-30px,-40px) rotate(-6deg) scale(1.05)}100%{transform:translate(120vw,-90vh) rotate(-14deg) scale(.6);opacity:.9}}
+@media (prefers-reduced-motion:reduce){.carpet-btn svg{animation:none}.carpet-fly{animation:none}}
