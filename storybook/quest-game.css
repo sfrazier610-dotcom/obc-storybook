@@ -26,7 +26,7 @@ canvas.qg-cv,.qg-list canvas{image-rendering:pixelated;image-rendering:crisp-edg
 .qg-link{font:inherit;background:none;border:0;color:#9fd3d6;text-decoration:underline;cursor:pointer;padding:6px 2px;min-height:44px}
 .qg-hud{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:.85rem;margin:0 150px 8px 0;padding:4px 8px;border:3px solid #f4ecd8;background:#1a1a2b}
 .qg-hp i,.qg-bar i{display:inline-block;vertical-align:middle;width:70px;height:8px;margin-left:6px;border:2px solid #f4ecd8;background:#3a1a1a}
-.qg-hp em,.qg-bar em{display:block;height:100%;background:#5bd16a;transition:width .4s steps(6)}
+.qg-hp em,.qg-bar em{display:block;height:100%;background:#5bd16a;transition:width .55s cubic-bezier(.2,.8,.3,1)}
 .qg-stage{position:relative;border:4px solid #1a1a2b;outline:3px solid #f4ecd8;background:#000;line-height:0}
 .qg-stage canvas{width:100%;height:auto;display:block}
 .qg-map:focus-visible{outline:3px solid var(--line)}
@@ -128,3 +128,15 @@ canvas.qg-cv,.qg-list canvas{image-rendering:pixelated;image-rendering:crisp-edg
 .qg-petbag{width:54px;height:45px;image-rendering:pixelated}
 .qg-petmsg{border-color:#e08a2e}
 @media(max-width:520px){.qg-pets{grid-template-columns:1fr}}
+/* screen transitions, Special Skills */
+@keyframes qgEnter{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.qg-body.qg-enter{animation:qgEnter .32s ease-out}
+.qg-skillinfo{border-color:#f3c95a}
+.qg-skillinfo b small{display:block;font-weight:normal;font-size:.78rem;opacity:.85}
+.qg-skillinfo p{margin:.5em 0}
+.qg-btn.sk{border-left:8px solid var(--c)}
+.qg-scroll{flex:none;display:block;width:30px;height:40px;background:linear-gradient(#8a6a3a 0 4px,var(--c) 4px calc(100% - 4px),#8a6a3a 0);border:2px solid #f4ecd8;image-rendering:pixelated}
+.qg-card.used{opacity:.6}.qg-card.used .qg-scroll{filter:grayscale(.8)}
+.qg-tag{font-size:.7rem;border:1px solid currentColor;padding:0 4px;margin-left:4px}
+@media (prefers-reduced-motion:reduce){.qg-body.qg-enter{animation:none}}
+.qg-cmd{grid-template-columns:repeat(2,1fr)}@media(min-width:700px){.qg-cmd{grid-template-columns:repeat(4,1fr)}}
