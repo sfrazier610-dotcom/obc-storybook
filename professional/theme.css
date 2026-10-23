@@ -20,3 +20,9 @@ section>h2{border-bottom:2px solid var(--accent);padding-bottom:6px}section>h2::
 @media(max-width:600px){.reviews .rv{padding:18px 16px}.rv-card{font-size:1rem}.rv-stage{min-height:14em}}
 @media(prefers-reduced-motion:reduce){.rv-card{transition:none}}
 #team .avatar.photo{width:112px;height:112px;border-radius:50%;object-fit:cover;display:block;border:3px solid var(--brand2);box-shadow:0 2px 8px rgba(36,80,107,.15);margin-bottom:8px}
+/* logo + Best of Utah */
+.brand{display:inline-flex;align-items:center;gap:8px}.brand-mark{height:32px;width:auto}
+.hero{overflow:hidden}.hero-logo{float:right;width:min(300px,34%);height:auto;margin:0 0 12px 24px}
+.bou-strip{display:flex;gap:10px;align-items:center;margin:18px 0 6px}.bou-strip img{height:88px;width:auto;display:block;border-radius:3px;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.foot-logo{width:150px;height:auto;background:#fff;padding:8px 10px;border-radius:10px;display:block;margin:0 auto 12px}
+@media (max-width:700px){.hero-logo{float:none;display:block;width:200px;margin:0 auto 14px}.bou-strip img{height:72px}}
