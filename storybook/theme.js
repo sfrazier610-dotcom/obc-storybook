@@ -15,7 +15,7 @@ if(RM||sessionStorage.getItem('obc_cover_seen')){cover.remove();}else{
 
 // ---- chapters / page turning ----
 const chs=$$('.chapter');let cur=0,busy=false;const cols=['#6e1f24','#1f5a5e','#8a5a1c','#3b4f7a','#5d7a3a','#7a3b5c','#2c6a6e','#8a2d2b'];
-const rib=$('.ribbons');rib.innerHTML=chs.map((c,i)=>`<a href="#${c.id}" style="--c:${cols[i%cols.length]}" data-i="${i}">${c.dataset.title}</a>`).join('');
+const rib=$('.ribbons');rib.innerHTML=chs.map((c,i)=>`<a href="#${c.id}" style="--c:${cols[i%cols.length]}" data-i="${i}" title="${c.dataset.title}" aria-label="${c.dataset.title}"><span>${c.dataset.title}</span></a>`).join('');
 const ribs=$$('.ribbons a');
 function setActive(i){chs.forEach((c,j)=>c.classList.toggle('active',j===i));cur=i;ribs.forEach((r,j)=>r.setAttribute('aria-current',j===i));
  $('#pgno').textContent=`${chs[i].dataset.title} · page ${i*2+1}–${i*2+2} of ${chs.length*2}`;$('#prev').disabled=i===0;$('#next').disabled=i===chs.length-1;
@@ -122,3 +122,12 @@ const fix=()=>g.querySelectorAll('article.card .avatar:not(.has-portrait)').forE
  im.onerror=()=>{im.remove();a.classList.remove('has-portrait');a.classList.add('portrait-failed');};
  im.src='../professional/img/team/'+f+'.webp';a.appendChild(im);});
 fix();new MutationObserver(fix).observe(g,{childList:true,subtree:true});})();
+
+/* Charm cards: grow each card to fit its face so nothing is clipped (Edge/zoom-safe). */
+(function(){const fit=()=>document.querySelectorAll('.skill').forEach(k=>{const f=k.querySelector('.charm-front');if(!f)return;f.style.bottom='auto';const h=f.scrollHeight;f.style.bottom='';k.style.minHeight=Math.max(240,h+4)+'px';});
+fit();addEventListener('resize',fit);addEventListener('load',fit);document.fonts&&document.fonts.ready.then(fit);setTimeout(fit,1500);if(window.ResizeObserver){const ro=new ResizeObserver(()=>requestAnimationFrame(fit));document.querySelectorAll('.skill').forEach(k=>ro.observe(k));}})();
+
+/* Ribbons: shrink label text so every tab fits inside the book's height. */
+(function(){const fitR=()=>document.querySelectorAll('.ribbons a').forEach(a=>{const s=a.querySelector('span');if(!s)return;s.textContent=a.title;a.style.fontSize='';let f=parseFloat(getComputedStyle(a).fontSize);while(a.scrollHeight>a.clientHeight+1&&f>8.5){f-=.5;a.style.fontSize=f+'px';}
+a.classList.remove('rn');if(a.scrollHeight>a.clientHeight+1){a.classList.add('rn');a.style.fontSize='';s.textContent=['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'][+a.dataset.i]||'';}});
+fitR();addEventListener('resize',fitR);document.fonts&&document.fonts.ready.then(fitR);})();
