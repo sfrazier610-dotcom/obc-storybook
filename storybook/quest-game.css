@@ -166,3 +166,15 @@ canvas.qg-cv,.qg-list canvas{image-rendering:pixelated;image-rendering:crisp-edg
 .qg-petbtn.ready span::after{content:"";display:inline-block;width:8px;height:8px;margin-left:6px;border-radius:50%;background:#f3c95a;vertical-align:middle}
 .qg-petbtn:focus-visible{outline:3px solid var(--line);outline-offset:-3px}
 .qg-petbtn.cuddle{background:#2b2840}
+
+/* difficulty + field guide */
+.qg-diff{border:1px solid rgba(243,201,90,.5);border-radius:8px;margin:10px 0;padding:6px 10px}.qg-diff legend{padding:0 6px}
+.qg-diff .qg-row{display:flex;flex-wrap:wrap;gap:6px}.qg-diff .qg-btn{flex:1 1 120px}.qg-diff .qg-btn.on{outline:2px solid #f3c95a;outline-offset:1px;background:#2f5a3a}
+.qg-sym{margin:2px 0 4px;font-size:.85em;display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center}
+.qg-hint{margin:4px 0;padding:6px 8px;border-left:3px solid #9fe0a8;background:rgba(159,224,168,.12);font-size:.85em;text-align:left}
+.qg-fg li{margin:0 0 8px}
+.qg-casts{margin:2px 0;text-align:center;color:#f3c95a;font-size:.9em}
+.qg-btn.qg-rec{border-color:#f3c95a!important;box-shadow:0 0 0 2px #f3c95a,0 0 12px 3px rgba(243,201,90,.65)}
+@media(prefers-reduced-motion:no-preference){.qg-btn.qg-rec{animation:qgrec 1.6s ease-in-out infinite}@keyframes qgrec{0%,100%{box-shadow:0 0 0 2px #f3c95a,0 0 6px 1px rgba(243,201,90,.45)}50%{box-shadow:0 0 0 2px #f3c95a,0 0 16px 5px rgba(243,201,90,.85)}}}
+@media(prefers-reduced-motion:reduce){.qg-btn.qg-rec{animation:none;box-shadow:0 0 0 3px #f3c95a}}
+.qg-swatch{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:6px 0}.qg-swatch i{width:22px;height:22px;border-radius:4px;display:block;border:2px solid #1b1b24}
