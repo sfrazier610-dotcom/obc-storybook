@@ -19,3 +19,4 @@ section>h2{border-bottom:2px solid var(--accent);padding-bottom:6px}section>h2::
 .rv-src{font-family:system-ui,sans-serif;font-size:.85rem;color:#555;margin:12px 0 0}
 @media(max-width:600px){.reviews .rv{padding:18px 16px}.rv-card{font-size:1rem}.rv-stage{min-height:14em}}
 @media(prefers-reduced-motion:reduce){.rv-card{transition:none}}
+#team .avatar.photo{width:112px;height:112px;border-radius:50%;object-fit:cover;display:block;border:3px solid var(--brand2);box-shadow:0 2px 8px rgba(36,80,107,.15);margin-bottom:8px}
