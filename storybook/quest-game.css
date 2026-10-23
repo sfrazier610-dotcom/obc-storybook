@@ -140,3 +140,14 @@ canvas.qg-cv,.qg-list canvas{image-rendering:pixelated;image-rendering:crisp-edg
 .qg-tag{font-size:.7rem;border:1px solid currentColor;padding:0 4px;margin-left:4px}
 @media (prefers-reduced-motion:reduce){.qg-body.qg-enter{animation:none}}
 .qg-cmd{grid-template-columns:repeat(2,1fr)}@media(min-width:700px){.qg-cmd{grid-template-columns:repeat(4,1fr)}}
+/* upgrades */
+.qg-daily{margin:.3em 0;border-left:4px solid #9fe0c8;padding-left:6px}
+.qg-look{display:flex;gap:12px;align-items:flex-start}.qg-herobag{width:54px;height:63px;image-rendering:pixelated;flex:none}
+.qg-swatches{display:flex;flex-wrap:wrap;gap:6px}.qg-sw{font:inherit;font-size:.75rem;padding:4px 6px;background:#1a1a2b;color:#f4ecd8;border:2px solid #f4ecd8;border-left:10px solid var(--c);cursor:pointer}
+.qg-sw[aria-pressed=true]{outline:3px solid #f3c95a}.qg-sw[aria-disabled=true]{opacity:.55;cursor:not-allowed}.qg-sw small{display:block;font-size:.65rem}
+.qg-fetch canvas{width:24px;height:32px;vertical-align:middle;image-rendering:pixelated}
+.qg-safepick{display:grid;grid-template-columns:1fr 1fr;gap:10px}.qg-safeprev{display:block;width:100%;height:auto;image-rendering:pixelated;margin-bottom:4px}
+.qg-breathe-wrap{margin:8px 0}.qg-breathe{display:flex;align-items:center;gap:14px;margin-top:8px}
+.qg-bcirc{width:44px;height:44px;border-radius:50%;background:radial-gradient(#9fe0c8,#4aa38f);border:2px solid #f4ecd8;animation:qgBreath 8s ease-in-out infinite}
+@keyframes qgBreath{0%,100%{transform:scale(.6)}50%{transform:scale(1.15)}}
+@media (prefers-reduced-motion:reduce){.qg-bcirc{animation:none}}
