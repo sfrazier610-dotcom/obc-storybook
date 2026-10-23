@@ -19,7 +19,7 @@ box.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'){show(i-1);}else if(e.
 show(0);setPaused(paused);})();
 /* Team photos (from the practice's Google Site About page). Professional site only. */
 (function(){const g=document.getElementById('team-grid');if(!g||!window.OBC)return;
-const P={'Scott Frazier':'scott-frazier','Amber Frazier':'amber-frazier','Shanna Manjang':'shanna-manjang','Amanda Lloyd':'amanda-lloyd','Aspen Johnson':'aspen-johnson','Abby Locke':'abby-locke'};
+const P={'Scott Frazier':'scott-frazier','Amber Frazier':'amber-frazier','Shanna Manjang':'shanna-manjang','Amanda Lloyd':'amanda-lloyd','Aspen Johnson':'aspen-johnson','Abby Locke':'abby-locke','Makayla Jones':'makayla-jones'};
 const fix=()=>g.querySelectorAll('article.card').forEach(c=>{const a=c.querySelector('.avatar');if(!a)return;const n=c.querySelector('h3').textContent.trim(),f=P[n];if(!f)return;
 const cr=(c.querySelector('.cred')||{}).textContent||'';const im=new Image();im.src='img/team/'+f+'.webp';im.width=im.height=480;im.loading='lazy';im.decoding='async';im.className='avatar photo';im.alt=n+(cr?', '+cr.trim():'');a.replaceWith(im);});
 fix();new MutationObserver(fix).observe(g,{childList:true});})();

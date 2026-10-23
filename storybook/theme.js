@@ -114,7 +114,7 @@ $$('#nav a').forEach(a=>a.addEventListener('click',()=>{$('#nav').classList.remo
 })();
 /* Staff portraits in the wax-seal frames (reuses professional/img/team). Initials stay underneath as the fallback. */
 (function(){const g=document.getElementById('team-grid');if(!g)return;
-const P={'Scott Frazier':'scott-frazier','Amber Frazier':'amber-frazier','Shanna Manjang':'shanna-manjang','Amanda Lloyd':'amanda-lloyd','Aspen Johnson':'aspen-johnson','Abby Locke':'abby-locke'};
+const P={'Scott Frazier':'scott-frazier','Amber Frazier':'amber-frazier','Shanna Manjang':'shanna-manjang','Amanda Lloyd':'amanda-lloyd','Aspen Johnson':'aspen-johnson','Abby Locke':'abby-locke','Makayla Jones':'makayla-jones'};
 const fix=()=>g.querySelectorAll('article.card .avatar:not(.has-portrait)').forEach(a=>{const c=a.closest('article'),n=c.querySelector('h3').textContent.trim(),f=P[n];if(!f)return;
  const cr=((c.querySelector('.cred')||{}).textContent||'').trim(),im=new Image();a.classList.add('has-portrait');
  im.className='portrait';im.loading='lazy';im.decoding='async';im.width=im.height=480;im.alt=n+(cr?', '+cr:'');
