@@ -151,3 +151,18 @@ canvas.qg-cv,.qg-list canvas{image-rendering:pixelated;image-rendering:crisp-edg
 .qg-bcirc{width:44px;height:44px;border-radius:50%;background:radial-gradient(#9fe0c8,#4aa38f);border:2px solid #f4ecd8;animation:qgBreath 8s ease-in-out infinite}
 @keyframes qgBreath{0%,100%{transform:scale(.6)}50%{transform:scale(1.15)}}
 @media (prefers-reduced-motion:reduce){.qg-bcirc{animation:none}}
+/* Safe Place HUD shortcut, memory boss, pet button */
+.qg-safehud{display:inline-flex;flex-direction:column;align-items:flex-start;margin:0 0 8px;padding:6px 12px;min-height:44px;border-color:#7cc0a0;background:#1d3a32;font-size:.85rem}
+.qg-safehud small{color:#cfe9dc}
+.qg-safehud:hover,.qg-safehud:focus-visible{background:#285446}
+.qg-suds em{background:#e0a35a}
+.qg-mlist{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+.qg-mlist .qg-btn{text-align:left}
+.qg-petbtn{flex:0 0 auto;display:flex;align-items:center;gap:8px;margin:0;padding:4px 12px;min-height:48px;border:0;border-top:3px solid var(--line);background:#1a2238;color:var(--ink2);font:inherit;font-size:.85rem;cursor:pointer;text-align:left}
+.qg-petbtn[hidden]{display:none}
+.qg-petbtn canvas{width:48px;height:40px;image-rendering:pixelated}
+.qg-petbtn small{display:block;color:#b9c3cf;font-size:.75rem}
+.qg-petbtn.ready small{color:#f3c95a}
+.qg-petbtn.ready span::after{content:"";display:inline-block;width:8px;height:8px;margin-left:6px;border-radius:50%;background:#f3c95a;vertical-align:middle}
+.qg-petbtn:focus-visible{outline:3px solid var(--line);outline-offset:-3px}
+.qg-petbtn.cuddle{background:#2b2840}
