@@ -26,7 +26,7 @@ window.OBC = {
   {id:"amanda",name:"Amanda Lloyd",cred:"ACMHC",ages:["under8","child8","teen","adult"],formats:["individual","couples","family"],offices:["draper"],settings:["telehealth"],
    concerns:["grief","shame","family","faith","addiction","lgbtq"],
    mods:["EMDR","IFS","ACT","CBT","DBT"],style:"LGBTQ-informed. Grief, shame, family issues, transitioning beliefs, substance use."},
-  {id:"aspen",name:"Aspen Johnson",cred:"ACMHC",ages:["under8","child8","teen","adult"],formats:["individual","couples","family"],offices:["draper"],settings:["inperson","telehealth"],
+  {id:"aspen",name:"Aspen Johnson",cred:"ACMHC",ages:["under8","child8","teen","adult"],agesLabel:"young children, children, teens, young adults, adults",formats:["individual","couples","family"],offices:["draper"],settings:["inperson","telehealth"],
    concerns:["burnout","highprofile","trauma","anxiety","depression","addiction","relationships","adhd","ocd","personality","selfharm","abuse","dysregulation"],
    mods:["CBT","TF-CBT","DBT","EMDR","ACT","Gottman","Play","CPT","EFT","ERP","FamilyMarital","Forensic","Integrative","IFS","Interpersonal","PersonCentered","PositivePsych","Relational","TraumaFocused","MI","Mindfulness","Attachment","SFBT"],style:"For high-functioning but overwhelmed people: burnout, relationship patterns, moving from surviving to thriving.",
    card:"I specialize in helping individuals heal from trauma, anxiety, depression, addiction, and painful relationship patterns.",
