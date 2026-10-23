@@ -473,7 +473,7 @@ var PET=null,PETJOB=null;
 function petReset(){var p=prog();PET=p.pet&&PETS[p.pet]&&P?{id:p.pet,x:P.x,y:P.y,fx:P.fx,fy:P.fy,dir:'down',walk:0}:null}
 function petFollow(sx,sy,dir){if(!PET)return;PET.x=sx;PET.y=sy;PET.dir=dir}
 function petDraw(c,t,dt){if(!PET)return;var tx=PET.x,ty=PET.y,sp=RM?1:Math.min(1,dt/110);
- if(PETJOB){if(PETJOB.t0==null){PETJOB.t0=t;PETJOB.sx=PET.fx;PETJOB.sy=PET.fy;toast(PETS[PET.id].clear);SFX('chest')}var e=RM?2000:t-PETJOB.t0,J=PETJOB;
+ if(PETJOB){if(PETJOB.t0==null){PETJOB.t0=t;var olv=dlg&&dlg.querySelector('.qg-lvl');if(olv){olv.remove();setTimeout(function(){levelUp(level())},0)}PETJOB.sx=PET.fx;PETJOB.sy=PET.fy;toast(PETS[PET.id].clear);SFX('chest')}var e=RM?2000:t-PETJOB.t0,J=PETJOB;
   var k=Math.min(1,e/800),ex=J.x,ey=J.y-.6;if(e<800){PET.fx=J.sx+(ex-J.sx)*k;PET.fy=J.sy+(ey-J.sy)*k;PET.dir=Math.abs(ex-J.sx)>Math.abs(ey-J.sy)?(ex<J.sx?'left':'right'):(ey<J.sy?'up':'down')}
   var fade=e<800?1:Math.max(0,1-(e-800)/600);if(fade>0){c.globalAlpha=fade;cloudAt(c,CLOUD,J.weather==='fog'?FOGPAL:STORMPAL,J.x*TS+1,J.y*TS+1-(1-fade)*6,1,t);c.globalAlpha=1}
   if(e>=800&&!J.puff){J.puff=1;burst(J.x*TS+8,J.y*TS+8,'#e6eaec',14);burst(J.x*TS+8,J.y*TS+6,'#fff3c4',8)}
