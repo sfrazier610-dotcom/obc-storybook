@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&display=swap');
 /* The Fogstorm: retro RPG mini-game. Original styling; system monospace font. */
 dialog.qg{--ink2:#f4ecd8;--line:#f3c95a;width:min(760px,96vw);max-height:96vh;padding:0;border:4px solid #1a1a2b;outline:3px solid var(--line);border-radius:0;color:var(--ink2);background:#101827;overflow:hidden;display:none;flex-direction:column;font-family:ui-monospace,"Cascadia Mono",Menlo,Consolas,"Courier New",monospace}
 dialog.qg[open]{display:flex}
@@ -15,6 +16,7 @@ dialog.qg::backdrop{background:rgba(6,10,20,.8)}
 .qg-title-card h2{margin:6px 0 2px!important;font-size:1.8rem;text-transform:uppercase}
 .qg-title-cv{width:320px;max-width:100%;height:auto}
 canvas.qg-cv,.qg-list canvas{image-rendering:pixelated;image-rendering:crisp-edges}
+.qg-stage canvas.qg-cv{image-rendering:auto}
 .qg-btn{font:inherit;font-size:.9rem;text-align:left;padding:8px 12px;min-height:44px;border:3px solid #f4ecd8;background:#1d2a44;color:var(--ink2);cursor:pointer;border-radius:0;box-shadow:inset -3px -3px 0 #0c1424;text-decoration:none;display:block}
 .qg-btn small{display:block;font-size:.72rem;color:#b9c3cf}
 .qg-btn:hover,.qg-btn:focus-visible{border-color:var(--line);background:#283a5e;outline:none}
@@ -178,3 +180,45 @@ canvas.qg-cv,.qg-list canvas{image-rendering:pixelated;image-rendering:crisp-edg
 @media(prefers-reduced-motion:no-preference){.qg-btn.qg-rec{animation:qgrec 1.6s ease-in-out infinite}@keyframes qgrec{0%,100%{box-shadow:0 0 0 2px #f3c95a,0 0 6px 1px rgba(243,201,90,.45)}50%{box-shadow:0 0 0 2px #f3c95a,0 0 16px 5px rgba(243,201,90,.85)}}}
 @media(prefers-reduced-motion:reduce){.qg-btn.qg-rec{animation:none;box-shadow:0 0 0 3px #f3c95a}}
 .qg-swatch{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:6px 0}.qg-swatch i{width:22px;height:22px;border-radius:4px;display:block;border:2px solid #1b1b24}
+
+/* ===== Cozy farm pixel look (original styling, Oct 2026). Warm wood frames, parchment boxes, pixel font. ===== */
+dialog.qg{--ink2:#4a2f1e;--line:#c77d2e;--wood:#8a5a34;--woodd:#5a3820;--woodl:#b07a48;--parch:#f6e7c1;--parch2:#ecd6a2;--leaf:#5e9c3f;
+ font-family:"Pixelify Sans",ui-monospace,Menlo,Consolas,monospace;color:var(--ink2);background:var(--parch);
+ border:6px solid var(--woodd);outline:4px solid var(--wood);box-shadow:0 0 0 8px var(--woodd),0 14px 0 8px rgba(40,24,12,.45)}
+dialog.qg::backdrop{background:rgba(48,30,16,.72)}
+.qg-body,.qg-panel{background:repeating-linear-gradient(0deg,var(--parch) 0 6px,#f2e1b6 6px 7px)}
+.qg-body h2,.qg-panel h2{color:#7a3f18;text-shadow:2px 2px 0 #e6c58a;letter-spacing:.02em}
+.qg-body h2 small,.qg-sub,.qg-small{color:#6e5238}
+.qg-x,.qg-help-btn{background:var(--wood);color:#fff4dc;border:3px solid var(--woodd);box-shadow:inset -3px -3px 0 var(--woodd),inset 3px 3px 0 var(--woodl)}
+.qg-btn{background:var(--parch2);color:var(--ink2);border:3px solid var(--woodd);box-shadow:inset -3px -3px 0 #c9a46a,inset 3px 3px 0 #fff6dc,0 3px 0 var(--woodd)}
+.qg-btn small{color:#6e5238}
+.qg-btn:hover,.qg-btn:focus-visible{background:#fff1c9;border-color:#7a3f18;outline:3px solid var(--leaf);outline-offset:1px}
+.qg-btn:focus-visible::before{color:var(--leaf)}
+.qg-btn:active{transform:translateY(2px);box-shadow:inset -3px -3px 0 #c9a46a,0 1px 0 var(--woodd)}
+.qg-link{color:#2f6b3a}
+.qg-hud,.qg-msg,.qg-tip,.qg-box,.qg-skill,.qg-prac,.qg-card,.qg-safehud{background:var(--parch2);color:var(--ink2);border:4px solid var(--wood);box-shadow:inset 0 0 0 2px #fff4d6,0 0 0 2px var(--woodd)}
+.qg-hp i,.qg-bar i{border-color:var(--woodd);background:#7a4a3a}
+.qg-hp em,.qg-bar em{background:#6fbf4a}
+.qg-bar.e em{background:#c8553d}
+.qg-stage{border:4px solid var(--woodd);outline:4px solid var(--wood);background:#7fb04a}
+.qg-stage canvas,canvas.qg-cv,.qg-list canvas,.qg-card canvas,.qg-petbtn canvas{image-rendering:pixelated}
+.qg-stage canvas.qg-cv{image-rendering:auto}
+.qg-toast{background:var(--wood);color:#fff4dc;border:3px solid var(--woodd)}
+.qg-d{background:var(--wood);color:#fff4dc;border:3px solid var(--woodd)}
+.qg-foot{background:var(--woodd);color:#fff0d0;border-top:4px solid var(--wood)}
+.qg-foot a,.qg-find{color:#ffe08a}
+.qg-primary{background:#9fd07a!important;border-color:#3f6b2a!important}
+.qg-lift,.qg-warm{background:#fff1c9;border-color:var(--leaf)}
+dialog.qg .qg-casts{color:#8a3d12;text-shadow:none}
+dialog.qg .qg-status,dialog.qg .qg-phase,dialog.qg .qg-sym,dialog.qg .qg-hint,dialog.qg .qg-daily{color:#5a3a22}
+dialog.qg .qg-bar{background:var(--parch2);color:var(--ink2);border:3px solid var(--wood)}
+dialog.qg .qg-bar span{color:var(--ink2)}
+dialog.qg .qg-btn.qg-rec{color:var(--ink2)}
+dialog.qg .qg-petbtn{background:var(--parch2);color:var(--ink2);border:3px solid var(--wood)}
+dialog.qg .qg-petbtn small{color:#6e5238}
+dialog.qg .qg-petbtn.ready small{color:#8a3d12}
+dialog.qg .qg-sw{background:var(--parch2);color:var(--ink2)}
+dialog.qg .qg-h3,dialog.qg .qg-rune{color:#7a3f18}
+dialog.qg .qg-rune{background:var(--parch2)}
+dialog.qg .qg-next{background:var(--wood);color:#fff4dc}
+dialog.qg .qg-diff .qg-btn.on{background:#cfe6a8}
