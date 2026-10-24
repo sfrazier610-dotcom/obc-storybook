@@ -222,3 +222,7 @@ dialog.qg .qg-h3,dialog.qg .qg-rune{color:#7a3f18}
 dialog.qg .qg-rune{background:var(--parch2)}
 dialog.qg .qg-next{background:var(--wood);color:#fff4dc}
 dialog.qg .qg-diff .qg-btn.on{background:#cfe6a8}
+.qg-box.has-face{min-height:64px}
+.qg-box .qg-face{float:left;margin:0 10px 4px 0;width:56px;height:56px;border-radius:8px;image-rendering:auto}
+.qg-desk{display:flex;gap:10px;align-items:center;margin:6px 0 10px}.qg-desk .qg-face{width:56px;height:56px;flex:none;border-radius:8px}
+.gd canvas[data-face]{image-rendering:auto;border-radius:5px}
