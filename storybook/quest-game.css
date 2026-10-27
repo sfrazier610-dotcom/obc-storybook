@@ -259,3 +259,58 @@ dialog.qg .qg-diff .qg-btn.on{background:#cfe6a8}
 .qg-gskills .qg-card{align-items:flex-start}
 .qg-gskills .qg-ic{width:40px;height:40px}
 @media (prefers-reduced-motion:reduce){.qg-symcard.in,.qg-lootic{animation:none}.qg-tt{transition:none}}
+/* v74 battle fit: one screen, no scrolling */
+dialog.qg[data-scene=battle] .qg-petbtn{display:none}
+dialog.qg[data-scene=battle] .qg-body{overflow:hidden;display:flex;flex-direction:column;padding:6px 10px 6px}
+.qg-bwrap{display:flex;flex-direction:column;gap:5px;flex:1 1 auto;min-height:0}
+.qg-bwrap>*{margin:0!important}
+.qg-bwrap h2.qg-bt{font-size:1.15rem;line-height:1.1;margin-right:150px!important}
+.qg-bwrap h2.qg-bt small{display:inline;margin-left:6px;font-size:.66rem}
+.qg-bwrap .qg-symcard{padding:4px 8px;gap:8px;min-height:0}
+.qg-bwrap .qg-symcard .qg-symic{width:36px;height:36px}
+.qg-bwrap .qg-symcard p{margin:0;font-size:.8rem;line-height:1.25}
+.qg-bwrap .qg-casts b{font-size:.95rem}
+.qg-bwrap .qg-hint,.qg-bwrap .qg-phase{font-size:.78rem;padding:2px 8px}
+.qg-bwrap .qg-stage.battle{flex:1 1 0;min-height:110px;display:flex;justify-content:center;align-items:center;background:#1a1a2b}
+.qg-bwrap .qg-stage.battle canvas{width:100%;height:100%;object-fit:contain;max-height:100%}
+.qg-bwrap .qg-bars{position:absolute;left:6px;right:6px;top:6px;display:flex;gap:8px;line-height:1.2;pointer-events:none}
+.qg-bwrap .qg-bars .qg-bar{flex:1;opacity:.94;font-size:.72rem;padding:1px 6px}
+.qg-bwrap .qg-msg{font-size:.82rem;line-height:1.3;padding:4px 8px;max-height:4.2em;overflow:auto;flex:0 0 auto}
+.qg-bwrap .qg-msg .qg-why{margin:2px 0 0;padding:2px 6px}
+.qg-act{flex:0 0 auto;display:flex;flex-direction:column;gap:5px;min-height:0;max-height:52%}
+.qg-act .qg-list{overflow:auto;min-height:0}
+.qg-four{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.qg-four .qg-skc{min-height:0;padding:5px 7px;margin:0;text-align:left}
+.qg-four .qg-skc b{font-size:.9rem}
+.qg-four .qg-pl{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:.72rem;line-height:1.2}
+.qg-four .qg-skc small{font-size:.68rem}
+.qg-sig{position:relative;background:linear-gradient(135deg,#ffe9a8,#f3b23a)!important;border-color:#b06a12!important;box-shadow:0 0 0 2px #fff3c4,0 0 14px 3px rgba(243,178,58,.75)}
+.qg-sig:not(.cd){animation:qgSig 2.2s ease-in-out infinite}
+@keyframes qgSig{50%{box-shadow:0 0 0 2px #fff3c4,0 0 22px 6px rgba(243,178,58,.95)}}
+.qg-sig.cd{filter:saturate(.35);opacity:.8}
+.qg-sigtag{font-style:normal;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;background:#7a3f18;color:#ffe7b0;padding:1px 5px;margin-left:4px;vertical-align:middle}
+.qg-cmd.qg-mini{display:flex;flex-wrap:wrap;gap:5px;margin:0}
+.qg-cmd.qg-mini .qg-btn{flex:1 1 0;min-width:0;padding:4px 6px;margin:0;font-size:.8rem;min-height:36px}
+.qg-cmd.qg-mini .qg-btn small{font-size:.64rem}
+.qg-cmd.qg-mini .qg-safehud{position:static!important}
+@media (max-width:700px){
+ .qg-four{grid-template-columns:1fr 1fr;gap:5px}
+ .qg-four .qg-skc canvas{width:28px;height:28px}
+ .qg-four .qg-pl{-webkit-line-clamp:1}
+ .qg-cmd.qg-mini .qg-btn{flex:1 1 30%;min-height:34px;font-size:.74rem}
+ .qg-bwrap h2.qg-bt small{display:none}
+ .qg-bwrap .qg-symcard .qg-feel{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+ .qg-bwrap .qg-sym{display:none}
+ .qg-bwrap .qg-msg{max-height:3.9em;font-size:.76rem}
+ .qg-act{max-height:none}
+}
+@media (prefers-reduced-motion:reduce){.qg-sig{animation:none!important}}
+dialog.qg[data-scene=battle]{width:min(1000px,98vw);height:min(96dvh,900px);max-height:96dvh}
+dialog.qg[data-scene=battle] .qg-petbtn{display:none!important}
+.qg-four .qg-skc b{font-size:1rem}
+.qg-four .qg-pl{font-size:.78rem}
+.qg-four .qg-skc small{font-size:.72rem;font-weight:bold}
+.qg-cmd.qg-mini .qg-btn{font-size:.86rem}
+@media (max-width:700px){dialog.qg[data-scene=battle]{width:100vw;height:100dvh;max-height:100dvh}.qg-four .qg-skc b{font-size:.86rem}.qg-four .qg-pl{font-size:.7rem}.qg-cmd.qg-mini .qg-btn{font-size:.74rem}}
+.qg-bwrap .qg-bars{top:auto;bottom:6px}
+@media (max-width:700px){.qg-bwrap h2.qg-bt{display:none}.qg-bwrap{padding-top:44px}}
