@@ -314,3 +314,20 @@ dialog.qg[data-scene=battle] .qg-petbtn{display:none!important}
 @media (max-width:700px){dialog.qg[data-scene=battle]{width:100vw;height:100dvh;max-height:100dvh}.qg-four .qg-skc b{font-size:.86rem}.qg-four .qg-pl{font-size:.7rem}.qg-cmd.qg-mini .qg-btn{font-size:.74rem}}
 .qg-bwrap .qg-bars{top:auto;bottom:6px}
 @media (max-width:700px){.qg-bwrap h2.qg-bt{display:none}.qg-bwrap{padding-top:44px}}
+/* v78 casting */
+.qg-tele{margin:.15em 0 0;font-size:.82em;color:#7a2e1e;font-weight:600}
+.qg-rl{margin:.3em 0 0;padding:.25em .5em;border-left:3px solid #6aa05a;background:rgba(106,160,90,.12);font-size:.92em}
+.qg-stage{position:relative}
+.qg-breath{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4em;background:rgba(20,14,8,.55);z-index:5;text-align:center;padding:.5em}
+.qg-breath p{margin:0;color:#ffe7b0;font-size:.85em;max-width:28em}
+.qg-ring{width:min(28vh,110px);height:min(28vh,110px);border-radius:50%;border:4px solid rgba(255,231,176,.55);display:flex;align-items:center;justify-content:center}
+.qg-ring i{display:block;width:100%;height:100%;border-radius:50%;background:radial-gradient(circle,rgba(159,211,230,.9),rgba(159,211,230,.25));transform:scale(.25)}
+.qg-breath.go .qg-ring{border-color:#bfe3c6;box-shadow:0 0 14px #bfe3c6}
+.qg-breath .qg-brb{min-height:44px;min-width:12em}
+.qg-brx{background:none;border:0;color:#ffe7b0;text-decoration:underline;font-size:.8em;cursor:pointer;min-height:32px}
+.qg-brx:focus-visible,.qg-brb:focus-visible{outline:3px solid #f3c95a;outline-offset:2px}
+@media (max-width:600px){.qg-tele{font-size:.75em}.qg-ring{width:70px;height:70px}.qg-breath p{font-size:.75em}}
+.qg-symcard .qg-tele{color:#ffd2b8;text-shadow:0 1px 0 rgba(0,0,0,.6)}
+.qg-breath{background:rgba(20,14,8,.82)}
+@media (max-width:600px){.qg-breath{gap:.25em;padding:.25em}.qg-breath p{display:none}.qg-ring{width:52px;height:52px;border-width:3px}.qg-breath .qg-brb{min-height:40px}.qg-brx{min-height:28px}}
+.qg-msg .qg-rl{position:sticky;bottom:0;background:#e6efd9;margin-bottom:0}
