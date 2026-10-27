@@ -226,3 +226,36 @@ dialog.qg .qg-diff .qg-btn.on{background:#cfe6a8}
 .qg-box .qg-face{float:left;margin:0 10px 4px 0;width:56px;height:56px;border-radius:8px;image-rendering:auto}
 .qg-desk{display:flex;gap:10px;align-items:center;margin:6px 0 10px}.qg-desk .qg-face{width:56px;height:56px;flex:none;border-radius:8px}
 .gd canvas[data-face]{image-rendering:auto;border-radius:5px}
+/* ---- symptom cards, skill cards, loot ---- */
+.qg-symcard{display:flex;gap:10px;align-items:center;margin:4px 0 6px;padding:8px 10px;border:2px solid #c9d2da;border-radius:10px;background:linear-gradient(135deg,#3a4350 0%,#262c38 100%);color:#f2f4f6;box-shadow:0 2px 0 #12151c,inset 0 0 0 1px rgba(255,255,255,.08)}
+.qg-symcard.storm{background:linear-gradient(135deg,#2c4462 0%,#1c2638 100%);border-color:#8fb0c9}
+.qg-symcard.in{animation:qgSymIn .6s ease-out}
+@keyframes qgSymIn{0%{transform:translateY(-8px) scale(.97);opacity:0;filter:blur(3px)}60%{opacity:1;filter:blur(0)}100%{transform:none}}
+.qg-symcard .qg-symic{width:56px;height:56px;flex:none}
+.qg-symcard p{margin:2px 0;line-height:1.35}
+.qg-symcard .qg-casts{font-size:1.05em;color:#fff}
+.qg-symcard .qg-feel{font-size:.92em;color:#e3e8ec}
+.qg-symcard .qg-sym{font-size:.85em;color:#cfd8df}
+.qg-symcard .qg-link{color:#f3c95a}
+.qg-ic{image-rendering:auto;flex:none}
+.qg-btn.qg-skc{position:relative;display:flex;align-items:center;gap:8px;text-align:left}
+.qg-btn.qg-skc .qg-ic{width:36px;height:36px}
+.qg-skt{display:flex;flex-direction:column;min-width:0}
+.qg-skt .qg-pl{font-style:normal;font-size:.8em;opacity:.9;line-height:1.25;white-space:normal}
+.qg-tt{position:absolute;left:8px;right:8px;bottom:calc(100% + 6px);z-index:5;padding:6px 8px;border:2px solid #f3c95a;border-radius:6px;background:#2c1a10;color:#fff1c4;font-size:.8em;line-height:1.3;text-align:left;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .15s}
+.qg-btn.qg-skc:hover .qg-tt,.qg-btn.qg-skc:focus-visible .qg-tt,.qg-btn.qg-skc:focus .qg-tt{opacity:1;visibility:visible}
+.qg-why{margin:6px 0 0;padding:6px 8px;border-left:4px solid #f3c95a;background:rgba(243,201,90,.12);border-radius:4px}
+.qg-loot{display:flex;gap:12px;align-items:center;margin:8px 0;padding:10px;border:2px solid #f3c95a;border-radius:10px;background:radial-gradient(circle at 15% 30%,rgba(255,220,140,.35),rgba(60,32,18,.15) 60%),#2c1a10;color:#fff1c4;box-shadow:0 0 18px rgba(243,201,90,.35)}
+.qg-loot h3{margin:2px 0;font-size:1.1em}.qg-loot p{margin:3px 0}
+.qg-lootk{text-transform:uppercase;letter-spacing:.08em;font-size:.72em;color:#f3c95a}
+.qg-lootic{width:64px;height:64px;animation:qgLoot 2.4s ease-in-out infinite}
+@keyframes qgLoot{50%{transform:translateY(-3px);filter:drop-shadow(0 0 8px rgba(255,220,140,.9))}}
+.qg-who{margin:6px 0 4px}
+.qg-whol{list-style:none;display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0}
+.qg-whol li{display:flex;gap:6px;align-items:center;padding:4px 8px 4px 4px;border:1px solid #c9a46a;border-radius:8px;background:rgba(0,0,0,.2)}
+.qg-whol canvas{width:40px;height:40px;border-radius:6px}
+.qg-whol span{display:flex;flex-direction:column;font-size:.85em}.qg-whol small{opacity:.8}
+.qg-whol.sm li{padding:2px 6px}
+.qg-gskills .qg-card{align-items:flex-start}
+.qg-gskills .qg-ic{width:40px;height:40px}
+@media (prefers-reduced-motion:reduce){.qg-symcard.in,.qg-lootic{animation:none}.qg-tt{transition:none}}
