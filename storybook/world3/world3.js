@@ -467,7 +467,7 @@ function ui(){
  var sb=document.getElementById("b-sig");sb.disabled=B.chg<4||B.busy;document.getElementById("b-chg").textContent=B.chg>=4?"ready":"charging";
  sb.setAttribute("aria-label",SIG.name+(B.chg>=4?", ready":", charging. Use different skills to charge it"));
  var gb=document.getElementById("b-guide");gb.disabled=!!B.busy||(B.gShield&&B.gMod);
- app.querySelectorAll("[data-s]").forEach(function(b){b.disabled=!!B.busy;b.classList.toggle("weak",+b.dataset.s===B.weak)});
+ app.querySelectorAll("[data-s]").forEach(function(b){b.disabled=!!B.busy;b.classList.remove("weak")});
  var ck=document.getElementById("b-check");if(ck)ck.disabled=!!B.busy;
  var hit=drain(0),wn=d.twist==="echo"&&(B.turn+1)%3===0?'An echo is rising. ':'';
  if(d.twist==="gust"&&B.gust)wn+='Gusts stacked: '+B.gust+'. ';
@@ -476,11 +476,11 @@ function ui(){
  if(d.twist==="momentum"&&B.mom)wn+='Momentum: +'+B.mom+'. ';
  if(B.worries)wn+='Small worries: '+B.worries+'. ';var cs=B.seq||[],cn=0;for(var ci=Math.min(3,cs.length);ci>0;ci--){if(cs.slice(-ci).join()===comboOf(d).slice(0,ci).join()){cn=ci;break}}
  var hide=B.fogHide>0;app.querySelectorAll('[data-s]').forEach(function(b){if(hide)b.classList.remove('weak')});
- document.getElementById("b-warn").innerHTML=wn+'<span class="w-combo">Combo: '+esc(comboName(d))+(cn?' ('+cn+' of 3)':'')+'</span> '+(hide?'The weak spot is hidden in the fog':'Watch for: <b>'+esc(w[2])+'</b>. Weak spot: <b>'+esc(w[1])+'</b>')+(d.noNum||d.gentle?'.':'. If missed, the next hit takes '+hit+' hope.');
+ document.getElementById("b-warn").innerHTML=wn+'<span class="w-combo">Combo: '+esc(comboName(d))+(cn?' ('+cn+' of 3)':'')+'</span> '+(hide?'The weak spot is hidden in the fog':'Watch for: <b>'+esc(w[2])+'</b>. Pick the skill that answers it')+(d.noNum||d.gentle?'.':'. If missed, the next hit takes '+hit+' hope.');
 }
 function drain(weakHit){var d=B.d;if(B.fogHide>0)weakHit=1;var n=weakHit?1:2;if(d.twist==="gust")n+=weakHit?0:B.gust;if(d.twist==="echo"&&(B.turn+1)%3===0&&!weakHit)n*=2;if(!weakHit&&B.worries)n+=B.worries;return n}
 function act(k){
- if(B.busy||B.over)return;
+ if(B.busy||B.over)return;if(k!=="guide")B.cast=null;
  if(k==="guide"){photoCard();return}
  if(k==="check"){B.locks+=2;B.hope=Math.min(B.hmax,B.hope+1);castSay();boss(0);msg('You check one more time. Relief for a moment, and two new locks click shut.','Checking calms the worry briefly, then the urge comes back stronger.');ui();return}
  if(CFG.breath){B.busy=1;ui();breathCast(function(bonus){B.busy=0;resolve(k,bonus)})}else resolve(k,0);
@@ -649,8 +649,9 @@ var CASTL={"Racing heart":"Your heart speeds up. Something must be wrong.","Spin
 "A wave of missing":"A wave of missing them rolls in.","Silence":"It's easier not to talk about them.","Carrying it alone":"You should carry this by yourself.","Worn out":"Grief makes everything heavy and tiring.",
 "Heavy morning":"Stay in bed. Why bother today?","Pull to hide":"Cancel the plans. Stay inside.","Inner critic":"You're lazy. You'll never change.","Isolation":"Nobody wants to hear from you."};
 function castSay(){if(!B||!B.d)return;var a=B.d.sk[B.weak][2];B.cast={name:a,line:CASTL[a]||"",t0:performance.now()};(B.castLog=B.castLog||[]).push(a)}
-function castBubble(c,now){var el=document.getElementById("b-cast"),cb=B&&B.cast;var D=RM?2600:2400,age=cb?now-cb.t0:0;
- if(!cb||age>D){if(cb)B.cast=null;if(el)el.hidden=true;return}
+function castBubble(c,now){var el=document.getElementById("b-cast"),cb=B&&B.cast;var age=cb?now-cb.t0:0;
+ /* the bubble stays up until the player casts their response (act clears B.cast) */
+ if(!cb||B.over){if(el)el.hidden=true;return}
  var ov=document.querySelector(".w-bov"),cv=c.canvas;if(!ov||!cv)return;
  if(!el){el=document.createElement("div");el.id="b-cast";el.className="w-cast";el.setAttribute("aria-hidden","true");ov.appendChild(el)}
  if(el.dataset.k!==cb.name+cb.t0){el.dataset.k=cb.name+cb.t0;el.innerHTML='<b></b><i></i>';el.firstChild.textContent=(B.d.gentle?"The Keeper\u2019s lantern flickers: ":"Casts: ")+cb.name+(S.clues&&S.clues.indexOf(B.id)>=0&&!B.d.practice?" \u00b7 from your clue page":"");el.lastChild.textContent=cb.line?"\u201C"+cb.line+"\u201D":"";el.classList.toggle("rm",!!RM)}
@@ -660,7 +661,7 @@ function castBubble(c,now){var el=document.getElementById("b-cast"),cb=B&&B.cast
  var bw=el.offsetWidth,bh=el.offsetHeight,ex=(e.x)*k+(R.left-O.left),top=(e.y-(B.d.big?200:e.boss?160:80))*k+(R.top-O.top);
  var lx=Math.max(8,Math.min(R.width-bw-8,ex-bw/2)),ly=Math.max(hb+10,Math.min(pt-bh-10,top-bh-14));
  el.style.left=lx+"px";el.style.top=ly+"px";el.style.setProperty("--tx",Math.max(16,Math.min(bw-24,ex-lx))+"px");
- el.style.opacity=RM?1:Math.max(0,Math.min(1,age/220,(D-age)/300));
+ el.style.opacity=RM?1:Math.max(0,Math.min(1,age/220));
  B.castRect={l:lx+O.left,t:ly+O.top,r:lx+O.left+bw,b:ly+O.top+bh}}
 function wrapL(c,t,mw){var ws=t.split(" "),out=[],ln="";ws.forEach(function(w){var tt=ln?ln+" "+w:w;if(c.measureText(tt).width>mw&&ln){out.push(ln);ln=w}else ln=tt});out.push(ln);return out}
 function bubble(c,x,y,txt,a){c.save();c.globalAlpha=a;c.font="600 13px system-ui,sans-serif";var words=txt.split(" "),lines=[],ln="",mw=Math.min(280,W-30);words.forEach(function(w){var tt=ln?ln+" "+w:w;if(c.measureText(tt).width>mw-20&&ln){lines.push(ln);ln=w}else ln=tt});lines.push(ln);
