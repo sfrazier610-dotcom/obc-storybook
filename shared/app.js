@@ -26,7 +26,7 @@ $('#quiz').addEventListener('submit',e=>{e.preventDefault();const f=new FormData
  <div class="bar" role="img" aria-label="${x.pct} percent"><span style="width:${x.pct}%"></span></div>
  <p><strong>Why:</strong></p><ul>${x.why.map(w=>`<li>${esc(w)}</li>`).join('')||'<li>No overlap with your selections</li>'}</ul>
  ${x.gaps.length?`<p class="gaps"><strong>Not listed:</strong> ${esc(x.gaps.join('; '))}</p>`:''}
- <a class="btn sm" href="https://openbook-counseling.clientsecure.me" target="_blank" rel="noopener">${(window.THEME&&window.THEME.reqWord)||'Request'} ${esc(x.c.name.split(' ')[0])}</a></li>`).join('')+`</ol><p class="note">Scores reflect publicly listed specialties only, not quality. Feeling understood in the first sessions matters most. You can switch clinicians within the practice anytime.</p>`;
+ <a class="btn sm" href="/professional/intake.html">${(window.THEME&&window.THEME.reqWord)||'Request'} ${esc(x.c.name.split(' ')[0])}</a></li>`).join('')+`</ol><p class="note">Scores reflect publicly listed specialties only, not quality. Feeling understood in the first sessions matters most. You can switch clinicians within the practice anytime.</p>`;
  $('#results').scrollIntoView({behavior:'smooth'});});
 // team
 const fc=$('#f-concern'),fm=$('#f-mod');

@@ -3,7 +3,7 @@
 (function(){'use strict';
 var KEY='obc_quest_v1',Q=null,dlg=null,loading=null,SCENE='title',raf=0,P=null,B=null,MAPS={},ENEMIES=[],PARTS=[],FLO=[],held=null,TALK=null,LIFT=0,ITEM=0;
 var RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
-var BOOK='https://openbook-counseling.clientsecure.me';
+var BOOK='../professional/intake.html';
 function $(s,r){return (r||document).querySelector(s)}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function load(){if(Q)return Promise.resolve();if(loading)return loading;
@@ -625,7 +625,7 @@ function giveItem(id){var k=clin(id),p=prog();p.inv=p.inv||[];if(p.inv.indexOf('
 function finale(id){var k=clin(id),a=dlg.querySelector('#qg-after');if(!a)return;SCENE='officedone';
  a.innerHTML='<div class="qg-msg qg-warm" tabindex="-1"><b>You made it.</b> Coming to counseling takes courage, and healing is a process. You carried the Golden Fidget Toy out of the fog, a small reminder that help is real and you can ask for it.</div>'+
  '<p class="qg-lede">If you\'d like to talk with someone at Open Book, we\'d be glad to meet you. No pressure, whenever you\'re ready.</p>'+
- '<div class="qg-menu"><a class="qg-btn qg-menu-a qg-primary" href="'+BOOK+'" target="_blank" rel="noopener">Request an appointment <small>opens Open Book\'s secure client portal in a new tab</small></a><a class="qg-btn qg-menu-a" href="#match" data-quiz>Find a guide who fits you</a><button type="button" class="qg-btn" data-bag>Open my bag</button><button type="button" class="qg-btn" data-m>Walk back out to the valley</button><button type="button" class="qg-link" data-t>Title screen</button></div>';
+ '<div class="qg-menu"><a class="qg-btn qg-menu-a qg-primary" href="'+BOOK+'">Request an appointment <small>opens Open Book\'s secure client portal in a new tab</small></a><a class="qg-btn qg-menu-a" href="#match" data-quiz>Find a guide who fits you</a><button type="button" class="qg-btn" data-bag>Open my bag</button><button type="button" class="qg-btn" data-m>Walk back out to the valley</button><button type="button" class="qg-link" data-t>Title screen</button></div>';
  a.querySelector('[data-bag]').onclick=bag;a.querySelector('[data-m]').onclick=map;a.querySelector('[data-t]').onclick=title;a.querySelector('.qg-warm').focus();say('You got the Golden Fidget Toy. It is saved in your bag.')}
 function drawOffice(c,t,dt){var e=RM?1:Math.min(1,(t-OF.t0)/1400);
  c.fillStyle='#e8cfa6';c.fillRect(0,0,320,110);c.fillStyle='#d9bb8c';for(var i=0;i<320;i+=20)c.fillRect(i,0,2,110);c.fillStyle='#b5835a';c.fillRect(0,104,320,6);
