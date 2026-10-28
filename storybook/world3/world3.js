@@ -480,7 +480,7 @@ function drain(weakHit){var d=B.d;if(B.fogHide>0)weakHit=1;var n=weakHit?1:2;if(
 function act(k){
  if(B.busy||B.over)return;
  if(k==="guide"){photoCard();return}
- if(k==="check"){B.locks+=2;B.hope=Math.min(B.hmax,B.hope+1);boss(0);msg('You check one more time. Relief for a moment, and two new locks click shut.','Checking calms the worry briefly, then the urge comes back stronger.');ui();return}
+ if(k==="check"){B.locks+=2;B.hope=Math.min(B.hmax,B.hope+1);castSay();boss(0);msg('You check one more time. Relief for a moment, and two new locks click shut.','Checking calms the worry briefly, then the urge comes back stronger.');ui();return}
  if(CFG.breath){B.busy=1;ui();breathCast(function(bonus){B.busy=0;resolve(k,bonus)})}else resolve(k,0);
 }
 function pickMod(g,id){var pref={anx:["CBT","ACT","EMDR"],ptsd:["EMDR","IFS","CBT"],rel:["Gottman","EFT","IFS"],ocd:["ERP","ACT","CBT"],adhd:["CBT","DBT","ACT"],ed:["ACT","DBT","IFS"],grief:["ACT","IFS","EMDR"],fog:["CBT","ACT","DBT"]}[id]||[];
@@ -510,7 +510,7 @@ function resolve(k,bonus){
  B.hp=Math.max(0,B.hp-dmg);B.hit=1;B.crack=weakHit;hitFX(weakHit||k==='sig',typeof cmb!=='undefined'&&cmb);
  if(B.e.boss&&!B.phase&&B.hp>0&&B.hp<=B.max/2&&PHASE[B.id]){B.phase=1;if(B.id==='ocd')B.locks=Math.min(3,B.locks+1);if(B.id==='fog'){B.fogHide=3;B.fogSet=B.turn}txt+=' '+PHASE[B.id][0]}
  if(B.hp<=0){ui();return win()}
- var lost=boss(weakHit);B.turn++;B.weak=(B.weak+1+Math.floor(Math.random()*3))%4;
+ castSay();var lost=boss(weakHit);B.turn++;B.weak=(B.weak+1+Math.floor(Math.random()*3))%4;
  if(d.twist==="lock"&&k!=="sig"&&d.sk[k][0]!=="erp")B.locks=Math.min(3,B.locks+1);
  if(B.comfMsg){B.comfMsg=0;txt+=' '+esc(petName())+' curls up beside you. You feel comforted, and some hope comes back.'}
  if(B.fogHide&&B.turn>B.fogSet)B.fogHide--;
@@ -635,7 +635,32 @@ function drawFX(c,t){var now=performance.now();FXL=FXL.filter(function(f){return
   default:glowDot(c,X,Y,60,col,.6*a)}
   if(m&&!RM){c.globalCompositeOperation="source-over";c.font="700 14px Georgia,serif";c.textAlign="center";c.fillStyle="rgba(40,24,10,"+(.8*a)+")";c.fillText(modLabel(f.k.slice(2)),ex,ey-(e.boss?84:40));c.textAlign="left"}
   c.restore()});
+ castBubble(c,now);
  if(B.say)bubble(c,hx,P.y-66,B.say.text,Math.min(1,(now-B.say.t0)/(RM?1:250)))}
+/* boss cast bubbles: attack name + the plain thought it pushes */
+var CASTL={"Racing heart":"Your heart speeds up. Something must be wrong.","Spinning room":"Everything feels too fast to keep up with.","What-if storm":"What if it all goes wrong?","Urge to avoid":"Just skip it. Staying away feels safer.",
+"Echo of the past":"An old memory feels like it is happening now.","Alarm bells":"Danger! Even when you are safe.","Tight chest":"Your body braces for a hit that isn't coming.","Feeling alone":"No one could understand this.",
+"Defensiveness":"It's not my fault, it's yours.","Criticism":"You always do this.","Shutting down":"I'm done talking.","Contempt":"Rolling eyes instead of listening.",
+"Pull to check":"Check it again, just to be sure.","Sticky thought":"Having this thought must mean something.","Guilt spiral":"You should feel bad about that thought.","Stuck in loops":"Do it again until it feels right.",
+"Too-big task":"This is too much. Where would you even start?","Time slipping":"Just five more minutes... and the hour is gone.","Can't start":"You'll start later, when you feel like it.","Shame spiral":"Why can't you just do it like everyone else?",
+"Harsh inner voice":"You're not good enough.","Lost in the mist":"Forget what you care about. Follow the rules.","Hiding":"Don't tell anyone how you're really doing.","Rule whispers":"Follow the rules or else.",
+"A wave of missing":"A wave of missing them rolls in.","Silence":"It's easier not to talk about them.","Carrying it alone":"You should carry this by yourself.","Worn out":"Grief makes everything heavy and tiring.",
+"Heavy morning":"Stay in bed. Why bother today?","Pull to hide":"Cancel the plans. Stay inside.","Inner critic":"You're lazy. You'll never change.","Isolation":"Nobody wants to hear from you."};
+function castSay(){if(!B||!B.d)return;var a=B.d.sk[B.weak][2];B.cast={name:a,line:CASTL[a]||"",t0:performance.now()};(B.castLog=B.castLog||[]).push(a)}
+function castBubble(c,now){var el=document.getElementById("b-cast"),cb=B&&B.cast;var D=RM?2600:2400,age=cb?now-cb.t0:0;
+ if(!cb||age>D){if(cb)B.cast=null;if(el)el.hidden=true;return}
+ var ov=document.querySelector(".w-bov"),cv=c.canvas;if(!ov||!cv)return;
+ if(!el){el=document.createElement("div");el.id="b-cast";el.className="w-cast";el.setAttribute("aria-hidden","true");ov.appendChild(el)}
+ if(el.dataset.k!==cb.name+cb.t0){el.dataset.k=cb.name+cb.t0;el.innerHTML='<b></b><i></i>';el.firstChild.textContent=(B.d.gentle?"The Keeper\u2019s lantern flickers: ":"Casts: ")+cb.name;el.lastChild.textContent=cb.line?"\u201C"+cb.line+"\u201D":"";el.classList.toggle("rm",!!RM)}
+ el.hidden=false;var R=cv.getBoundingClientRect(),O=ov.getBoundingClientRect(),k=R.width/W,e=B.e;
+ var hud=document.querySelector(".w-bhud"),hb=hud?hud.getBoundingClientRect().bottom-O.top:0;
+ var sk=document.querySelector(".w-bpan,.w-bact,[data-s]"),pan=sk&&sk.closest(".w-bov>*")||sk,pt=pan?pan.getBoundingClientRect().top-O.top:R.height;
+ var bw=el.offsetWidth,bh=el.offsetHeight,ex=(e.x)*k+(R.left-O.left),top=(e.y-(B.d.big?200:e.boss?160:80))*k+(R.top-O.top);
+ var lx=Math.max(8,Math.min(R.width-bw-8,ex-bw/2)),ly=Math.max(hb+10,Math.min(pt-bh-10,top-bh-14));
+ el.style.left=lx+"px";el.style.top=ly+"px";el.style.setProperty("--tx",Math.max(16,Math.min(bw-24,ex-lx))+"px");
+ el.style.opacity=RM?1:Math.max(0,Math.min(1,age/220,(D-age)/300));
+ B.castRect={l:lx+O.left,t:ly+O.top,r:lx+O.left+bw,b:ly+O.top+bh}}
+function wrapL(c,t,mw){var ws=t.split(" "),out=[],ln="";ws.forEach(function(w){var tt=ln?ln+" "+w:w;if(c.measureText(tt).width>mw&&ln){out.push(ln);ln=w}else ln=tt});out.push(ln);return out}
 function bubble(c,x,y,txt,a){c.save();c.globalAlpha=a;c.font="600 13px system-ui,sans-serif";var words=txt.split(" "),lines=[],ln="",mw=Math.min(280,W-30);words.forEach(function(w){var tt=ln?ln+" "+w:w;if(c.measureText(tt).width>mw-20&&ln){lines.push(ln);ln=w}else ln=tt});lines.push(ln);
  var bw=Math.max.apply(0,lines.map(function(l){return c.measureText(l).width}))+20,bh=lines.length*17+12,bx=Math.max(6,Math.min(W-bw-6,x-bw/2)),by=Math.max(6,y-bh);
  c.fillStyle="rgba(255,250,235,.96)";c.strokeStyle="#8a6a3e";c.lineWidth=1.5;c.beginPath();if(c.roundRect)c.roundRect(bx,by,bw,bh,10);else c.rect(bx,by,bw,bh);c.fill();c.stroke();
