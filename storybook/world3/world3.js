@@ -314,6 +314,7 @@ function render(t){var r=stage.getBoundingClientRect(),dpr=Math.min(2,devicePixe
  if(B){c.fillStyle="rgba(30,20,40,.18)";c.fillRect(0,0,W,H)}
  if(fade>0){c.fillStyle="rgba(20,12,4,"+fade+")";c.fillRect(0,0,W,H)}
  c.restore();
+ drawFX(c,t);
  if(!busy()){var n=near();if(n)label(c,n)}
  if(DM&&DM.pick){c.fillStyle="rgba(255,214,120,.5)";c.beginPath();c.ellipse(P.x,P.y-34,6,6,0,0,7);c.fill()}}
 function label(c,o){var t=verb(o)+(o.name?" "+o.name:"");var y=o.y-(FT[o.t]?FT[o.t][2]*(o.sc||1):30)-8;if(o.t==="look")y=o.y-20;c.font="600 13px system-ui,sans-serif";var w=c.measureText(t).width+14,x=Math.max(w/2+2,Math.min(W-w/2-2,o.x));y=Math.max(20,y);c.fillStyle="rgba(250,240,215,.92)";c.strokeStyle="#8a6a3e";c.lineWidth=1;c.beginPath();if(c.roundRect)c.roundRect(x-w/2,y-16,w,21,8);else c.rect(x-w/2,y-16,w,21);c.fill();c.stroke();c.fillStyle="#3b2a1a";c.textAlign="center";c.fillText(t,x,y-1);c.textAlign="left"}
@@ -407,7 +408,7 @@ addEventListener("blur",function(){held={}});
 var BRK=0;
 function battle(e){if(B)return;closeOV();held={};tgt=null;
  var id=e.reg,base=BD[id],d=e.boss?base:Object.assign({},base,{name:"The "+MIN[id],hp:10,mini:1,tip:"A smaller symptom. "+base.tip}),g=guideOf(id);
- B={e:e,id:id,d:d,g:g,hp:d.hp,max:d.hp,hope:10,hmax:10,turn:0,weak:Math.floor(Math.random()*4),chg:0,last:null,recent:[],gust:0,locks:0,shield:0,mom:0,listen:-9,gUsed:0,over:0,busy:0,hit:0,crack:0};
+ B={e:e,id:id,d:d,g:g,hp:d.hp,max:d.hp,hope:10,hmax:10,turn:0,weak:Math.floor(Math.random()*4),chg:0,last:null,recent:[],gust:0,locks:0,shield:0,mom:0,listen:-9,gUsed:0,gShield:0,gMod:0,log:[],say:null,card:0,over:0,busy:0,hit:0,crack:0};
  var o=document.createElement("div");o.className="w-bov";o.setAttribute("role","region");o.setAttribute("aria-label","Casting battle with "+d.name);
  o.innerHTML='<div class="w-bhud w-par"><h2>'+esc(d.name)+'</h2><div class="w-bars"><div class="w-bar"><span>'+(d.gentle?'Lanterns lit':esc(d.name.replace("The ","")))+'</span><i><b id="b-bh"></b></i><em id="b-bhn"></em></div>'+
  '<div class="w-bar hope"><span>Your hope</span><i><b id="b-hh"></b></i><em id="b-hhn"></em></div></div><button class="w-btn" id="b-leave">Step back</button><p class="w-bwarn" id="b-warn"></p></div>'+
@@ -452,7 +453,7 @@ function ui(){
  document.getElementById("b-hhn").textContent=d.noNum?"":B.hope+"/"+B.hmax;
  var sb=document.getElementById("b-sig");sb.disabled=B.chg<4||B.busy;document.getElementById("b-chg").textContent=B.chg>=4?"ready":"charging";
  sb.setAttribute("aria-label",SIG.name+(B.chg>=4?", ready":", charging. Use different skills to charge it"));
- var gb=document.getElementById("b-guide");gb.disabled=B.gUsed||B.busy;
+ var gb=document.getElementById("b-guide");gb.disabled=!!B.busy||(B.gShield&&B.gMod);
  app.querySelectorAll("[data-s]").forEach(function(b){b.disabled=!!B.busy;b.classList.toggle("weak",+b.dataset.s===B.weak)});
  var ck=document.getElementById("b-check");if(ck)ck.disabled=!!B.busy;
  var hit=drain(0),wn=d.twist==="echo"&&(B.turn+1)%3===0?'An echo is rising. ':'';
@@ -465,8 +466,7 @@ function ui(){
 function drain(weakHit){var d=B.d,n=weakHit?1:2;if(d.twist==="gust")n+=weakHit?0:B.gust;if(d.twist==="echo"&&(B.turn+1)%3===0&&!weakHit)n*=2;return n}
 function act(k){
  if(B.busy||B.over)return;
- if(k==="guide"){B.gUsed=1;var m=pickMod(B.g,B.id);B.hope=Math.min(B.hmax,B.hope+3);B.shield=Math.max(B.shield,1);
-  msg(esc(B.g.name)+' steps in'+(m?' with '+esc(m):'')+'. Your hope rises and a shield forms.','Asking for help is a skill. A therapist can walk with you through hard seasons.');ui();return}
+ if(k==="guide"){photoCard();return}
  if(k==="check"){B.locks+=2;B.hope=Math.min(B.hmax,B.hope+1);boss(0);msg('You check one more time. Relief for a moment, and two new locks click shut.','Checking calms the worry briefly, then the urge comes back stronger.');ui();return}
  if(CFG.breath){B.busy=1;ui();breathCast(function(bonus){B.busy=0;resolve(k,bonus)})}else resolve(k,0);
 }
@@ -474,8 +474,8 @@ function pickMod(g,id){var pref={anx:["CBT","ACT","EMDR"],ptsd:["EMDR","IFS","CB
  var mods=g.mods||[];for(var i=0;i<pref.length;i++)for(var j=0;j<mods.length;j++)if(mods[j].indexOf(pref[i])===0)return mods[j];return mods[0]||""}
 function resolve(k,bonus){
  var d=B.d,txt,rl,dmg,weakHit=0;
- if(k==="sig"){B.chg=0;dmg=5+bonus;weakHit=1;txt=SIG.name+'! Two skills shine at once.';rl=SIG.rl}
- else{var s=d.sk[k];weakHit=k===B.weak;dmg=2+(weakHit?2:0)+bonus;
+ if(k==="sig"){fx("sig");B.chg=0;dmg=5+bonus;weakHit=1;txt=SIG.name+'! Two skills shine at once.';rl=SIG.rl}
+ else{var s=d.sk[k];fx(s[0]);weakHit=k===B.weak;dmg=2+(weakHit?2:0)+bonus;
   var fresh=B.recent.indexOf(k)<0;B.chg=Math.min(4,B.chg+(fresh?2:(B.last===k?0:1)));
   if(d.twist==="gust"){if(weakHit)B.gust=Math.max(0,B.gust-1);else B.gust++}
   if(d.twist==="listen"){if(s[0]==="listen")B.listen=B.turn;if((s[0]==="repair"||s[0]==="soft")&&B.turn-B.listen>2){dmg=Math.max(1,dmg-2);txt=s[1]+' lands softly. Listening first would help it land.'}}
@@ -508,6 +508,115 @@ function breathCast(cb){
   r.style.background='conic-gradient('+(p>=.55?'#ffd98a':'#8fa3c9')+' '+Math.min(1,p)*360+'deg,#2c3956 0)';
   if(p>1.25)return fin(0);id=requestAnimationFrame(lp)})();
 }
+/* ---------- guide photocard, shield, method skills, skill animations ---------- */
+var MX={EMDR:"EMDR: I'll follow a light side to side while I hold the memory in mind, so my brain can file it away.",
+ART:"Accelerated Resolution Therapy: I'll follow eye movements and picture the hard scene changing, so it feels less raw.",
+CBT:"CBT: I'll catch the thought, check if it's really true, and try a more helpful one.",
+"TF-CBT":"Trauma-Focused CBT: I'll learn calming skills first, then tell my story a little at a time.",
+DBT:"DBT: When a feeling gets huge, I'll use a skill to ride it out without making things worse.",
+EFT:"Emotionally Focused Therapy: We'll spot the cycle we get stuck in and share the softer feeling underneath.",
+IFS:"Internal Family Systems: I'll get curious about the part of me that's scared, instead of fighting it.",
+Imago:"Imago: I'll listen, repeat back what I heard, and ask if I got it right before I answer.",
+ACT:"ACT: I'll make room for the hard feeling and still take a step toward what matters to me.",
+Gottman:"Gottman Method: I'll start gently and make a repair attempt instead of keeping score.",
+ERP:"ERP: I'll face the worry a little at a time without doing the ritual, so the urge fades on its own.",
+SFBT:"Solution-Focused: I'll notice what's already working and do a little more of it.",
+MBCT:"Mindfulness-Based CBT: I'll watch my thoughts drift by like clouds instead of getting pulled in.",
+Narrative:"Narrative: I'm not the problem. I'll retell my story with me as the one who pushes back.",
+CPT:"Cognitive Processing: I'll question the stuck thoughts a hard event left behind.",
+MI:"Motivational Interviewing: I'll say my own reasons for change, in my own words.",
+Mindfulness:"Mindfulness: I'll notice my breath and this moment, without judging it.",
+ArtTherapy:"Art Therapy: I'll draw the feeling, so I can see it outside of me.",
+Play:"Play therapy: I'll use play to show what's hard to say in words.",
+Sandplay:"Sandplay: I'll build a small world in the sand to show what's going on inside.",
+Interpersonal:"Interpersonal: I'll look at how my relationships and my mood affect each other.",
+PersonCentered:"Person-Centered: I'll be heard without judgment and trust that I can find my way forward.",
+Attachment:"Attachment-based: I'll lean on a steady, safe connection while I learn to feel secure.",
+FamilyMarital:"Family therapy: We'll work on this together, so no one carries it alone.",
+TraumaFocused:"Trauma-focused care: We'll go at my pace, with safety first.",
+Psychodynamic:"Psychodynamic: I'll notice old patterns from my past that still show up today.",
+PositivePsych:"Positive Psychology: I'll name my strengths and what's going right, and build on them.",
+Integrative:"Integrative: My guide will blend a few approaches to fit what I need.",
+Relational:"Relational: I'll notice how I feel in a safe connection, then practice that out in the world."};
+var MATCH={anx:["CBT","ACT","MBCT","Mindfulness","DBT"],ptsd:["EMDR","ART","TF-CBT","CPT","TraumaFocused","IFS"],rel:["Imago","EFT","Gottman","FamilyMarital","Attachment"],ocd:["ERP","ACT","CBT"],adhd:["CBT","DBT","MI","SFBT"],ed:["DBT","ACT","IFS","CBT"],grief:["Narrative","ACT","IFS","PersonCentered","ArtTherapy"],fog:["CBT","ACT","Interpersonal","MBCT","DBT","MI"]};
+function modLabel(m){var L=(window.OBC&&OBC.modLabels)||{};return L[m]||m}
+function guideMethods(g,id){var mt=MATCH[id]||[],l=(g.mods||[]).filter(function(m){return MX[m]});return l.filter(function(m){return mt.indexOf(m)>=0}).sort(function(a,b){return mt.indexOf(a)-mt.indexOf(b)}).concat(l.filter(function(m){return mt.indexOf(m)<0}))}
+function halfHP(hp){return Math.max(1,Math.ceil(hp/2))}
+function photoCard(){if(!B||B.busy||B.over)return;var o=stage.querySelector(".w-bov");if(!o||o.querySelector(".w-pc"))return;var g=B.g,ms=guideMethods(g,B.id),mt=MATCH[B.id]||[];
+ var d=document.createElement("div");d.className="w-pc w-par";d.setAttribute("role","dialog");d.setAttribute("aria-modal","true");d.setAttribute("aria-label",g.name+" guide card");
+ d.innerHTML='<button class="w-btn w-pcx" id="pc-x" aria-label="Close card">Close</button><div class="w-pch"><img src="'+portrait(g.id)+'" alt="Filtered portrait of '+esc(g.name)+'"><div><h3>'+esc(g.name)+'</h3><p class="w-pcc">'+esc(g.cred)+'</p><p class="w-pcm"><b>Methods:</b> '+(g.mods||[]).map(function(m){return esc(modLabel(m))}).join(", ")+'</p></div></div>'+
+ '<div class="w-pca"><button class="w-btn pri" id="pc-sh"'+(B.gShield?' disabled':'')+'>Cast a shield'+(B.gShield?' (used)':'')+'</button></div>'+
+ '<p class="w-pcn">'+(B.gMod?'You used a method skill this battle.':'Pick one method skill, once per battle. It calms half of what is left.')+'</p><div class="w-pcs">'+ms.map(function(m){var good=mt.indexOf(m)>=0;return '<button class="w-btn'+(good?' good':'')+'" data-m="'+esc(m)+'"'+(B.gMod?' disabled':'')+'>'+esc(modLabel(m))+(good?' <small>good match</small>':'')+'</button>'}).join("")+'</div>';
+ o.appendChild(d);B.card=1;
+ d.querySelector("#pc-x").onclick=closeCard;d.querySelector("#pc-sh").onclick=function(){closeCard();castShield()};
+ d.querySelectorAll("[data-m]").forEach(function(b){b.onclick=function(){closeCard();castMethod(b.dataset.m)}});
+ d.addEventListener("keydown",function(e){if(e.key==="Escape"){e.preventDefault();e.stopPropagation();closeCard()}else if(e.key==="Tab"){var f=[].slice.call(d.querySelectorAll("button:not([disabled])")),i=f.indexOf(document.activeElement);if(e.shiftKey&&i<=0){e.preventDefault();f[f.length-1].focus()}else if(!e.shiftKey&&i===f.length-1){e.preventDefault();f[0].focus()}}});
+ (d.querySelector("#pc-sh:not([disabled])")||d.querySelector("[data-m]:not([disabled])")||d.querySelector("#pc-x")).focus();live(g.name+" guide card open.")}
+function closeCard(){var d=stage.querySelector(".w-pc");if(d)d.remove();if(B){B.card=0;var gb=document.getElementById("b-guide");if(gb&&!gb.disabled)gb.focus();else{var f=app.querySelector("[data-s]");if(f)f.focus()}}}
+function castShield(){if(!B||B.gShield)return;B.gShield=1;B.shield=Math.max(B.shield,1);B.hope=Math.min(B.hmax,B.hope+2);fx("shield");
+ msg(esc(B.g.name)+' casts a shield around you. It will block the next hit, and your hope rises.','Asking for help is a skill. A therapist can walk with you through hard seasons.');ui()}
+function castMethod(m){if(!B||B.gMod||B.busy||(B.g.mods||[]).indexOf(m)<0||!MX[m])return;var good=(MATCH[B.id]||[]).indexOf(m)>=0,line=MX[m];B.gMod=m;B.busy=1;B.log.push("explain:"+m);
+ B.say={text:line,t0:performance.now()};msg('<b>'+esc(S.hero.name||"You")+':</b> "'+esc(line)+'"');ui();live(line);
+ setTimeout(function(){if(!B||B.over)return;B.say=null;B.log.push("cast:"+m);fx("m:"+m);
+  setTimeout(function(){if(!B||B.over)return;var d=B.d,n=halfHP(B.hp);B.hp=Math.max(0,B.hp-n);B.hit=1;B.crack=good;if(good)B.hope=Math.min(B.hmax,B.hope+2);B.busy=0;
+   var t=esc(B.g.name)+' and you use '+esc(modLabel(m))+'. '+(good?'Good match! ':'')+(d.gentle?'Half of the dark lanterns begin to glow.':d.noNum?esc(d.name)+' loosens its hold.':esc(d.name)+' loses half its strength.')+(good?' Your hope rises too.':'');
+   if(B.hp<=0){ui();return win()}msg(t,line.replace(/^[^:]+: /,"In therapy: "));ui();var f=app.querySelector("[data-s]");if(f)f.focus()},RM?500:1100)},2600)}
+/* effects: painted soft-light canvas animations, no stars; reduced motion shows a simple fade */
+var FXL=[];
+function fx(k){FXL.push({k:k,t0:performance.now(),dur:RM?700:(k.indexOf("m:")===0?1300:900)});if(B)B.fxLog=(B.fxLog||[]).concat(k)}
+var FXK={breath:["ring","#9fd3e8"],ground:["ripple","#b49060"],reframe:["bend","#f0d37a"],step:["path","#9fd08a"],safe:["dome2","#b6a0d6"],reach:["bridge","#f2b29a"],listen:["ear","#9fc6e8"],soft:["petals","#f3a6b0"],repair:["mend","#e8c27a"],erp:["fadeup","#d6c08a"],name:["tag","#e8e0b0"],rule:["unknot","#c9b48a"],values:["compass","#a6c8e0"],timer:["arc","#f0b070"],quest:["scroll","#e0c890"],double:["twin","#a6e3a0"],pause:["still","#c8d8e0"],kind:["warm","#f4b8a0"],opp:["flip","#9fc6c0"],wave:["swell","#7fb6c2"],memory:["motes","#f0c98a"],rest:["lantern","#ffd98a"],walk:["steps","#e8c8a0"],sig:["golden","#ffcf6a"],shield:["dome","#ffd678"]};
+var MFX={EMDR:["sweep","#bde0ff"],ART:["sweep2","#d8c0f0"],CBT:["bend","#a8e0b8"],"TF-CBT":["scroll","#c8a8e8"],DBT:["swell","#8fc0d8"],EFT:["bridge","#f4a0a8"],IFS:["parts","#e8b880"],Imago:["mirror","#f0b0c8"],ACT:["compass","#b8e0a0"],Gottman:["mend","#f0c090"],ERP:["fadeup","#e0d090"],SFBT:["path","#f0e080"],MBCT:["clouds","#d0dcea"],Narrative:["scroll2","#e8d0a0"],CPT:["unknot","#c0c8f0"],MI:["tag","#a0e0d0"],Mindfulness:["ring","#c8f0e0"],ArtTherapy:["paint","#f08080"],Play:["bubbles","#a0d8f8"],Sandplay:["sand","#e0c080"],Interpersonal:["twin","#f0a8c8"],PersonCentered:["warm","#f8c8a0"],Attachment:["dome2","#f8b0b0"],FamilyMarital:["circle","#c8e0a0"],TraumaFocused:["still","#d0b8e0"],Psychodynamic:["motes","#c8b0a0"],PositivePsych:["lantern","#ffe090"],Integrative:["weave","#b0d0f0"],Relational:["ear","#f0c0d0"]};
+function glowDot(c,x,y,r,col,a){var g=c.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,rgba(col,a));g.addColorStop(.5,rgba(col,a*.45));g.addColorStop(1,rgba(col,0));c.fillStyle=g;c.beginPath();c.arc(x,y,r,0,7);c.fill()}
+function rgba(h,a){var n=parseInt(h.slice(1),16);return "rgba("+(n>>16)+","+(n>>8&255)+","+(n&255)+","+Math.max(0,Math.min(1,a)).toFixed(3)+")"}
+function drawFX(c,t){var now=performance.now();FXL=FXL.filter(function(f){return now-f.t0<f.dur});if(!B){FXL=[];return}
+ var hx=P.x,hy=P.y-32,e=B.e,ex=e.x,ey=e.y-(e.boss?70:28);
+ FXL.forEach(function(f){var p=(now-f.t0)/f.dur,a=Math.sin(Math.PI*Math.min(1,p)),m=f.k.indexOf("m:")===0,spec=m?MFX[f.k.slice(2)]:FXK[f.k];if(!spec)spec=["ring","#ffffff"];var ty=spec[0],col=spec[1],self=ty==="dome"||ty==="dome2"&&!m,X=self?hx:ex,Y=self?hy:ey;
+  c.save();c.globalCompositeOperation="lighter";
+  if(RM){glowDot(c,X,Y,60,col,.55*a);c.restore();return}
+  var i,k,q,s=t/1000;
+  switch(ty){
+  case"ring":for(i=0;i<3;i++){q=(p*1.4-i*.2);if(q<0||q>1)continue;c.strokeStyle=rgba(col,(1-q)*.8);c.lineWidth=6*(1-q)+1;c.beginPath();c.ellipse(X,Y,20+q*70,(20+q*70)*.7,0,0,7);c.stroke()}break;
+  case"ripple":for(i=0;i<4;i++){q=(p*1.3-i*.15);if(q<0||q>1)continue;c.strokeStyle=rgba(col,(1-q)*.8);c.lineWidth=3;c.beginPath();c.ellipse(X,e.y,15+q*90,(15+q*90)*.25,0,0,7);c.stroke()}glowDot(c,X,e.y,40,col,.4*a);break;
+  case"bend":c.strokeStyle=rgba(col,.8*a);c.lineWidth=5;c.beginPath();for(i=0;i<=20;i++){k=i/20;var bx=hx+(ex-hx)*k,by=hy+(ey-hy)*k-Math.sin(k*Math.PI)*60*(1-p)+Math.sin(k*12+s*6)*8*(1-p);i?c.lineTo(bx,by):c.moveTo(bx,by)}c.stroke();glowDot(c,ex,ey,50*p,col,.6*a);break;
+  case"path":for(i=0;i<6;i++){k=i/5;if(k>p*1.2)break;glowDot(c,hx+(ex-hx)*k,hy+30+(ey+20-hy-30)*k,14,col,.7*a)}break;
+  case"dome":case"dome2":c.fillStyle=rgba(col,.18*a);c.strokeStyle=rgba(col,.85*a);c.lineWidth=3;c.beginPath();c.arc(X,Y+(self?4:0),24+28*Math.min(1,p*2),Math.PI,0);c.lineTo(X+24+28*Math.min(1,p*2),Y+(self?30:20));c.lineTo(X-24-28*Math.min(1,p*2),Y+(self?30:20));c.closePath();c.fill();c.stroke();for(i=0;i<5;i++)glowDot(c,X+Math.cos(s*2+i*1.25)*44,Y-10+Math.sin(s*2+i*1.25)*18,9,col,.6*a);break;
+  case"bridge":c.strokeStyle=rgba(col,.85*a);c.lineWidth=6;c.beginPath();c.moveTo(hx,hy);k=Math.min(1,p*1.6);c.quadraticCurveTo((hx+ex)/2,Math.min(hy,ey)-90,hx+(ex-hx)*k,hy+(ey-hy)*k-Math.sin(k*Math.PI)*0);c.stroke();glowDot(c,hx+(ex-hx)*k,hy+(ey-hy)*k,26,col,.8*a);break;
+  case"ear":for(i=0;i<3;i++){q=(p*1.3-i*.18);if(q<0||q>1)continue;c.strokeStyle=rgba(col,(1-q)*.85);c.lineWidth=4;c.beginPath();c.arc(hx,hy,18+q*60,-.7,.7);c.stroke();c.beginPath();c.arc(ex,ey,18+q*60,Math.PI-.7,Math.PI+.7);c.stroke()}break;
+  case"petals":for(i=0;i<10;i++){k=i/10*6.283+s*2;var r=60*(1-p)+10;c.fillStyle=rgba(col,.75*a);c.beginPath();c.ellipse(X+Math.cos(k)*r,Y+Math.sin(k)*r*.6,7,3.5,k,0,7);c.fill()}break;
+  case"mend":c.strokeStyle=rgba(col,.9*a);c.lineWidth=4;for(i=0;i<4;i++){var yy=Y-30+i*20,w=40*(1-Math.min(1,p*1.5))+6;c.beginPath();c.moveTo(X-w,yy-6);c.lineTo(X+w,yy+6);c.stroke()}glowDot(c,X,Y,55,col,.5*a);break;
+  case"fadeup":for(i=0;i<8;i++){k=(p+i/8)%1;glowDot(c,X-40+i*11,Y+30-k*90,11,col,.7*a*(1-k))}break;
+  case"tag":c.fillStyle=rgba(col,.8*a);c.fillRect(X-38,Y-80+20*(1-p),76,22);c.fillStyle=rgba("#3b2a1a",a);c.font="600 12px Georgia,serif";c.textAlign="center";c.fillText(m?f.k.slice(2):"named",X,Y-65+20*(1-p));c.textAlign="left";glowDot(c,X,Y,45,col,.4*a);break;
+  case"unknot":c.strokeStyle=rgba(col,.85*a);c.lineWidth=4;c.beginPath();for(i=0;i<=40;i++){k=i/40;var lr=20*(1-p);c.lineTo(X-60+k*120+Math.cos(k*25)*lr,Y+Math.sin(k*25)*lr)}c.stroke();break;
+  case"compass":c.strokeStyle=rgba(col,.85*a);c.lineWidth=3;c.beginPath();c.arc(X,Y,44,0,7);c.stroke();k=s*3*(1-p)+p*(Math.atan2(ey-hy,ex-hx)>0?1:-1);c.beginPath();c.moveTo(X-Math.cos(k)*36,Y-Math.sin(k)*36);c.lineTo(X+Math.cos(k)*36,Y+Math.sin(k)*36);c.lineWidth=5;c.stroke();break;
+  case"arc":c.strokeStyle=rgba(col,.9*a);c.lineWidth=7;c.beginPath();c.arc(X,Y,42,-Math.PI/2,-Math.PI/2+p*6.283);c.stroke();break;
+  case"scroll":case"scroll2":c.fillStyle=rgba(col,.55*a);var sw=90*Math.min(1,p*1.8);c.fillRect(X-sw/2,Y-60,sw,46);c.strokeStyle=rgba(col,.9*a);c.lineWidth=2;for(i=0;i<3;i++){c.beginPath();c.moveTo(X-sw/2+8,Y-50+i*12);c.lineTo(X-sw/2+8+(sw-16)*Math.min(1,p*2-i*.2),Y-50+i*12);c.stroke()}break;
+  case"twin":for(i=0;i<2;i++){k=s*3+i*Math.PI;glowDot(c,X+Math.cos(k)*40,Y+Math.sin(k)*20,18,col,.8*a)}break;
+  case"still":c.fillStyle=rgba(col,.25*a);c.fillRect(0,0,W,H);glowDot(c,X,Y,80,col,.5*a);break;
+  case"warm":glowDot(c,hx,hy,70*a+10,col,.6*a);glowDot(c,X,Y,60*p,col,.4*a);break;
+  case"flip":c.strokeStyle=rgba(col,.85*a);c.lineWidth=5;c.beginPath();c.ellipse(X,Y,50,50*Math.cos(p*Math.PI),0,0,7);c.stroke();break;
+  case"swell":c.strokeStyle=rgba(col,.85*a);c.lineWidth=6;c.beginPath();for(i=0;i<=30;i++){k=i/30;c.lineTo(X-90+k*180,Y+30-Math.sin(k*Math.PI)*60*Math.sin(p*Math.PI)+Math.sin(k*10+s*5)*4)}c.stroke();break;
+  case"motes":for(i=0;i<12;i++){k=i*2.4+s;glowDot(c,X+Math.cos(k)*(30+i*4)*p,Y+Math.sin(k*1.3)*(20+i*3)*p,8,col,.7*a)}break;
+  case"lantern":for(i=0;i<5;i++){var lx=X-60+i*30,ly=Y+40-p*70-(i%2)*14;glowDot(c,lx,ly,16,col,.8*a);c.fillStyle=rgba("#8a5a2a",.6*a);c.fillRect(lx-3,ly-9,6,4)}break;
+  case"steps":for(i=0;i<6;i++){k=i/5;if(k>p*1.2)break;c.fillStyle=rgba(col,.75*a);c.beginPath();c.ellipse(hx+(ex-hx)*k+(i%2?6:-6),P.y+(e.y-P.y)*k,6,3,0,0,7);c.fill()}glowDot(c,hx,hy,30,col,.4*a);break;
+  case"golden":c.fillStyle=rgba(col,.22*a);c.fillRect(0,0,W,H);for(i=0;i<14;i++){k=i/14;glowDot(c,hx+(ex-hx)*((p+k)%1),hy+(ey-hy)*((p+k)%1)-Math.sin(((p+k)%1)*Math.PI)*70,13,col,.8*a)}glowDot(c,ex,ey,90*p,col,.6*a);break;
+  case"sweep":case"sweep2":var sx=X+Math.sin(p*Math.PI*6)*70;glowDot(c,sx,Y-50,20,col,.95*a);c.strokeStyle=rgba(col,.35*a);c.lineWidth=2;c.beginPath();c.moveTo(X-70,Y-50);c.lineTo(X+70,Y-50);c.stroke();if(ty==="sweep2")glowDot(c,X,Y,55*p,col,.4*a);break;
+  case"parts":for(i=0;i<4;i++){k=i*1.571+s;var pr=40*(1-p)+4;glowDot(c,X+Math.cos(k)*pr,Y+Math.sin(k)*pr*.7,15,["#e8b880","#a0c0e8","#e8a0a0","#a0e0b0"][i],.8*a)}break;
+  case"mirror":c.strokeStyle=rgba(col,.85*a);c.lineWidth=4;var mo=60*(1-p);c.beginPath();c.arc(X-mo-10,Y,22,0,7);c.stroke();c.beginPath();c.arc(X+mo+10,Y,22,0,7);c.stroke();glowDot(c,X,Y,30*p,col,.7*a);break;
+  case"clouds":for(i=0;i<4;i++){glowDot(c,X-80+((p*160+i*45)%160),Y-40+i*16,26,col,.55*a)}break;
+  case"paint":for(i=0;i<5;i++){c.strokeStyle=rgba(["#f08080","#f0c060","#80c0f0","#a0e090","#c090e0"][i],.75*a);c.lineWidth=8;c.lineCap="round";c.beginPath();c.moveTo(X-50,Y-30+i*14);c.quadraticCurveTo(X,Y-50+i*14,X-50+100*Math.min(1,p*1.6),Y-30+i*14);c.stroke()}break;
+  case"bubbles":for(i=0;i<9;i++){k=(p+i/9)%1;c.strokeStyle=rgba(col,.8*a*(1-k));c.lineWidth=2;c.beginPath();c.arc(X-40+i*10,Y+30-k*100,6+i%3*3,0,7);c.stroke()}break;
+  case"sand":for(i=0;i<30;i++){k=(i*37%30)/30;c.fillStyle=rgba(col,.7*a);c.fillRect(X-60+k*120,Y-60+((p*1.5+i*.07)%1)*90,3,3)}c.fillStyle=rgba(col,.4*a);c.beginPath();c.ellipse(X,Y+34,60*p,10,0,0,7);c.fill();break;
+  case"circle":for(i=0;i<5;i++){k=i*1.257+s*.8;glowDot(c,X+Math.cos(k)*50,Y+Math.sin(k)*26,14,col,.8*a)}c.strokeStyle=rgba(col,.5*a);c.lineWidth=2;c.beginPath();c.ellipse(X,Y,50,26,0,0,7);c.stroke();break;
+  case"weave":c.lineWidth=4;for(i=0;i<3;i++){c.strokeStyle=rgba(["#b0d0f0","#f0c0a0","#c0e0b0"][i],.8*a);c.beginPath();for(k=0;k<=30;k++){var u=k/30;c.lineTo(hx+(ex-hx)*u*Math.min(1,p*1.4),hy+(ey-hy)*u+Math.sin(u*12+i*2.1)*14)}c.stroke()}break;
+  default:glowDot(c,X,Y,60,col,.6*a)}
+  if(m&&!RM){c.globalCompositeOperation="source-over";c.font="700 14px Georgia,serif";c.textAlign="center";c.fillStyle="rgba(40,24,10,"+(.8*a)+")";c.fillText(modLabel(f.k.slice(2)),ex,ey-(e.boss?84:40));c.textAlign="left"}
+  c.restore()});
+ if(B.say)bubble(c,hx,P.y-66,B.say.text,Math.min(1,(now-B.say.t0)/(RM?1:250)))}
+function bubble(c,x,y,txt,a){c.save();c.globalAlpha=a;c.font="600 13px system-ui,sans-serif";var words=txt.split(" "),lines=[],ln="",mw=Math.min(280,W-30);words.forEach(function(w){var tt=ln?ln+" "+w:w;if(c.measureText(tt).width>mw-20&&ln){lines.push(ln);ln=w}else ln=tt});lines.push(ln);
+ var bw=Math.max.apply(0,lines.map(function(l){return c.measureText(l).width}))+20,bh=lines.length*17+12,bx=Math.max(6,Math.min(W-bw-6,x-bw/2)),by=Math.max(6,y-bh);
+ c.fillStyle="rgba(255,250,235,.96)";c.strokeStyle="#8a6a3e";c.lineWidth=1.5;c.beginPath();if(c.roundRect)c.roundRect(bx,by,bw,bh,10);else c.rect(bx,by,bw,bh);c.fill();c.stroke();
+ c.beginPath();c.moveTo(Math.max(bx+12,Math.min(bx+bw-12,x))-7,by+bh-1);c.lineTo(Math.max(bx+12,Math.min(bx+bw-12,x)),by+bh+9);c.lineTo(Math.max(bx+12,Math.min(bx+bw-12,x))+7,by+bh-1);c.fill();c.stroke();
+ c.fillStyle="#3b2a1a";lines.forEach(function(l,i){c.fillText(l,bx+10,by+20+i*17)});c.restore()}
 /* original boss art: simple shapes, no stars */
 /* ---------- your safe place ---------- */
 function goSafe(){if(B)return;closeOV();enter("safe",320,360)}
@@ -570,6 +679,6 @@ var _play=play;play=function(){_play();safeBar()};
 var _enter=enter;enter=function(id,x,y,q){_enter(id,x,y,q);if(stage)setTimeout(safeBar,0)};
 
 window.obcWorld3={state:function(){return S},scr:function(){return cur&&cur.id},P:P,go:function(id,x,y){closeOV();if(B)endBattle();enter(id,x,y)},battle:function(i){var e=(cur.ens||[]).filter(function(e){return !gone(e)})[i||0];if(e)battle(e);return !!e},
- B:function(){return B},near:function(){var n=near();return n&&(n.name||n.t)},interact:function(){interact(near())},safe:goSafe,decorate:decorate,hall:hall,office:office,cfg:CFG,SC:SC,build:build,reset:function(){localStorage.removeItem(KEY);location.reload()}};
+ B:function(){return B},near:function(){var n=near();return n&&(n.name||n.t)},interact:function(){interact(near())},safe:goSafe,decorate:decorate,hall:hall,office:office,cfg:CFG,SC:SC,build:build,guide:{MX:MX,MATCH:MATCH,methods:guideMethods,half:halfHP,card:photoCard,fx:function(){return FXL.length}},reset:function(){localStorage.removeItem(KEY);location.reload()}};
 if(S.made)play();else creator();
 })();

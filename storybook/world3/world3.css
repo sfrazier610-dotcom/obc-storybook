@@ -85,3 +85,14 @@ details.w-rl{font-size:11.5px;margin:0 0 2px}
 .w-sk2{gap:4px;margin-top:4px}.w-sk2 .w-btn{padding:3px 7px;font-size:11.5px}.w-sk2 label{font-size:11px}
 .w-sk .w-btn.weak{box-shadow:0 0 0 2px #ffcf5a,0 0 8px #ffcf5a}
 }
+/* guide photocard */
+.w-pc{position:absolute;z-index:7;left:50%;top:50%;transform:translate(-50%,-50%);width:min(560px,calc(100% - 16px));max-height:calc(100% - 16px);overflow:auto;padding:12px 14px;background:rgba(250,240,215,.97);box-shadow:0 8px 30px rgba(30,15,0,.45)}
+.w-pcx{position:absolute;top:8px;right:8px}
+.w-pch{display:flex;gap:12px;align-items:flex-start;padding-right:64px}
+.w-pch img{width:112px;height:112px;object-fit:cover;border-radius:10px;border:3px solid #c99a55;flex:none;background:#e9dcc0}
+.w-pch h3{margin:0;font-size:19px}.w-pcc{margin:2px 0 6px;font-weight:600;color:#6a4520}.w-pcm{margin:0;font-size:12.5px;line-height:1.35}
+.w-pca{margin:10px 0 4px}.w-pcn{margin:4px 0 6px;font-size:12.5px}
+.w-pcs{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:6px}
+.w-pcs .w-btn{font-size:12.5px;padding:5px 6px}
+.w-pcs .w-btn.good{box-shadow:0 0 0 2px #7fb36a;font-weight:700}.w-pcs .w-btn small{display:block;font-weight:600;color:#3f6a2c;font-size:10.5px}
+@media (max-width:760px){.w-pc{padding:8px 9px}.w-pch{gap:8px;padding-right:52px}.w-pch img{width:72px;height:72px}.w-pch h3{font-size:16px}.w-pcm{font-size:11px}.w-pcs{grid-template-columns:repeat(2,1fr);gap:4px}.w-pcs .w-btn{font-size:11.5px;padding:3px 5px}}
