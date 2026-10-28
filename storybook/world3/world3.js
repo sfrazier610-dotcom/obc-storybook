@@ -42,8 +42,7 @@ function heroCanvas(h){var b=BODY[h.body|0]||BODY[0],key=b.k+"|"+(h.skin|0)+"|"+
    p[i]=Math.min(255,r+(o[0]-r)*w);p[i+1]=Math.min(255,g+(o[1]-g)*w);p[i+2]=Math.min(255,bl+(o[2]-bl)*w)}}
  x.putImageData(d,0,0);return HCACHE[key]=cv}
 /* feet at (x,y); 62 units tall at sc=1, the same height as the villagers. dir: 0 down,1 up,2 right,3 left */
-function drawHero(c,h,x,y,sc,dir,ph){var cv=heroCanvas(h);shadow(c,x,y,13*sc,4*sc);if(!cv)return;var hh=62*sc,bob=RM?0:Math.abs(Math.sin(ph||0))*1.6*sc,sq=RM?1:1-Math.abs(Math.sin(ph||0))*.025,ww=hh*cv.width/cv.height;
- c.save();c.translate(x,y);if(dir===3)c.scale(-1,1);c.drawImage(cv,-ww/2,-hh*sq-bob,ww,hh*sq);c.restore()}
+/* drawHero lives with the v3i walk cycles below */
 /* pets */
 var PETC={};function petCanvas(i){if(PETC[i])return PETC[i];var cat=img("sp-cat"),dog=img("sp-dog");if(i===0&&!cat||i>0&&!dog)return null;var cv=document.createElement("canvas");cv.width=110;cv.height=100;var c=cv.getContext("2d");
  if(i===0){/* Kenneth: painted cape behind, the tabby, then clasp and red book in front */
@@ -160,7 +159,7 @@ var SC={
   p:[["tree",110,150],["tree",540,150],["sign",500,330,"Reaching out raises a shield. Recovery is possible, and support helps."]],m:[[480,250]]}
 };
 var GRID={};Object.keys(SC).forEach(function(k){var s=SC[k];s.id=k;GRID[s.at[0]+","+s.at[1]]=k});
-function nb(s,dir){if(s.id==="safe")return dir==="s"?"hub":null;var d={n:[0,-1],s:[0,1],w:[-1,0],e:[1,0]}[dir];return GRID[(s.at[0]+d[0])+","+(s.at[1]+d[1])]||null}
+function nb(s,dir){if(s.id==="safe")return dir==="s"?"hub":null;if(s.id==="hollow")return dir==="s"?"woods":null;var d={n:[0,-1],s:[0,1],w:[-1,0],e:[1,0]}[dir];return GRID[(s.at[0]+d[0])+","+(s.at[1]+d[1])]||null}
 SC.safe={id:"safe",n:"Your Safe Place",sub:"Home base",g:"town",at:[-9,-9],p:[["sign",320,395,"The path home to Hearthstead is just south of here. Press Decorate to place your treasures."]]};
 /* collision footprints and draw heights */
 var FT={tree:[16,9,110],rock:[22,11,54],house:[52,18,124],sign:[8,5,42],lantern:[6,4,56],chest:[15,8,34],wall:[30,9,58],npc:[10,6,58],door:[16,6,52]};
@@ -171,7 +170,7 @@ function build(s){if(s.built)return;s.built=1;var B=[],k=s.g==="cliffs"?"rock":"
  else{row(20,48,72,0,9,N?function(x){return x>230&&x<410}:0);row(20,426,72,0,9,So?function(x){return x>230&&x<410}:0);
  row(16,100,0,56,6,We?function(x,y){return y>150&&y<300}:0);row(624,100,0,56,6,E?function(x,y){return y>150&&y<300}:0)}
  s.items=B.map(function(a){return{t:a[0],x:a[1],y:a[2],flip:a[3]}}).concat(s.p.map(function(a){var o={t:a[0],x:a[1],y:a[2]};
-  if(a[0]==="sign")o.text=a[3];else if(a[0]==="npc"){o.spr=a[3];o.name=a[4];o.lines=a[5]}else if(a[0]==="chest"||a[0]==="find")o.item=a[3];else if(a[0]==="look"){o.r=a[3];o.text=a[4]}else if(a[0]==="door")o.go=a[3];else if(a[0]==="house"){o.flip=a[3];o.sc=a[4]||1;o.role=a[5]}else o.flip=a[3];return o}));
+  if(a[0]==="sign")o.text=a[3];else if(a[0]==="npc"){o.spr=a[3];o.name=a[4];o.lines=a[5]}else if(a[0]==="chest"||a[0]==="find")o.item=a[3];else if(a[0]==="look"){o.r=a[3];o.text=a[4]}else if(a[0]==="door")o.go=a[3];else if(a[0]==="qitem")o.qk=a[3];else if(a[0]==="page")o.pg=a[3];else if(a[0]==="house"){o.flip=a[3];o.sc=a[4]||1;o.role=a[5]}else o.flip=a[3];return o}));
  s.ens=(s.m||[]).map(function(p,i){return{id:s.id+":"+i,hx:p[0],hy:p[1],x:p[0],y:p[1],reg:s.reg,ph:Math.random()*6,cd:0}});
  s.items.forEach(function(o,i){o.key=s.id+":"+i});
  if(s.boss)s.ens.push({id:"boss:"+s.reg,boss:1,hx:s.boss[0],hy:s.boss[1],x:s.boss[0],y:s.boss[1],reg:s.reg,ph:0,cd:0})}
@@ -237,13 +236,13 @@ var SIG={name:"Golden Hour",rl:"Stack two skills: a short walk outside while you
 var cur=null,stage,cv,cx,raf=0,last=0,held={},tgt=null,P={x:320,y:250,dir:0,ph:0,trail:[]},OV=null,DM=null,B=null,VIEW={s:1,ox:0,oy:0},fade=0,lastT=0;
 function scr(){return cur}
 function top(){return '<div class="w-top"><h1>Wanderer\'s Quest</h1><span class="w-where" id="w-where"></span>'+
- '<button class="w-btn" id="t-look" title="L">Look around</button><button class="w-btn" id="t-bag" title="I">Satchel</button><button class="w-btn" id="t-map" title="M">Map</button>'+
+ '<button class="w-btn" id="t-look" title="L">Look around</button><button class="w-btn" id="t-bag" title="I">Satchel</button><button class="w-btn" id="t-jr" title="J">Journal</button><button class="w-btn" id="t-map" title="M">Map</button>'+
  '<button class="w-btn" id="t-safe">Safe place</button><button class="w-btn" id="t-hall">Hall of Guides</button><button class="w-btn" id="t-hero">Hero</button></div>'}
 function play(){
  cancelAnimationFrame(raf);
  app.innerHTML=top()+'<div class="w-stage" id="w-stage" tabindex="0" role="application" aria-roledescription="game" aria-label="Play area. Arrow keys or WASD to walk, E or Enter to interact. Tap or click to walk."><canvas id="w-cv" aria-hidden="true"></canvas><div class="w-sr" id="w-live" aria-live="polite"></div></div>';
  stage=document.getElementById("w-stage");cv=document.getElementById("w-cv");cx=cv.getContext("2d");
- document.getElementById("t-look").onclick=lookAround;document.getElementById("t-bag").onclick=satchel;document.getElementById("t-map").onclick=mapPanel;
+ document.getElementById("t-look").onclick=lookAround;document.getElementById("t-jr").onclick=journal;document.getElementById("t-bag").onclick=satchel;document.getElementById("t-map").onclick=mapPanel;
  document.getElementById("t-safe").onclick=goSafe;document.getElementById("t-hall").onclick=function(){hall()};document.getElementById("t-hero").onclick=function(){if(!B)creator()};
  cv.addEventListener("pointerdown",pdown);cv.addEventListener("pointermove",pmove);addEventListener("pointerup",function(){drag=null});
  enter(S.at in SC?S.at:"hub",S.x,S.y,1);
@@ -254,7 +253,7 @@ function enter(id,x,y,quiet){var s=SC[id]||SC.hub;build(s);cur=s;S.at=s.id;if(S.
  var p=free(s,x==null?320:x,y==null?250:y);P.x=p[0];P.y=p[1];P.trail=[];tgt=null;save();fade=RM?0:1;
  var w=document.getElementById("w-where");if(w)w.textContent=s.n+(s.sub?" · "+s.sub:"");
  if(!quiet)live("You arrive at "+s.n+". "+(s.sub||""));
- if(s.id==="safe"&&!S.safe.kind)safeChoice()}
+ if(s.id==="safe"&&!S.safe.kind)safeChoice();sniff(s)}
 function blocked(s,x,y){if(x<6||x>W-6||y<62||y>H-6)return false;
  for(var i=0;i<s.items.length;i++){var o=s.items[i],f=FT[o.t];if(!f)continue;var k=o.sc||1,dx=(x-o.x)/(f[0]*k+8),dy=(y-o.y)/(f[1]*k+5);if(dx*dx+dy*dy<1)return true}
  var wa=s.w||[];for(i=0;i<wa.length;i++){dx=(x-wa[i][0])/wa[i][2];dy=(y-wa[i][1])/wa[i][3];if(dx*dx+dy*dy<1)return true}
@@ -271,7 +270,7 @@ function update(dt,t){var s=cur;if(fade>0)fade=Math.max(0,fade-dt*3);
   if(!blocked(s,nx,P.y)){P.x=nx;moved=1}if(!blocked(s,P.x,ny)){P.y=ny;moved=1}
   if(!moved&&tgt)tgt=null;
   P.dir=Math.abs(vx)>Math.abs(vy)?(vx>0?2:3):(vy<0?1:0);P.ph+=dt*12;
-  P.trail.push([P.x,P.y]);if(P.trail.length>40)P.trail.shift();
+  P.trail.push([P.x,P.y]);PETW.d+=sp;if(PETW.d>900){PETW.d=0;bondAdd(1)}if(P.trail.length>40)P.trail.shift();
   edges(s)}else P.ph=0;
  /* symptoms wander; touching one begins the casting right here */
  (s.ens||[]).forEach(function(e){if(gone(e))return;if(e.cd>0)e.cd-=dt;
@@ -282,17 +281,18 @@ function edges(s){var d=null;if(P.x<6)d="w";else if(P.x>W-6)d="e";else if(P.y<62
  var n=nb(s,d);if(!n){P.x=Math.max(6.5,Math.min(W-6.5,P.x));P.y=Math.max(62.5,Math.min(H-6.5,P.y));return}
  if(DM)return endDecorate(),void 0;
  if(s.id==="safe"){enter("hub",560,370);return}
+ if(s.id==="hollow"){enter("woods",590,120);return}
  var x=P.x,y=P.y;if(d==="w")x=W-14;if(d==="e")x=14;if(d==="n")y=H-14;if(d==="s")y=70;enter(n,x,y)}
 function gone(e){return e.boss?S.beaten.indexOf(e.reg)>=0:S.cleared.indexOf(e.id)>=0}
 /* ---------- drawing ---------- */
-var PAT={};
+var PAT={},WXK="";
 function render(t){var r=stage.getBoundingClientRect(),dpr=Math.min(2,devicePixelRatio||1);if(r.width<2||r.height<2)return;
  var w=Math.round(r.width*dpr),h=Math.round(r.height*dpr);if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h}
  var c=cx,s=cur,sc=Math.min(r.width/W,r.height/H),ox=(r.width-W*sc)/2,oy=(r.height-H*sc)/2;
  if(B){var hud=stage.querySelector(".w-bhud"),bot=stage.querySelector(".w-bbot"),t0=hud?hud.getBoundingClientRect().bottom-r.top:0,b0=bot?bot.getBoundingClientRect().top-r.top:r.height;
   sc=Math.max(sc,Math.min(r.width/W,(b0-t0)/(H*.62)));var fx=(P.x+B.e.x)/2,fy=(P.y+B.e.y)/2-40;var tx=r.width/2-fx*sc,ty=(t0+b0)/2-fy*sc;
   if(RM||VIEW.b!==B){ox=tx;oy=ty}else{ox=VIEW.ox+(tx-VIEW.ox)*.15;oy=VIEW.oy+(ty-VIEW.oy)*.15}VIEW.b=B}else VIEW.b=null;
- VIEW.s=sc;VIEW.ox=ox;VIEW.oy=oy;
+ VIEW.s=sc;VIEW.ox=ox;VIEW.oy=oy;var so=shakeOff();ox+=so[0];oy+=so[1];
  c.setTransform(dpr,0,0,dpr,0,0);c.fillStyle="#3a2c18";c.fillRect(0,0,r.width,r.height);
  var gi=img("map-"+s.g);if(gi&&!(s.id==="safe"&&S.safe.kind==="beach")){if(!PAT[s.g])PAT[s.g]=c.createPattern(gi,"repeat");c.save();c.translate(ox,oy);c.scale(sc,sc);c.fillStyle=PAT[s.g];c.fillRect(-ox/sc-W,-oy/sc-H,r.width/sc+2*W,r.height/sc+2*H);c.restore();c.fillStyle="rgba(30,20,10,.45)";c.fillRect(0,0,r.width,r.height)}
  c.setTransform(dpr*sc,0,0,dpr*sc,dpr*ox,dpr*oy);
@@ -305,20 +305,21 @@ function render(t){var r=stage.getBoundingClientRect(),dpr=Math.min(2,devicePixe
  (s.ens||[]).forEach(function(e){if(!gone(e))L.push({y:e.y,f:function(){drawEnemy(c,e,t)}})});
  if(s.id==="safe")S.safe.items.forEach(function(it,i){L.push({y:it.y,f:function(){var d=DEC[it.k];if(d)d.d(c,it.x,it.y,t);if(DM&&DM.sel===i){c.strokeStyle="#ffd98a";c.lineWidth=2;c.setLineDash([4,3]);c.beginPath();c.ellipse(it.x,it.y-6,30,14,0,0,7);c.stroke();c.setLineDash([])}}})});
  var pt=P.trail.length>12?P.trail[P.trail.length-12]:[P.x-26,P.y+4];
- L.push({y:pt[1]-.1,f:function(){var pc=petCanvas(S.hero.pet|0);shadow(c,pt[0],pt[1],13,4);if(pc){var ph=S.hero.pet===0?48:46;var w=ph*pc.width/pc.height;c.save();if(pt[0]>P.x){c.translate(pt[0],0);c.scale(-1,1);c.drawImage(pc,-w/2,pt[1]-ph,w,ph)}else c.drawImage(pc,pt[0]-w/2,pt[1]-ph,w,ph);c.restore()}}});
+ L.push({y:pt[1]-.1,f:function(){drawPet(c,pt[0],pt[1],t)}});
  L.push({y:P.y,f:function(){drawHero(c,S.hero,P.x,P.y,1,B?(B.e.x<P.x?3:2):P.dir,RM?0:P.ph);if(B&&B.shield){c.strokeStyle="rgba(255,214,120,.8)";c.lineWidth=3;c.beginPath();c.arc(P.x,P.y-30,34,0,7);c.stroke()}}});
  L.sort(function(a,b){return a.y-b.y}).forEach(function(d){d.f()});
  c.save();c.beginPath();c.rect(0,0,W,H);c.clip();
  if(s.tone){c.fillStyle=s.tone;c.fillRect(0,0,W,H)}
+ WXK=weather(c,s,t);
  var g=c.createRadialGradient(W*.55,H*.3,60,W/2,H/2,W*.75);g.addColorStop(0,"rgba(255,220,150,.10)");g.addColorStop(1,"rgba(60,30,10,.32)");c.fillStyle=g;c.fillRect(0,0,W,H);
  if(B){c.fillStyle="rgba(30,20,40,.18)";c.fillRect(0,0,W,H)}
  if(fade>0){c.fillStyle="rgba(20,12,4,"+fade+")";c.fillRect(0,0,W,H)}
  c.restore();
- drawFX(c,t);
+ drawFX(c,t);drawSparks(c);
  if(!busy()){var n=near();if(n)label(c,n)}
  if(DM&&DM.pick){c.fillStyle="rgba(255,214,120,.5)";c.beginPath();c.ellipse(P.x,P.y-34,6,6,0,0,7);c.fill()}}
 function label(c,o){var t=verb(o)+(o.name?" "+o.name:"");var y=o.y-(FT[o.t]?FT[o.t][2]*(o.sc||1):30)-8;if(o.t==="look")y=o.y-20;c.font="600 13px system-ui,sans-serif";var w=c.measureText(t).width+14,x=Math.max(w/2+2,Math.min(W-w/2-2,o.x));y=Math.max(20,y);c.fillStyle="rgba(250,240,215,.92)";c.strokeStyle="#8a6a3e";c.lineWidth=1;c.beginPath();if(c.roundRect)c.roundRect(x-w/2,y-16,w,21,8);else c.rect(x-w/2,y-16,w,21);c.fill();c.stroke();c.fillStyle="#3b2a1a";c.textAlign="center";c.fillText(t,x,y-1);c.textAlign="left"}
-function verb(o){return "E: "+({sign:"Read",npc:"Talk to",chest:"Open chest",find:"Pick up",look:"Look",door:"Lantern trail to your safe place",house:o.role==="hall"?"Enter the Hall of Guides":o.role==="office"?"Knock on the office door":"Look"}[o.t]||"Look")}
+function verb(o){return "E: "+({sign:"Read",npc:"Talk to",chest:"Open chest",find:"Pick up",look:"Look",door:"Lantern trail to your safe place",page:"Pick up a journal page",path:"Push through the ferns",fish:"Fish at the pond",qitem:"Pick up",house:o.role==="hall"?"Enter the Hall of Guides":o.role==="office"?"Knock on the office door":"Look"}[o.t]||"Look")}
 function water(c,x,y,rx,ry,t){var g=c.createRadialGradient(x,y-ry*.3,4,x,y,rx);g.addColorStop(0,"rgba(120,180,190,.95)");g.addColorStop(1,"rgba(60,110,125,.9)");c.save();try{c.filter="blur(1.5px)"}catch(e){}c.fillStyle=g;c.beginPath();c.ellipse(x,y,rx,ry,0,0,7);c.fill();c.restore();
  c.strokeStyle="rgba(240,230,190,.45)";c.lineWidth=1.2;for(var i=0;i<4;i++){var ph=RM?0:(t/900+i)%1;c.beginPath();c.ellipse(x+(i-1.5)*rx*.35,y+(i%2?6:-6),10+ph*8,2,0,0,Math.PI);c.stroke()}}
 function beach(c,t){var g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,"#3f7f9a");g.addColorStop(.26,"#7fb6c2");g.addColorStop(.3,"#f0dfb0");g.addColorStop(1,"#d9b97c");c.fillStyle=g;c.fillRect(0,0,W,H);
@@ -335,31 +336,39 @@ function drawItem(c,o,t){var f=FT[o.t];switch(o.t){
  case"wall":shadow(c,o.x,o.y,32,6);sp(c,"wall",o.x,o.y+4,58);break;
  case"npc":shadow(c,o.x,o.y,11,4);sp(c,o.spr,o.x,o.y+2,58,P.x<o.x);break;
  case"door":glow(c,o.x,o.y-20,40,t);sp(c,"door",o.x,o.y+2,52);sp(c,"lantern",o.x-22,o.y+2,34);sp(c,"lantern",o.x+22,o.y+2,34);break;
+ case"page":if(S.pages.indexOf(o.pg)<0){glowDot(c,o.x,o.y-6,14,"#fff4d0",RM?.4:.25+.2*Math.sin(t/500+o.x));c.save();c.translate(o.x,o.y-4);c.rotate(-.2);c.fillStyle="#f4ead2";c.fillRect(-7,-5,14,10);c.strokeStyle="rgba(120,90,50,.6)";c.lineWidth=.8;for(var pl=-2;pl<4;pl+=2){c.beginPath();c.moveTo(-5,pl);c.lineTo(5,pl);c.stroke()}c.restore()}break;
+ case"path":var pd=Math.hypot(P.x-o.x,P.y-o.y);if(pd<110){var pa=(1-pd/110)*(RM?.5:.35+.2*Math.sin(t/300));glowDot(c,o.x,o.y,26,"#d8ffb0",pa)}break;
+ case"fish":c.strokeStyle="rgba(250,240,210,.8)";c.lineWidth=1.2;c.beginPath();c.moveTo(o.x+18,o.y+6);c.lineTo(o.x+30,o.y-30);c.stroke();blob(c,o.x,o.y-4+(RM?0:Math.sin(t/400)*1.5),3.5,3,"#e0503a",0);c.fillStyle="#5a3418";c.fillRect(o.x+16,o.y+2,16,4);break;
+ case"qitem":if(S.q[o.qk]===1&&!S.q[o.qk+"_got"]){glowDot(c,o.x,o.y-6,22,"#ffd98a",RM?.5:.35+.2*Math.sin(t/400));if(o.qk==="q_wick"){c.strokeStyle="#f4efe4";c.lineWidth=2.5;c.beginPath();c.moveTo(o.x-8,o.y-2);c.quadraticCurveTo(o.x,o.y-12,o.x+8,o.y-4);c.stroke()}else{poly(c,[[o.x-7,o.y-12],[o.x+7,o.y-12],[o.x+7,o.y],[o.x-7,o.y]],"#c9a24a");blob(c,o.x,o.y-6,3,3,"#e86a8a",0)}}break;
  case"find":if(S.found.indexOf(o.key)<0){glow(c,o.x,o.y-8,26,t);DEC[o.item].d(c,o.x,o.y,t)}break}}
 function drawEnemy(c,e,t){var col=R(e.reg).col,bob=RM?0:Math.sin(t/400+e.ph)*3,inB=B&&B.e===e,x=e.x,y=e.y;
  if(inB){var pul=RM?.5:.5+.3*Math.sin(t/250);c.fillStyle="rgba(255,207,90,"+(.18*pul)+")";c.beginPath();c.ellipse(x,y,e.boss?70:36,e.boss?18:10,0,0,7);c.fill()}
  shadow(c,x,y,e.boss?44:18,e.boss?9:5);
- if(!e.boss){drawC(c,tinted(e.reg==="fog"?"storm":"fog",col,.4),x,y-6+bob,50,.95)}
+ if(!e.boss){drawC(c,tinted(e.reg==="fog"?"storm":"fog",col,.4),x,y-6+bob,50,.95);if(inB&&B.worries)for(var wj=0;wj<B.worries;wj++){var wb=(RM?wj*2:t/500)+wj*2.1;drawC(c,tinted("fog",col,.3),x+Math.cos(wb)*44,y-10+Math.sin(wb)*16,22,.9)}}
  else switch(e.reg){
-  case"anx":drawC(c,tinted("storm",col,.35),x,y-10+bob,130);var n=3+(inB?B.gust:0);c.strokeStyle="rgba(230,245,255,.7)";c.lineWidth=2;for(var i=0;i<n;i++){var a=(RM?0:t/600)+i*6.28/n;c.beginPath();c.arc(x,y-70,70+i*3,a,a+.7);c.stroke()}break;
+  case"anx":drawC(c,tinted("storm",col,.35),x,y-10+bob,130);if(inB&&B.worries)for(var wi=0;wi<B.worries;wi++){var wa=(RM?wi*2:t/500)+wi*2.1;drawC(c,tinted("storm",col,.3),x+Math.cos(wa)*110,y-30+Math.sin(wa)*30,44,.9)}var n=3+(inB?B.gust:0);c.strokeStyle="rgba(230,245,255,.7)";c.lineWidth=2;for(var i=0;i<n;i++){var a=(RM?0:t/600)+i*6.28/n;c.beginPath();c.arc(x,y-70,70+i*3,a,a+.7);c.stroke()}break;
   case"ptsd":drawC(c,tinted("fog",col,.45),x,y-8+bob,120);if(inB&&(B.turn+1)%3===0){for(i=1;i<=3;i++){c.strokeStyle="rgba(200,180,240,"+(.6-i*.15)+")";c.lineWidth=2;c.beginPath();c.ellipse(x,y-60,60+i*16,40+i*10,0,0,7);c.stroke()}}break;
   case"rel":drawC(c,tinted("fog",col,.45),x-58,y-6+bob,96);drawC(c,tinted("fog","#f6d0c8",.45),x+58,y-6-bob,96);c.strokeStyle="rgba(60,30,40,.55)";c.lineWidth=3;c.beginPath();c.moveTo(x,y-80);c.lineTo(x-5,y-55);c.lineTo(x+4,y-35);c.lineTo(x-3,y-10);c.stroke();break;
   case"ocd":drawC(c,tinted("storm",col,.45),x,y-10+bob,130);var lk=inB?B.locks:2;for(i=0;i<lk;i++){var a2=(RM?0:t/900)+i*2.1;lock(c,x+Math.cos(a2)*80,y-70+Math.sin(a2)*36)}break;
   case"adhd":var jx=RM||!inB?0:Math.sin(t/90)*6;drawC(c,tinted("fog",col,.4),x+jx,y-14+bob*2,76);for(i=0;i<6;i++){var a3=(RM?0:t/300)+i;c.fillStyle="rgba(230,255,200,.85)";c.beginPath();c.arc(x+Math.cos(a3)*54,y-50+Math.sin(a3*1.7)*28,3,0,7);c.fill()}break;
   case"ed":drawC(c,tinted("fog",col,.5),x,y-8+bob,124,.82);break;
   case"grief":glow(c,x,y-70,90,t);sp(c,"lantern",x,y+2,120);var lit=inB?Math.round((B.max-B.hp)/B.max*5):0;for(i=0;i<5;i++){var lx=x-80+i*40;glow(c,lx,y-150,i<lit?24:0,t);sp(c,"lantern",lx,y-136,30,0,i<lit?1:.45)}break;
-  case"fog":drawC(c,img("sp-boss"),x,y+10+bob,236,.97);break}
+  case"fog":drawC(c,img("sp-boss"),x,y+10+bob,236,.97);if(inB&&B.phase){glowDot(c,x,y-60,150,"#d8dde4",.45)}break}
  if(inB&&B.hit===1)B.hit=performance.now();if(inB&&B.hit){var k=Math.max(0,1-(performance.now()-B.hit)/350);if(k>0){c.fillStyle="rgba(255,250,230,"+(.5*k)+")";c.beginPath();c.arc(x,y-(e.boss?70:28),(e.boss?80:30)*(1.2-k*.2),0,7);c.fill();if(B.crack){c.strokeStyle="rgba(255,200,80,"+k+")";c.lineWidth=3;c.beginPath();c.arc(x,y-(e.boss?70:28),(e.boss?90:36)*(1.5-k*.5),0,7);c.stroke()}}}}
 function lock(c,x,y){c.strokeStyle="#5a4a20";c.lineWidth=3;c.beginPath();c.arc(x,y-6,6,Math.PI,0);c.stroke();poly(c,[[x-9,y-6],[x+9,y-6],[x+9,y+8],[x-9,y+8]],"#c9a84a");c.fillStyle="#3b2a1a";c.fillRect(x-1,y-1,2,5)}
 /* ---------- interaction ---------- */
-function interactables(){return cur.items.filter(function(o){return o.t==="sign"||o.t==="npc"||o.t==="look"||o.t==="door"||(o.t==="chest"&&S.opened.indexOf(o.key)<0)||(o.t==="find"&&S.found.indexOf(o.key)<0)||(o.t==="house"&&(o.role||o.look))||o.t==="chest"})}
+function interactables(){return cur.items.filter(function(o){return o.t==="sign"||o.t==="npc"||o.t==="look"||o.t==="door"||(o.t==="chest"&&S.opened.indexOf(o.key)<0)||(o.t==="find"&&S.found.indexOf(o.key)<0)||(o.t==="page"&&S.pages.indexOf(o.pg)<0)||o.t==="fish"||(o.t==="path"&&Math.hypot(P.x-o.x,P.y-o.y)<70)||(o.t==="qitem"&&S.q[o.qk]===1&&!S.q[o.qk+"_got"])||(o.t==="house"&&(o.role||o.look))||o.t==="chest"})}
 function dist(o){return Math.hypot(P.x-o.x,(P.y-o.y)*1.2)-(o.t==="look"?o.r*.6:o.t==="house"?40*(o.sc||1):0)}
 function near(){var b=null,bd=52;interactables().forEach(function(o){var d=dist(o);if(d<bd){bd=d;b=o}});return b}
 function give(k){S.bag[k]=(S.bag[k]||0)+1;save()}
 function interact(o){if(!o)return;switch(o.t){
  case"sign":say(o.text,"Signpost");break;
  case"look":say(o.text);break;
- case"npc":say(o.lines,o.name);break;
+ case"npc":var qk=questFor(o.name);if(qk)questTalk(o,qk);else say(o.lines,o.name);break;
+ case"page":S.pages.push(o.pg);if(S.secrets.indexOf("page")<0)S.secrets.push("page");save();say(["You found a journal page ("+S.pages.length+" of "+PAGES.length+").","\u201c"+PAGES[o.pg]+"\u201d","It's saved in your skill journal."],"Journal page");break;
+ case"path":if(S.secrets.indexOf("path")<0){S.secrets.push("path");save()}enter("hollow",320,370);say("You push through the ferns and find a hidden hollow with a still pond.");break;
+ case"fish":fishing();break;
+ case"qitem":S.q[o.qk+"_got"]=1;save();say("You found the "+QS[o.qk].item.toLowerCase()+". Bring it back to "+QS[o.qk].npc+".");break;
  case"chest":if(S.opened.indexOf(o.key)>=0){say("The chest is empty now. You already took what was inside.");break}S.opened.push(o.key);give(o.item);say("Inside the chest: "+decName(o.item)+". It's in your satchel, ready for your safe place.");break;
  case"find":S.found.push(o.key);give(o.item);say("You found "+decName(o.item)+". It's in your satchel.");break;
  case"door":goSafe();break;
@@ -372,13 +381,13 @@ function say(lines,who){if(typeof lines==="string")lines=[lines];var i=0;closeOV
   var n=d.querySelector("#s-next"),k=d.querySelector("#s-ok");if(n){n.onclick=function(){i++;show()};n.focus()}if(k){k.onclick=closeOV;k.focus()}live((who?who+": ":"")+lines[i])}
  show()}
 function panel(html,lbl){closeOV();OV="pan";held={};var d=document.createElement("div");d.className="w-pan w-par";d.setAttribute("role","dialog");d.setAttribute("aria-label",lbl);d.innerHTML=html+'<p><button class="w-btn pri" id="p-close">Back to exploring</button></p>';stage.appendChild(d);d.querySelector("#p-close").onclick=closeOV;var h=d.querySelector("h2");if(h){h.tabIndex=-1;h.focus()}return d}
-function lookAround(){if(B)return;var s=cur,seen=interactables().map(function(o){return o.name||({sign:"a signpost",look:"something worth a closer look",door:"the lantern trail to your safe place",chest:"a chest",find:"something glinting on the ground",house:o.role==="hall"?"the Hall of Guides":"the Open Book Office"}[o.t])});
+function lookAround(){if(B)return;var s=cur,seen=interactables().map(function(o){return o.name||({sign:"a signpost",look:"something worth a closer look",door:"the lantern trail to your safe place",chest:"a chest",find:"something glinting on the ground",page:"a loose journal page",path:"a gap in the ferns",fish:"a fishing spot",qitem:"something someone lost",house:o.role==="hall"?"the Hall of Guides":"the Open Book Office"}[o.t])});
  var en=(s.ens||[]).filter(function(e){return !gone(e)}).map(function(e){return e.boss?BD[e.reg].name:"a "+MIN[e.reg]});
  var ex=["n","e","s","w"].filter(function(d){return nb(s,d)}).map(function(d){return {n:"north",e:"east",s:"south",w:"west"}[d]+" to "+SC[nb(s,d)].n});
  say([s.n+(s.sub?" ("+s.sub+")":"")+". You see: "+(seen.length?seen.join(", "):"open ground")+".",en.length?"Symptoms here: "+en.join(", ")+". Walk into one to begin casting.":"No symptoms are wandering here right now.","Paths lead "+(ex.join("; ")||"nowhere else")+"."])}
 function satchel(){if(B)return;var ks=Object.keys(S.bag).filter(function(k){return S.bag[k]>0});
  panel('<h2>Your satchel</h2><p>Treasures for your safe place:</p><ul>'+(ks.length?ks.map(function(k){return '<li>'+esc(decName(k))+(S.bag[k]>1?' ×'+S.bag[k]:'')+'</li>'}).join(""):'<li>Nothing right now. Everything is placed in your safe place.</li>')+'</ul>'+
- '<p>Keepsakes from bosses: '+(S.loot.length?S.loot.map(esc).join(", "):'none yet')+'.</p><p>Bosses calmed: '+S.beaten.length+' of 8. Symptoms settled: '+S.cleared.length+'.</p><p>Traveling with you: '+esc(petName())+'.</p>',"Satchel")}
+ '<p>Keepsakes from bosses: '+(S.loot.length?S.loot.map(esc).join(", "):'none yet')+'.</p><p>Bosses calmed: '+S.beaten.length+' of 8. Symptoms settled: '+S.cleared.length+'.</p><p>Traveling with you: '+esc(petName())+' (bond level '+bondLv()+'). <button class="w-btn" id="sa-pet">Companion</button></p><h3>Side quests</h3>'+questList(),"Satchel");document.getElementById("sa-pet").onclick=function(){companion()}}
 function mapPanel(){if(B)return;var cells=[];for(var y=0;y<5;y++)for(var x=0;x<4;x++){var k=GRID[x+","+y];if(!k)continue;var s=SC[k];
   cells.push('<button class="w-btn'+(k===cur.id?' here':'')+'" data-go="'+k+'">'+esc(s.n)+'<small>'+esc(s.sub||"")+(s.reg&&S.beaten.indexOf(s.reg)>=0&&s.boss?' · calmed':'')+(S.visited.indexOf(k)<0?' · not visited yet':'')+'</small></button>')}
  var d=panel('<h2>Map of the land</h2><p>Every region is open. Walk off any edge to reach the next area, or travel straight to a place below.</p><div class="w-map">'+cells.join("")+'</div>',"Map");
@@ -401,7 +410,7 @@ document.addEventListener("keydown",function(e){if(!stage||!document.body.contai
  if(DM&&(k==="Delete"||k==="Backspace")&&DM.sel!=null){putAway();e.preventDefault();return}
  if(MV[k]){held[k]=1;e.preventDefault();return}
  if(k==="Enter"||k==="e"||k===" "){e.preventDefault();if(DM&&DM.pick){placeAt(P.x,P.y-28);return}if(!busy())interact(near());return}
- if(!busy()){if(k==="l")lookAround();else if(k==="i")satchel();else if(k==="m")mapPanel()}});
+ if(!busy()){if(k==="l")lookAround();else if(k==="i")satchel();else if(k==="m")mapPanel();else if(k==="j")journal()}});
 document.addEventListener("keyup",function(e){var k=e.key.length===1?e.key.toLowerCase():e.key;delete held[k]});
 addEventListener("blur",function(){held={}});
 /* ---------- casting battle, overlaid on the scene where you met the symptom ---------- */
@@ -411,7 +420,7 @@ function battle(e){if(B)return;closeOV();held={};tgt=null;
  B={e:e,id:id,d:d,g:g,hp:d.hp,max:d.hp,hope:10,hmax:10,turn:0,weak:Math.floor(Math.random()*4),chg:0,last:null,recent:[],gust:0,locks:0,shield:0,mom:0,listen:-9,gUsed:0,gShield:0,gMod:0,log:[],say:null,card:0,over:0,busy:0,hit:0,crack:0};
  var o=document.createElement("div");o.className="w-bov";o.setAttribute("role","region");o.setAttribute("aria-label","Casting battle with "+d.name);
  o.innerHTML='<div class="w-bhud w-par"><h2>'+esc(d.name)+'</h2><div class="w-bars"><div class="w-bar"><span>'+(d.gentle?'Lanterns lit':esc(d.name.replace("The ","")))+'</span><i><b id="b-bh"></b></i><em id="b-bhn"></em></div>'+
- '<div class="w-bar hope"><span>Your hope</span><i><b id="b-hh"></b></i><em id="b-hhn"></em></div></div><button class="w-btn" id="b-leave">Step back</button><p class="w-bwarn" id="b-warn"></p></div>'+
+ '<div class="w-bar hope"><span>Your hope</span><i><b id="b-hh"></b></i><em id="b-hhn"></em></div></div><button class="w-btn" id="b-leave">Step back</button><p class="w-bwarn" id="b-warn"></p>'+(id==="ed"?EDHELP:'')+'</div>'+
  '<div class="w-breath w-par" id="b-br" hidden></div>'+
  '<div class="w-bbot w-par"><div class="w-bmsg" id="b-msg" aria-live="polite"></div><div class="w-sk" id="b-sk">'+d.sk.map(function(s,i){return '<button class="w-btn" data-s="'+i+'">'+esc(s[1])+'</button>'}).join("")+'</div>'+
  '<div class="w-sk2"><button class="w-btn pri" id="b-sig" disabled>'+SIG.name+' <small id="b-chg"></small></button><button class="w-btn" id="b-guide">Call '+esc(g.name.split(" ")[0])+'</button>'+
@@ -426,16 +435,18 @@ function battle(e){if(B)return;closeOV();held={};tgt=null;
  ui();live("A casting battle begins with "+d.name+".");o.querySelector("[data-s]").focus()}
 function endBattle(){if(!B)return;B.over=1;var o=stage.querySelector(".w-bov");if(o)o.remove();var e=B.e;B=null;return e}
 function stepBack(){var e=endBattle();if(!e)return;e.cd=3;var dx=P.x-e.x,dy=P.y-e.y,l=Math.hypot(dx,dy)||1,p=free(cur,P.x+dx/l*60,P.y+dy/l*60);P.x=p[0];P.y=p[1];stage.focus()}
+var EDHELP='<p class="w-edhelp">Need support with eating? <a href="https://www.anad.org/get-help/eating-disorders-helpline/" target="_blank" rel="noopener">ANAD helpline</a> · free · <a href="tel:+18883757767">1-888-375-7767</a> · Mon–Fri, 9am–9pm Central</p>';
 var _hit=function(){};
 function bend(html,btns){var o=stage.querySelector(".w-bov");o.querySelectorAll(".w-bbot,.w-breath").forEach(function(n){n.remove()});var d=document.createElement("div");d.className="w-bend w-par";d.innerHTML=html+'<p>'+btns+'</p>';o.appendChild(d);var f=d.querySelector("button");if(f)f.focus()}
-function win(){var d=B.d,e=B.e,id=B.id,drop="";B.over=1;
+function win(){var d=B.d,e=B.e,id=B.id,drop="";B.over=1;bondAdd(2);
  if(e.boss){if(S.beaten.indexOf(id)<0)S.beaten.push(id);if(S.loot.indexOf(d.loot)<0){S.loot.push(d.loot);give("k_"+id)}}
  else{if(S.cleared.indexOf(e.id)<0){S.cleared.push(e.id);drop=["stone","flowers","shell","lantern","sapling","chime","books","blanket"][S.cleared.length%8];give(drop)}}
  save();var all=officeOpen();
- bend('<h2>'+esc(d.name)+(d.gentle?' glows softly. '+(e.boss?'Every lantern is lit.':'The wave passes.'):(id==='rel'&&e.boss?' calm and drift apart, gently.':' calms and drifts away.'))+'</h2>'+
+ bend((e.boss?'<canvas class="w-vic" width="320" height="200" role="img" aria-label="Your hero stands in the golden light, holding up the '+esc(d.loot)+', with '+esc(petName())+' hopping beside them."></canvas>':'')+'<h2>'+esc(d.name)+(d.gentle?' glows softly. '+(e.boss?'Every lantern is lit.':'The wave passes.'):(id==='rel'&&e.boss?' calm and drift apart, gently.':' calms and drifts away.'))+'</h2>'+
  (e.boss?'<p>You found the <b>'+esc(d.loot)+'</b>. It can rest in your safe place as a keepsake.</p>':'<p>It left something behind: <b>'+esc(decName(drop)||"a quiet moment")+'</b>.</p>')+
- '<p>'+esc(B.g.name)+': "You used real skills there. They work outside the game too."</p>'+(e.boss?'<p>Bosses calmed: '+S.beaten.length+' of 8.'+(all?' The Open Book Office is open now.':'')+'</p>':''),
+ '<p>'+esc(B.g.name)+': "You used real skills there. They work outside the game too."</p>'+(e.boss?'<p>Bosses calmed: '+S.beaten.length+' of 8.'+(all?' The Open Book Office is open now.':'')+'</p>':'')+(id==="ed"?EDHELP:''),
  '<button class="w-btn pri" id="b-on">Keep exploring</button>');
+ var vc=stage.querySelector('.w-vic');if(vc)victory(vc,id);
  document.getElementById("b-on").onclick=function(){endBattle();stage.focus();if(all&&e.boss)say("Word travels fast: the Open Book Office door is open. It's south of the Crossroads.")}}
 function lose(){var d=B.d;B.over=1;
  bend('<h2>Time to rest and regroup</h2><p>'+esc(d.name)+' was strong today. That happens, in the game and in life. Your hope refills when you rest.</p>',
@@ -461,9 +472,11 @@ function ui(){
  if(d.twist==="lock"&&B.locks)wn+='Locks: '+B.locks+'. ';
  if(d.twist==="shield"&&B.shield)wn+='Your shield is up. ';
  if(d.twist==="momentum"&&B.mom)wn+='Momentum: +'+B.mom+'. ';
- document.getElementById("b-warn").innerHTML=wn+'Watch for: <b>'+esc(w[2])+'</b>. Weak spot: <b>'+esc(w[1])+'</b>'+(d.noNum||d.gentle?'.':'. If missed, the next hit takes '+hit+' hope.');
+ if(B.worries)wn+='Small worries: '+B.worries+'. ';var cs=B.seq||[],cn=0;for(var ci=Math.min(3,cs.length);ci>0;ci--){if(cs.slice(-ci).join()===comboOf(d).slice(0,ci).join()){cn=ci;break}}
+ var hide=B.fogHide>0;app.querySelectorAll('[data-s]').forEach(function(b){if(hide)b.classList.remove('weak')});
+ document.getElementById("b-warn").innerHTML=wn+'<span class="w-combo">Combo: '+esc(comboName(d))+(cn?' ('+cn+' of 3)':'')+'</span> '+(hide?'The weak spot is hidden in the fog':'Watch for: <b>'+esc(w[2])+'</b>. Weak spot: <b>'+esc(w[1])+'</b>')+(d.noNum||d.gentle?'.':'. If missed, the next hit takes '+hit+' hope.');
 }
-function drain(weakHit){var d=B.d,n=weakHit?1:2;if(d.twist==="gust")n+=weakHit?0:B.gust;if(d.twist==="echo"&&(B.turn+1)%3===0&&!weakHit)n*=2;return n}
+function drain(weakHit){var d=B.d;if(B.fogHide>0)weakHit=1;var n=weakHit?1:2;if(d.twist==="gust")n+=weakHit?0:B.gust;if(d.twist==="echo"&&(B.turn+1)%3===0&&!weakHit)n*=2;if(!weakHit&&B.worries)n+=B.worries;return n}
 function act(k){
  if(B.busy||B.over)return;
  if(k==="guide"){photoCard();return}
@@ -483,18 +496,29 @@ function resolve(k,bonus){
   if(d.twist==="spark"){if(B.last===k)dmg=Math.max(1,dmg-1);else if(B.last!==null)dmg+=1}
   if(d.twist==="momentum"){dmg+=B.mom;if(s[0]==="step")B.mom=Math.min(2,B.mom+1)}
   if(d.twist==="shield"&&s[0]==="reach")B.shield=1;
+  var cmb=0;B.seq=(B.seq||[]).concat([k]).slice(-3);if(B.seq.join()===comboOf(d).join()){cmb=1;B.seq=[];B.combos=(B.combos|0)+1;dmg+=2;B.hope=Math.min(B.hmax,B.hope+1);fx("sig")}
+  if(B.phase&&PHASE[B.id]&&PHASE[B.id][1]===s[0]){if(B.id==="adhd"||B.id==="ed")dmg+=1;else B.hope=Math.min(B.hmax,B.hope+1)}
+  if(B.id==="anx"){if(weakHit||s[0]==="ground"){if(B.worries){B.worries--;B.popped=(B.popped|0)+1}B.miss=0}else{B.miss=(B.miss|0)+1;if(B.miss>=2&&(B.worries|0)<3){B.worries=(B.worries|0)+1;B.miss=0;B.split=1}}}
+  var lvUp=skUse(s);
   B.recent.push(k);if(B.recent.length>2)B.recent.shift();B.last=k;
-  txt=txt||((weakHit?'Weak spot! ':'')+esc(s[1])+(d.gentle?' lights a lantern.':' works.'));rl=s[3]}
+  txt=txt||((weakHit?'Weak spot! ':'')+esc(s[1])+(d.gentle?' lights a lantern.':' works.'));rl=s[3];
+  if(cmb)txt+=' Combo! '+esc(comboName(d))+' flows together for a bonus.';
+  if(B.split){B.split=0;txt+=' Ignored too long, the worry splits into '+(B.worries>1?B.worries+' small worries':'a small worry')+'. Hit the weak spot or ground yourself to pop them.'}
+  else if(B.id==="anx"&&B.popped&&(weakHit||s[0]==="ground")&&B.lastPop!==B.popped){B.lastPop=B.popped;txt+=' A small worry pops.'}
+  if(lvUp)txt+=' Skill journal: '+esc(s[1])+' reached level '+lvUp+'. A new real-life tip is unlocked.'}
  if(bonus)txt+=' Your breath gave it extra strength.';
- B.hp=Math.max(0,B.hp-dmg);B.hit=1;B.crack=weakHit;
+ B.hp=Math.max(0,B.hp-dmg);B.hit=1;B.crack=weakHit;hitFX(weakHit||k==='sig',typeof cmb!=='undefined'&&cmb);
+ if(B.e.boss&&!B.phase&&B.hp>0&&B.hp<=B.max/2&&PHASE[B.id]){B.phase=1;if(B.id==='ocd')B.locks=Math.min(3,B.locks+1);if(B.id==='fog'){B.fogHide=3;B.fogSet=B.turn}txt+=' '+PHASE[B.id][0]}
  if(B.hp<=0){ui();return win()}
  var lost=boss(weakHit);B.turn++;B.weak=(B.weak+1+Math.floor(Math.random()*3))%4;
  if(d.twist==="lock"&&k!=="sig"&&d.sk[k][0]!=="erp")B.locks=Math.min(3,B.locks+1);
+ if(B.comfMsg){B.comfMsg=0;txt+=' '+esc(petName())+' curls up beside you. You feel comforted, and some hope comes back.'}
+ if(B.fogHide&&B.turn>B.fogSet)B.fogHide--;
  msg(txt+(lost?(d.noNum||d.gentle?' '+esc(d.name)+' presses in.':' '+esc(d.name)+' strikes: -'+lost+' hope.'):' The hit is blocked.'),rl);
  ui();
  if(B.hope<=0){if(d.gentle){B.hope=B.hmax;msg('You sit and rest by the lantern. The Keeper waits as long as you need. Your hope is restored.','Grief has no deadline. Rest is allowed.');ui()}else lose()}
 }
-function boss(weakHit){var n=drain(weakHit);if(B.shield){B.shield=0;return 0}B.hope=Math.max(0,B.hope-n);return n}
+function boss(weakHit){var n=drain(weakHit);if(B.shield){B.shield=0;return 0}B.hope=Math.max(0,B.hope-n);if(B.hope>0&&B.hope<=3&&!B.comf&&bondLv()>=3){B.comf=1;B.comfT=performance.now();B.hope=Math.min(B.hmax,B.hope+2);B.comfMsg=1}return n}
 function breathCast(cb){
  var el=document.getElementById("b-br"),done=0,t0=performance.now(),D=1600,id;
  el.hidden=false;
@@ -593,7 +617,7 @@ function drawFX(c,t){var now=performance.now();FXL=FXL.filter(function(f){return
   case"twin":for(i=0;i<2;i++){k=s*3+i*Math.PI;glowDot(c,X+Math.cos(k)*40,Y+Math.sin(k)*20,18,col,.8*a)}break;
   case"still":c.fillStyle=rgba(col,.25*a);c.fillRect(0,0,W,H);glowDot(c,X,Y,80,col,.5*a);break;
   case"warm":glowDot(c,hx,hy,70*a+10,col,.6*a);glowDot(c,X,Y,60*p,col,.4*a);break;
-  case"flip":c.strokeStyle=rgba(col,.85*a);c.lineWidth=5;c.beginPath();c.ellipse(X,Y,50,50*Math.cos(p*Math.PI),0,0,7);c.stroke();break;
+  case"flip":c.strokeStyle=rgba(col,.85*a);c.lineWidth=5;c.beginPath();c.ellipse(X,Y,50,Math.max(.5,Math.abs(50*Math.cos(p*Math.PI))),0,0,7);c.stroke();break;
   case"swell":c.strokeStyle=rgba(col,.85*a);c.lineWidth=6;c.beginPath();for(i=0;i<=30;i++){k=i/30;c.lineTo(X-90+k*180,Y+30-Math.sin(k*Math.PI)*60*Math.sin(p*Math.PI)+Math.sin(k*10+s*5)*4)}c.stroke();break;
   case"motes":for(i=0;i<12;i++){k=i*2.4+s;glowDot(c,X+Math.cos(k)*(30+i*4)*p,Y+Math.sin(k*1.3)*(20+i*3)*p,8,col,.7*a)}break;
   case"lantern":for(i=0;i<5;i++){var lx=X-60+i*30,ly=Y+40-p*70-(i%2)*14;glowDot(c,lx,ly,16,col,.8*a);c.fillStyle=rgba("#8a5a2a",.6*a);c.fillRect(lx-3,ly-9,6,4)}break;
@@ -678,7 +702,174 @@ function creator(){cancelAnimationFrame(raf);stage=null;var h=S.hero,dirs=0;
 var _play=play;play=function(){_play();safeBar()};
 var _enter=enter;enter=function(id,x,y,q){_enter(id,x,y,q);if(stage)setTimeout(safeBar,0)};
 
+/* ===== v3i: walk cycles, weather, sparks, quests, secrets, pet bond, combos, phases, skill journal ===== */
+function extFix(){if(!S.bond||S.bond.length!==3)S.bond=[0,0,0];S.q=S.q||{};S.pages=S.pages||[];S.skx=S.skx||{};S.fishN=S.fishN|0;S.secrets=S.secrets||[];S.sniffed=S.sniffed||[]}extFix();
+/* --- 1. walk cycles: front, back (painted hair over the face), side (narrowed, leaning, striding) --- */
+var BACKC={};
+function heroBack(h){var cv=heroCanvas(h);if(!cv)return null;var b=BODY[h.body|0]||BODY[0],key=b.k+"|"+(h.skin|0)+"|"+(h.hc|0)+"|"+(h.c1|0);if(BACKC[key])return BACKC[key];
+ var mk=himg("../img/q-hmask-"+b.k+".png");if(!mk)return null;var Wd=cv.width,Hd=cv.height,o=document.createElement("canvas");o.width=Wd;o.height=Hd;var x=o.getContext("2d");x.drawImage(cv,0,0);
+ var mc=document.createElement("canvas");mc.width=Wd;mc.height=Hd;var mx=mc.getContext("2d");mx.drawImage(mk,0,0,Wd,Hd);var m=mx.getImageData(0,0,Wd,Math.round(Hd*.36)).data,x0=Wd,x1=0,y0=Hd,y1=0;
+ for(var yy=0;yy<Math.round(Hd*.36);yy+=2)for(var xx=0;xx<Wd;xx+=2){if(m[(yy*Wd+xx)*4+1]>180){if(xx<x0)x0=xx;if(xx>x1)x1=xx;if(yy<y0)y0=yy;if(yy>y1)y1=yy}}
+ if(x1<=x0)return BACKC[key]=cv;var hc=hex(HC[h.hc|0]||HC[1]),cx0=(x0+x1)/2,cy0=(y0+y1)/2,rx=(x1-x0)/2+Wd*.015,ry=(y1-y0)/2+Hd*.008;
+ x.save();x.globalCompositeOperation="source-atop";var g=x.createRadialGradient(cx0-rx*.3,cy0-ry*.4,2,cx0,cy0,Math.max(rx,ry)*1.2);
+ g.addColorStop(0,"rgb("+Math.min(255,hc[0]*1.25|0)+","+Math.min(255,hc[1]*1.25|0)+","+Math.min(255,hc[2]*1.25|0)+")");g.addColorStop(1,"rgb("+(hc[0]*.7|0)+","+(hc[1]*.7|0)+","+(hc[2]*.7|0)+")");
+ x.fillStyle=g;x.beginPath();x.ellipse(cx0,cy0,rx,ry,0,0,7);x.fill();
+ x.strokeStyle="rgba(30,18,8,.28)";x.lineWidth=Math.max(1,Wd*.006);for(var i=-3;i<=3;i++){x.beginPath();x.moveTo(cx0+i*rx*.18,cy0-ry*.9);x.quadraticCurveTo(cx0+i*rx*.26,cy0,cx0+i*rx*.2,cy0+ry*.95);x.stroke()}
+ x.restore();return BACKC[key]=o}
+function heroFrame(dir){return dir===1?"back":dir>=2?"side":"front"}
+function drawHero(c,h,x,y,sc,dir,ph){var back=dir===1,cv=back?(heroBack(h)||heroCanvas(h)):heroCanvas(h);shadow(c,x,y,13*sc,4*sc);if(!cv)return;
+ var hh=62*sc,ww=hh*cv.width/cv.height,mv=!RM&&ph>0,s=Math.sin(ph||0),bob=mv?Math.abs(s)*1.6*sc:0,side=dir>=2,sy=Math.round(cv.height*.66),top=hh*.66,lw=cv.width/2;
+ var lift=mv?s*2.4*sc:0,sw=mv&&side?s*3.2*sc:0;
+ c.save();c.translate(x,y);if(dir===3)c.scale(-1,1);if(side){c.scale(.86,1);if(mv)c.transform(1,0,-.05,1,0,0)}
+ c.drawImage(cv,0,sy,lw,cv.height-sy,-ww/2+sw,-hh+top-bob-Math.max(0,lift),ww/2,hh-top);
+ c.drawImage(cv,lw,sy,cv.width-lw,cv.height-sy,-sw,-hh+top-bob-Math.max(0,-lift),ww/2,hh-top);
+ c.drawImage(cv,0,0,cv.width,sy+1,-ww/2,-hh-bob,ww,top+hh/cv.height);
+ c.restore();HF=heroFrame(dir)}
+var HF="front",PT={x:0,y:0,dir:0,ph:0,trick:null,frame:"front"},PBACK={};
+function petBack(i){var pc=petCanvas(i);if(!pc)return null;if(PBACK[i])return PBACK[i];var o=document.createElement("canvas");o.width=pc.width;o.height=pc.height;var x=o.getContext("2d");x.drawImage(pc,0,0);x.globalCompositeOperation="source-atop";var g=x.createLinearGradient(0,0,0,o.height);g.addColorStop(0,"rgba(50,32,16,.62)");g.addColorStop(.55,"rgba(50,32,16,.3)");g.addColorStop(1,"rgba(50,32,16,.05)");x.fillStyle=g;x.fillRect(0,0,o.width,o.height);return PBACK[i]=o}
+function drawPet(c,px,py,t){var i=S.hero.pet|0,dx=px-PT.x,dy=py-PT.y,mv=Math.hypot(dx,dy)>.15;if(mv){PT.dir=Math.abs(dx)>Math.abs(dy)?(dx>0?2:3):(dy<0?1:0);PT.ph+=.35}else PT.ph=0;PT.x=px;PT.y=py;
+ if(B)PT.dir=B.e.x>px?2:3;var back=PT.dir===1,pc=back?petBack(i):petCanvas(i);PT.frame=back?"back":PT.dir>=2?"side":"front";shadow(c,px,py,13,4);if(!pc)return;
+ var ph=i===0?48:46,w=ph*pc.width/pc.height,s=Math.sin(PT.ph),bob=RM||!mv?0:Math.abs(s)*2.2,tilt=RM||!mv?0:s*.06,flip=PT.dir===2||(PT.dir!==3&&px>P.x),hop=0,rot=0;
+ var tr=PT.trick;if(tr){var k=(performance.now()-tr.t0)/1200;if(k>=1)PT.trick=null;else if(!RM){if(tr.k===0){rot=k*6.283}else{hop=Math.sin(k*Math.PI)*16}}else glowDot(c,px,py-24,30,"#ffd98a",.5*(1-k))}
+ if(B&&B.comfT){var ck=(performance.now()-B.comfT)/1500;if(ck<1)glowDot(c,px,py-24,40,"#ffc6d0",.55*(1-ck))}
+ c.save();c.translate(px,py-bob-hop);if(flip)c.scale(-1,1);c.rotate(tilt);if(rot){c.translate(0,-ph/2);c.rotate(rot);c.translate(0,ph/2)}if(PT.dir===0||back)c.scale(.92,1);c.drawImage(pc,-w/2,-ph,w,ph);c.restore()}
+/* --- 2. weather and time of day per region --- */
+var WX={fog:"fog",anx:"wind",grief:"dusk",ptsd:"drizzle",rel:"petals",ocd:"sunbeams",adhd:"fireflies",ed:"mist"};
+function wxKind(s){return s.reg?WX[s.reg]:s.id==="hollow"?"fireflies":s.id==="office"?"sunbeams":"golden"}
+function rnd(n){var x=Math.sin(n*127.1)*43758.5;return x-Math.floor(x)}
+function weather(c,s,t){var k=wxKind(s),T=RM?0:t,i,x,y,a;c.save();
+ switch(k){
+ case"fog":c.fillStyle="rgba(120,130,150,.16)";c.fillRect(0,0,W,H);for(i=0;i<9;i++){x=((rnd(i)*W+T*(.008+rnd(i+9)*.012))%(W+260))-130;y=90+rnd(i+3)*300;a=.14+rnd(i+5)*.12;var g=c.createRadialGradient(x,y,4,x,y,110);g.addColorStop(0,"rgba(225,230,238,"+a+")");g.addColorStop(1,"rgba(225,230,238,0)");c.fillStyle=g;c.beginPath();c.ellipse(x,y,130,46,0,0,7);c.fill()}break;
+ case"wind":c.strokeStyle="rgba(240,248,255,.42)";c.lineWidth=1.6;c.lineCap="round";for(i=0;i<16;i++){x=((rnd(i)*W+T*(.25+rnd(i+2)*.2))%(W+120))-60;y=70+rnd(i+7)*330+Math.sin(T/500+i)*6;c.beginPath();c.moveTo(x,y);c.quadraticCurveTo(x+22,y-5,x+48,y+2);c.stroke()}
+  for(i=0;i<7;i++){x=((rnd(i+40)*W+T*(.18+rnd(i)*.1))%(W+40))-20;y=80+rnd(i+33)*300+Math.sin(T/300+i)*14;c.save();c.translate(x,y);c.rotate(RM?i:T/260+i);c.fillStyle=["#c9a24a","#a7b85a","#d08a3a"][i%3];c.beginPath();c.ellipse(0,0,5,2.4,0,0,7);c.fill();c.restore()}break;
+ case"dusk":var dg=c.createLinearGradient(0,0,0,H);dg.addColorStop(0,"rgba(110,60,120,.30)");dg.addColorStop(.45,"rgba(240,140,80,.14)");dg.addColorStop(1,"rgba(40,20,40,.22)");c.fillStyle=dg;c.fillRect(0,0,W,H);
+  for(i=0;i<8;i++){x=40+rnd(i+11)*560+Math.sin(T/1500+i)*10;y=H-((rnd(i+21)*H+T*.012*(1+rnd(i)))%(H-40));glowDot(c,x,y,16,"#ffc070",.55);c.fillStyle="rgba(255,226,160,.95)";c.beginPath();c.ellipse(x,y,2.6,3.4,0,0,7);c.fill()}break;
+ case"drizzle":c.fillStyle="rgba(60,60,110,.16)";c.fillRect(0,0,W,H);c.strokeStyle="rgba(210,210,240,.35)";c.lineWidth=1;for(i=0;i<46;i++){x=(rnd(i)*W+T*.03)%W;y=(rnd(i+50)*H+T*.35)%H;c.beginPath();c.moveTo(x,y);c.lineTo(x-2,y+9);c.stroke()}break;
+ case"petals":for(i=0;i<12;i++){x=((rnd(i)*W+T*(.03+rnd(i+3)*.03))%(W+30))-15;y=((rnd(i+8)*H+T*(.02+rnd(i+1)*.02))%H);c.save();c.translate(x,y);c.rotate(RM?i:T/700+i);c.fillStyle="rgba(248,190,200,.85)";c.beginPath();c.ellipse(0,0,4.5,2.6,0,0,7);c.fill();c.restore()}break;
+ case"sunbeams":c.globalCompositeOperation="lighter";for(i=0;i<4;i++){x=90+i*150;var sg=c.createLinearGradient(x,0,x+120,H);sg.addColorStop(0,"rgba(255,220,150,.13)");sg.addColorStop(1,"rgba(255,220,150,0)");c.fillStyle=sg;c.beginPath();c.moveTo(x,0);c.lineTo(x+50,0);c.lineTo(x+170,H);c.lineTo(x+90,H);c.fill()}
+  c.globalCompositeOperation="source-over";for(i=0;i<14;i++){x=(rnd(i)*W+Math.sin(T/2000+i)*20);y=(rnd(i+4)*H+T*.006)%H;glowDot(c,x,y,3,"#fff0c0",.7)}break;
+ case"fireflies":c.fillStyle="rgba(30,50,40,.12)";c.fillRect(0,0,W,H);for(i=0;i<14;i++){x=rnd(i)*W+Math.sin(T/900+i*2)*30;y=90+rnd(i+6)*300+Math.cos(T/1100+i)*20;a=RM?.7:.35+.5*Math.max(0,Math.sin(T/400+i*1.7));glowDot(c,x,y,9,"#e6ffb0",a)}break;
+ case"mist":for(i=0;i<5;i++){x=((rnd(i)*W+T*.01)%(W+300))-150;y=300+rnd(i+2)*100;var mg=c.createRadialGradient(x,y,4,x,y,140);mg.addColorStop(0,"rgba(220,240,240,.22)");mg.addColorStop(1,"rgba(220,240,240,0)");c.fillStyle=mg;c.beginPath();c.ellipse(x,y,170,36,0,0,7);c.fill()}break;
+ default:var gg=c.createLinearGradient(W,0,0,H);gg.addColorStop(0,"rgba(255,200,120,.16)");gg.addColorStop(1,"rgba(255,200,120,0)");c.fillStyle=gg;c.fillRect(0,0,W,H);for(i=0;i<10;i++){x=(rnd(i)*W+Math.sin(T/1800+i)*16);y=(H-(rnd(i+3)*H+T*.008)%H);glowDot(c,x,y,3.5,"#ffe2a0",.6)}}
+ c.restore();return k}
+/* --- 3. hit sparks, screen shake, victory --- */
+var SPK=[],SHK={t0:0,a:0},SPN=0;
+function sparks(x,y,n,col){var now=performance.now();SPN+=n;for(var i=0;i<n;i++){var a=Math.random()*6.283,v=1.2+Math.random()*2.4;SPK.push({x:x,y:y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-1,t0:now,col:col||"#ffd27a",r:2+Math.random()*2.5})}}
+function shake(a){if(RM)return;SHK.t0=performance.now();SHK.a=a}
+function shakeOff(){if(RM||!SHK.a)return[0,0];var k=1-(performance.now()-SHK.t0)/320;if(k<=0){SHK.a=0;return[0,0]}var m=SHK.a*k;return[Math.sin(performance.now()/16)*m,Math.cos(performance.now()/21)*m*.6]}
+function drawSparks(c){var now=performance.now();SPK=SPK.filter(function(p){return now-p.t0<700});SPK.forEach(function(p){var k=(now-p.t0)/700,f=RM?0:(now-p.t0)/16;var x=p.x+p.vx*f,y=p.y+p.vy*f+(RM?0:f*f*.02);
+ c.strokeStyle=rgba(p.col,.7*(1-k));c.lineWidth=p.r*.8;c.lineCap="round";if(!RM){c.beginPath();c.moveTo(x-p.vx*3,y-p.vy*3);c.lineTo(x,y);c.stroke()}glowDot(c,x,y,p.r*2.2,p.col,1-k)})}
+function hitFX(weak,combo){if(!B)return;var e=B.e,y=e.y-(e.boss?70:28);sparks(e.x,y,combo?26:weak?16:8,combo?"#ffe9a8":weak?"#ffc35a":"#fff0d0");shake(combo?7:weak?5:2.5)}
+var VIC=0;
+function victory(el,id){var c=el.getContext("2d"),t0=performance.now(),K=DEC["k_"+id];
+ function fr(t){if(!document.body.contains(el))return;var k=(t-t0)/1000;c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,el.width,el.height);
+  var g=c.createRadialGradient(160,120,10,160,120,200);g.addColorStop(0,"rgba(255,220,150,.95)");g.addColorStop(.6,"rgba(240,160,90,.55)");g.addColorStop(1,"rgba(120,70,60,0)");c.fillStyle=g;c.fillRect(0,0,320,200);
+  c.fillStyle="rgba(120,150,70,.6)";c.beginPath();c.ellipse(160,200,200,40,0,0,7);c.fill();
+  var hop=RM?0:Math.abs(Math.sin(k*3.2))*10;for(var i=0;i<14;i++){var px=(rnd(i)*320+(RM?0:Math.sin(k+i)*14)),py=RM?rnd(i+3)*180:((rnd(i+3)*200+k*40*(1+rnd(i)))%200);c.fillStyle=["#f7b6c2","#ffd98a","#f4efe4"][i%3];c.beginPath();c.ellipse(px,py,4,2.2,i,0,7);c.fill()}
+  glowDot(c,160,40-hop,40,"#fff2c0",.8);c.save();c.translate(0,-hop);drawHero(c,S.hero,150,182,2.3,0,0);if(K)K.d(c,150,48,t);c.restore();
+  var pc=petCanvas(S.hero.pet|0);if(pc){var ph=58,w=ph*pc.width/pc.height,ph2=RM?0:Math.abs(Math.sin(k*3.2+1))*8;c.drawImage(pc,228-w/2,186-ph-ph2,w,ph)}
+  VIC++;if(!RM)requestAnimationFrame(fr)}
+ requestAnimationFrame(fr)}
+/* --- 7. combos --- */
+function comboOf(d){return[0,1,2]}
+function comboName(d){return d.sk[0][1]+" → "+d.sk[1][1]+" → "+d.sk[2][1]}
+/* --- 8. symptoms that change mid-fight --- */
+var PHASE={ptsd:["The echo shifts. It softens when you stay present: grounding now also restores hope.","ground"],rel:["Both sides start talking at once. Listening first now also restores hope.","listen"],ocd:["A new loop forms around the doubt. One more lock clicks shut.",""],adhd:["The sprite splits its attention into more motes. Timer Burst lands harder now.","timer"],ed:["The mist rises higher. Self-kindness cuts through it more easily now.","kind"],grief:["The lanterns flicker and a memory surfaces. Sharing a memory now also restores hope.","memory"],fog:["The fog thickens. The weak spot hides from view for two turns.",""]};
+/* --- 9. skill journal --- */
+var TIPS={breath:["Try breathing out a little longer than you breathe in, for a few rounds.","Practice when you're already calm, so it feels familiar when you need it."],
+ ground:["Name five things you can see, out loud or in your head.","Press your feet into the floor and notice the support under you."],
+ reframe:["Ask yourself: what would I say to a friend who had this thought?","Look for one other way to read the situation, even if you're not sure it's true yet."],
+ step:["Pick the smallest version of the step, one you're fairly sure you can do.","Notice how you feel afterward, not just before."],
+ safe:["Picture a place where you feel at ease and notice its sounds and colors.","Some people keep a small object that reminds them of that place."],
+ reach:["A short text counts. You don't have to explain everything.","Write down two or three people you could reach out to."],
+ listen:["Try repeating back what you heard before you answer.","Ask one curious question before giving your side."],
+ soft:["Try starting with: \"I feel… about… and I need…\"","When you can, bring things up at a calmer moment."],
+ pause:["It's okay to say: \"I need twenty minutes, then let's come back to this.\"","Use the break to calm your body, not to rehearse the argument."],
+ repair:["A small \"I'm sorry, can we start over?\" can turn a conversation around.","A bit of humor or a gentle tone can be a repair attempt too."],
+ erp:["Notice the urge, name it, and let a little time pass before acting on it.","This skill is best practiced with a therapist trained in ERP, starting with small steps."],
+ name:["Try putting \"I'm having the thought that…\" in front of the thought.","Naming a thought doesn't make it true, and you don't have to act on it."],
+ kind:["Speak to yourself the way you would speak to a good friend.","Mistakes are part of being human. Everyone makes them."],
+ values:["Write down three things that matter most to you.","Choose one small action today that fits one of those values."],
+ quest:["Write the very first step on a sticky note.","Cross things off as you go. Seeing progress helps."],
+ timer:["Set a timer for a short burst of work, then take a break when it rings.","Keep a clock where you can see it, so time is easier to track."],
+ double:["Work next to a friend, in person or on a video call.","Tell someone what you're about to start and when."],
+ rule:["When you notice a strict rule in your head, write it down and ask where it came from.","Share those rules with your treatment team so you don't carry them alone."],
+ wave:["Feelings rise and fall like waves. You can let this one move through.","It's okay to cry, rest, or take a quiet moment when a wave comes."],
+ memory:["Telling a story about someone you miss can keep their memory close.","Some people write a letter to the person they lost."],
+ walk:["Let a trusted person know what kind of support helps you most.","Grief support groups are one place to find people who understand."],
+ rest:["Rest is part of grieving, not a break from it.","Gentle routines, like a short walk or some fresh air, can help on hard days."],
+ opp:["When a feeling tells you to hide, try one small opposite action, like opening the curtains.","Opposite action is a DBT skill. A therapist can help you practice it."]};
+var LV=[1,4,9];
+function skLv(id){var n=S.skx[id]|0;return n>=LV[2]?3:n>=LV[1]?2:n>=LV[0]?1:0}
+function skUse(s){var before=skLv(s[0]);S.skx[s[0]]=(S.skx[s[0]]|0)+1;save();var a=skLv(s[0]);return a>before&&a>1?a:0}
+var REALL={};BOSS.forEach(function(id){(BD[id].sk||[]).forEach(function(s){if(!REALL[s[0]])REALL[s[0]]=[s[1],s[3]]})});
+function journal(){if(B)return;var ids=Object.keys(S.skx).filter(function(k){return S.skx[k]>0&&REALL[k]});
+ var h='<h2>Skill journal</h2><p>Each skill grows as you use it. New levels unlock real-life tips.</p>'+(ids.length?'<ul class="w-jr">'+ids.map(function(k){var l=skLv(k),n=S.skx[k],nx=l<3?LV[l]-n:0;return '<li data-sk="'+k+'"><b>'+esc(REALL[k][0])+'</b> · level '+l+(nx>0?' <small>('+nx+' more '+(nx>1?'uses':'use')+' to level '+(l+1)+')</small>':' <small>(mastered)</small>')+'<ul><li>'+esc(REALL[k][1])+'</li>'+(l>=2?'<li>'+esc(TIPS[k][0])+'</li>':'')+(l>=3?'<li>'+esc(TIPS[k][1])+'</li>':'')+'</ul></li>'}).join("")+'</ul>':'<p>No skills used yet. Walk into a symptom to begin.</p>')+
+ '<h3>Journal pages found: '+S.pages.length+' of '+PAGES.length+'</h3>'+(S.pages.length?'<ol class="w-jp">'+PAGES.map(function(p,i){return S.pages.indexOf(i)>=0?'<li>'+esc(p)+'</li>':''}).join("")+'</ol>':'<p>Pages are tucked away around the land. Look closely.</p>')+
+ '<h3>Secrets found: '+S.secrets.length+'</h3><p>Fish caught at the hidden pond: '+S.fishN+'.</p>';
+ panel(h,"Skill journal")}
+/* --- 5. secrets: journal pages, hidden path, fishing --- */
+var PAGES=["Slow breathing, with an out-breath a little longer than the in-breath, is a common way people help their body settle.",
+ "Putting a feeling into words, like \"I feel anxious,\" is a simple step many people find makes it more manageable.",
+ "Grounding uses your senses to bring your attention back to the present moment.",
+ "Avoiding a fear brings quick relief, but it can keep the fear going. Small, gradual steps toward it are part of approaches like exposure therapy.",
+ "Moving your body, even a short walk, is something many people find lifts their mood a little.",
+ "Rest and sleep affect how big emotions feel.",
+ "Reaching out to someone you trust is a coping skill, not a weakness.",
+ "Grief doesn't follow a set schedule. There is no single right way to grieve.",
+ "Breaking a big task into one small first step can make it easier to start.",
+ "If you're in crisis in the US, you can call or text 988 any time."];
+var PAGEAT=[["hub",380,390],["cross",120,250],["woods",560,250],["anx1",520,370],["ptsd1",110,380],["rel1",130,380],["ocd1",540,380],["adhd1",540,240],["grief1",110,380],["hollow",460,210]];
+SC.hollow={id:"hollow",n:"Hidden Hollow",sub:"A secret place",g:"town",at:[-7,-7],tone:"rgba(120,170,140,.12)",w:[[330,170,120,46]],
+ p:[["sign",420,380,"A hollow few wanderers find. The ferns to the south lead back to the Quiet Woods."],["lantern",180,200],["lantern",480,300],["tree",120,140],["tree",540,140],["fish",330,236],["look",330,160,60,"The pond is so still it holds the whole sky. Little fish circle near the reeds."]]};
+SC.woods.p.push(["path",600,96]);
+SC.grief1.p.push(["qitem",520,380,"q_wick"]);SC.woods.p.push(["qitem",120,250,"q_seed"]);
+PAGEAT.forEach(function(a,i){SC[a[0]].p.push(["page",a[1],a[2],i])});
+FT.fish=[0,0,0];
+function fishing(){if(B)return;closeOV();OV="pan";held={};var d=document.createElement("div");d.className="w-pan w-par w-fish";d.setAttribute("role","dialog");d.setAttribute("aria-label","Fishing");stage.appendChild(d);var tm=0,st=0;
+ function close(){clearTimeout(tm);closeOV()}
+ function idle(t){st=0;d.innerHTML='<h2>The hidden pond</h2><p>'+esc(t||"Cast your line and wait. When the bobber dips, reel in.")+'</p><p><button class="w-btn pri" id="f-cast">Cast line</button> <button class="w-btn" id="f-x">Back to exploring</button></p>';d.querySelector("#f-cast").onclick=cast;d.querySelector("#f-x").onclick=close;d.querySelector("#f-cast").focus();live(t||"Fishing. Cast your line.")}
+ function cast(){st=1;d.innerHTML='<h2>Waiting…</h2><p>The bobber floats. Breathe slowly while you wait.</p><p><button class="w-btn" id="f-reel">Reel in</button> <button class="w-btn" id="f-x">Stop fishing</button></p>';d.querySelector("#f-reel").onclick=reel;d.querySelector("#f-x").onclick=close;d.querySelector("#f-reel").focus();
+  tm=setTimeout(function(){st=2;var h=d.querySelector("h2");if(h)h.textContent="A tug! Reel in now.";live("A tug! Reel in now.");tm=setTimeout(function(){if(st===2)idle("It slipped away. That's okay. Try again whenever you like.")},FISH.win)},FISH.wait())}
+ function reel(){clearTimeout(tm);if(st!==2)return idle("Too early. The pond is patient. Try again.");S.fishN++;var r=S.fishN===1||S.fishN%3===0?"lily":["stone","shell"][S.fishN%2];give(r);if(S.secrets.indexOf("fish")<0)S.secrets.push("fish");save();idle("You caught a little fish and let it go. Something came up with it: "+decName(r)+". It's in your satchel.")}
+ idle()}
+var FISH={wait:function(){return 900+Math.random()*1400},win:1400};
+/* --- 4. villager side quests --- */
+var QS={q_wick:{npc:"Mara the lamplighter",ask:["My spare lantern wick blew away toward Lantern Meadow, west of here. Could you look for it?"],item:"Lantern wick",done:function(){return S.q.q_wick_got},thanks:"You found it! Here, take this birdhouse I painted. It would look lovely in your safe place.",reward:"birdhouse"},
+ q_calm:{npc:"Tobin the baker",ask:["Folks have been uneasy with symptoms wandering the roads. Could you settle three of them? Any kind will do."],need:3,done:function(){return S.cleared.length>=3},thanks:"The roads feel lighter already. Here's a hammock for your safe place. Rest is part of the work.",reward:"hammock"},
+ q_map:{npc:"Wren the mapmaker",ask:["I'm drawing a new map. Visit ten places and come tell me about them?"],done:function(){return S.visited.length>=10},thanks:"Wonderful. Take these stepping stones. Every path starts with one.",reward:"stones"},
+ q_seed:{npc:"A gardener tending lanterns",ask:["I dropped a packet of flower seeds in the Quiet Woods. Would you bring it back?"],item:"Seed packet",done:function(){return S.q.q_seed_got},thanks:"Thank you. I grew this flower arch from the last packet. It's yours.",reward:"arch"},
+ q_pet:{npc:"A woodcutter on break",ask:["Animals are good company on hard days. Spend time with your companion until they learn a trick, then show me."],done:function(){return bondLv()>=2},thanks:"What a clever companion! Here's a cozy pet bed for your safe place.",reward:"petbed"}};
+function questFor(name){for(var k in QS)if(QS[k].npc===name)return k;return null}
+function questTalk(o,qk){var q=QS[qk],st=S.q[qk]|0;
+ if(st===2)return say(o.lines.concat(["Thanks again for your help."]),o.name);
+ if(st===1){if(q.done()){S.q[qk]=2;give(q.reward);save();return say([q.thanks,decName(q.reward)+" is in your satchel."],o.name)}return say([q.ask[0],"Still looking? No rush at all."],o.name)}
+ closeOV();OV="say";held={};var d=document.createElement("div");d.className="w-say w-par";d.setAttribute("role","dialog");d.setAttribute("aria-label",o.name);stage.appendChild(d);
+ d.innerHTML='<p class="w-who">'+esc(o.name)+'</p><p>'+esc(o.lines[0])+'</p><p>'+esc(q.ask[0])+'</p><div class="w-sayb"><button class="w-btn pri" id="q-yes">I\'ll help</button> <button class="w-btn" id="q-no">Maybe later</button></div>';
+ live(o.name+": "+q.ask[0]);d.querySelector("#q-yes").onclick=function(){S.q[qk]=1;save();closeOV();say(q.done()?"You already have what's needed. Talk to "+o.name+" again.":"Quest added. You can see it in your satchel.",o.name)};d.querySelector("#q-no").onclick=closeOV;d.querySelector("#q-yes").focus()}
+function questList(){var ks=Object.keys(QS).filter(function(k){return S.q[k]});return ks.length?'<ul>'+ks.map(function(k){var q=QS[k];return '<li>'+esc(q.npc)+': '+esc(q.ask[0])+(S.q[k]===2?' <b>Done.</b>':q.done()?' <b>Ready to return.</b>':'')+'</li>'}).join("")+'</ul>':'<p>No side quests yet. Villagers may ask for help.</p>'}
+DEC.birdhouse={n:"Painted birdhouse",d:function(c,x,y){c.fillStyle="#6b4520";c.fillRect(x-2,y-40,4,40);poly(c,[[x-14,y-40],[x+14,y-40],[x+14,y-62],[x-14,y-62]],"#d9a24a");poly(c,[[x-18,y-60],[x,y-74],[x+18,y-60]],"#b8553f");blob(c,x,y-52,4,4,"#3a2414",0)}};
+DEC.hammock={n:"Hammock",d:function(c,x,y){shadow(c,x,y,40,6);c.fillStyle="#6b4520";c.fillRect(x-40,y-40,5,40);c.fillRect(x+35,y-40,5,40);c.strokeStyle="#e8c87a";c.lineWidth=7;c.beginPath();c.moveTo(x-36,y-34);c.quadraticCurveTo(x,y-4,x+36,y-34);c.stroke();c.strokeStyle="#c45a3c";c.lineWidth=2;c.stroke()}};
+DEC.stones={n:"Stepping stones",d:function(c,x,y){for(var i=0;i<4;i++)blob(c,x-27+i*18,y-(i%2)*6,8,4.5,"#a9a39a",0)}};
+DEC.arch={n:"Flower arch",d:function(c,x,y){c.strokeStyle="#5f8a3a";c.lineWidth=5;c.beginPath();c.arc(x,y-20,26,Math.PI,0);c.lineTo(x+26,y);c.moveTo(x-26,y-20);c.lineTo(x-26,y);c.stroke();for(var a=Math.PI;a<=6.3;a+=.35)blob(c,x+Math.cos(a)*26,y-20+Math.sin(a)*26,3.6,3.2,["#e86a8a","#ffd25a","#f4efe4"][Math.round(a*3)%3],0)}};
+DEC.petbed={n:"Cozy pet bed",d:function(c,x,y){shadow(c,x,y,24,6);blob(c,x,y-5,24,10,"#8a5a9a",0);blob(c,x,y-7,16,6,"#efe0c8",0)}};
+DEC.lily={n:"Pond lily",d:function(c,x,y){blob(c,x,y-3,14,6,"#4f8f4a",0);blob(c,x+2,y-7,5,4,"#f6d0dc",0);blob(c,x+2,y-8,2,1.6,"#ffd25a",0)}};
+/* --- 6. pet bond --- */
+var TRICK=[["Cape twirl","Book fetch"],["Spin","High paw"],["Roll over","Happy hop"]];
+var BL=[0,5,15,30];
+function bondLv(){var b=S.bond[S.hero.pet|0]||0;return b>=BL[3]?4:b>=BL[2]?3:b>=BL[1]?2:1}
+function bondAdd(n){var i=S.hero.pet|0,before=bondLv();S.bond[i]=(S.bond[i]||0)+n;save();var a=bondLv();if(a>before)toast(petName()+" feels closer to you. Bond level "+a+": "+bondPerk(a)+".");return a}
+function bondPerk(l){return l===2?"learned "+TRICK[S.hero.pet|0][0]+" and can sniff out treasures":l===3?"will comfort you when hope runs low":l===4?"learned "+TRICK[S.hero.pet|0][1]:"follows you everywhere"}
+var PETW={d:0,last:0};
+function toast(t){live(t);if(!stage)return;var o=stage.querySelector(".w-toast");if(o)o.remove();o=document.createElement("div");o.className="w-toast w-par";o.setAttribute("role","status");o.textContent=t;stage.appendChild(o);setTimeout(function(){if(o.parentNode)o.remove()},3800)}
+function petTrick(n){var l=bondLv();if(n===0&&l<2||n===1&&l<4)return false;PT.trick={k:n,t0:performance.now()};live(petName()+" does "+TRICK[S.hero.pet|0][n]+"!");return true}
+function petPet(){var now=performance.now();if(now-PETW.last<8000){toast(petName()+" leans into you, happy.");return 0}PETW.last=now;bondAdd(1);toast("You give "+petName()+" some attention. Bond grows.");return 1}
+function sniff(s){if(bondLv()<2||S.sniffed.indexOf(s.id)>=0||s.id==="safe")return;S.sniffed.push(s.id);if(S.sniffed.length%3!==1)return save();var k=["stone","shell","flowers"][S.sniffed.length%3];give(k);setTimeout(function(){toast(petName()+" sniffed out "+decName(k)+"! It's in your satchel.")},600)}
+function companion(){var i=S.hero.pet|0,l=bondLv(),b=S.bond[i]||0,nx=l<4?BL[l]-b:0;
+ var d=panel('<h2>'+esc(petName())+'</h2><p>Bond level '+l+' of 4'+(nx>0?' · '+nx+' more to the next level':' · best friends')+'.</p><p>Your bond grows as you walk together, calm symptoms, and spend time with '+esc(petName())+'.</p><ul>'+[1,2,3,4].map(function(k){return '<li'+(l>=k?'':' class="w-lock"')+'>Level '+k+': '+esc(bondPerk(k))+(l>=k?'':' (not yet)')+'</li>'}).join("")+'</ul>'+
+ '<p><button class="w-btn" id="pb-pet">Spend time with '+esc(petName())+'</button> <button class="w-btn" id="pb-t0"'+(l<2?' disabled':'')+'>'+esc(TRICK[i][0])+'</button> <button class="w-btn" id="pb-t1"'+(l<4?' disabled':'')+'>'+esc(TRICK[i][1])+'</button></p>',"Companion");
+ d.querySelector("#pb-pet").onclick=function(){petPet();closeOV();companion()};d.querySelector("#pb-t0").onclick=function(){closeOV();petTrick(0)};d.querySelector("#pb-t1").onclick=function(){closeOV();petTrick(1)}}
 window.obcWorld3={state:function(){return S},scr:function(){return cur&&cur.id},P:P,go:function(id,x,y){closeOV();if(B)endBattle();enter(id,x,y)},battle:function(i){var e=(cur.ens||[]).filter(function(e){return !gone(e)})[i||0];if(e)battle(e);return !!e},
- B:function(){return B},near:function(){var n=near();return n&&(n.name||n.t)},interact:function(){interact(near())},safe:goSafe,decorate:decorate,hall:hall,office:office,cfg:CFG,SC:SC,build:build,guide:{MX:MX,MATCH:MATCH,methods:guideMethods,half:halfHP,card:photoCard,fx:function(){return FXL.length}},reset:function(){localStorage.removeItem(KEY);location.reload()}};
+ B:function(){return B},near:function(){var n=near();return n&&(n.name||n.t)},interact:function(){interact(near())},safe:goSafe,decorate:decorate,hall:hall,office:office,cfg:CFG,SC:SC,build:build,guide:{MX:MX,MATCH:MATCH,methods:guideMethods,half:halfHP,card:photoCard,fx:function(){return FXL.length}},x:{frame:function(){return HF},petFrame:function(){return PT.frame},wx:function(){return WXK},sparks:function(){return SPN},shake:function(){return SHK},vic:function(){return VIC},journal:journal,skx:function(){return S.skx},tips:TIPS,pages:PAGES,quests:QS,companion:companion,bondLv:bondLv,bondAdd:bondAdd,trick:petTrick,petPet:petPet,fish:FISH,fishing:fishing,combo:comboOf,phase:PHASE,lv:LV},reset:function(){localStorage.removeItem(KEY);location.reload()}};
 if(S.made)play();else creator();
 })();
