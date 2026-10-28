@@ -170,7 +170,7 @@ function build(s){if(s.built)return;s.built=1;var B=[],k=s.g==="cliffs"?"rock":"
  else{row(20,48,72,0,9,N?function(x){return x>230&&x<410}:0);row(20,426,72,0,9,So?function(x){return x>230&&x<410}:0);
  row(16,100,0,56,6,We?function(x,y){return y>150&&y<300}:0);row(624,100,0,56,6,E?function(x,y){return y>150&&y<300}:0)}
  s.items=B.map(function(a){return{t:a[0],x:a[1],y:a[2],flip:a[3]}}).concat(s.p.map(function(a){var o={t:a[0],x:a[1],y:a[2]};
-  if(a[0]==="sign")o.text=a[3];else if(a[0]==="npc"){o.spr=a[3];o.name=a[4];o.lines=a[5]}else if(a[0]==="chest"||a[0]==="find")o.item=a[3];else if(a[0]==="look"){o.r=a[3];o.text=a[4]}else if(a[0]==="door")o.go=a[3];else if(a[0]==="qitem")o.qk=a[3];else if(a[0]==="page")o.pg=a[3];else if(a[0]==="house"){o.flip=a[3];o.sc=a[4]||1;o.role=a[5]}else o.flip=a[3];return o}));
+  if(a[0]==="sign")o.text=a[3];else if(a[0]==="npc"){o.spr=a[3];o.name=a[4];o.lines=a[5]}else if(a[0]==="chest"||a[0]==="find")o.item=a[3];else if(a[0]==="look"){o.r=a[3];o.text=a[4]}else if(a[0]==="door")o.go=a[3];else if(a[0]==="qitem")o.qk=a[3];else if(a[0]==="page")o.pg=a[3];else if(a[0]==="house"){o.flip=a[3];o.sc=a[4]||1;o.role=a[5]}else{o.flip=a[3];if(GJT[a[0]])o.gj=a[3]}return o}));
  s.ens=(s.m||[]).map(function(p,i){return{id:s.id+":"+i,hx:p[0],hy:p[1],x:p[0],y:p[1],reg:s.reg,ph:Math.random()*6,cd:0}});
  s.items.forEach(function(o,i){o.key=s.id+":"+i});
  if(s.boss)s.ens.push({id:"boss:"+s.reg,boss:1,hx:s.boss[0],hy:s.boss[1],x:s.boss[0],y:s.boss[1],reg:s.reg,ph:0,cd:0})}
@@ -253,7 +253,7 @@ function enter(id,x,y,quiet){var s=SC[id]||SC.hub;build(s);cur=s;S.at=s.id;if(S.
  var p=free(s,x==null?320:x,y==null?250:y);P.x=p[0];P.y=p[1];P.trail=[];tgt=null;save();fade=RM?0:1;
  var w=document.getElementById("w-where");if(w)w.textContent=s.n+(s.sub?" · "+s.sub:"");
  if(!quiet)live("You arrive at "+s.n+". "+(s.sub||""));
- if(s.id==="safe"&&!S.safe.kind)safeChoice();sniff(s)}
+ if(s.id==="safe"&&!S.safe.kind)safeChoice();sniff(s);if(!quiet)gjEnter(s)}
 function blocked(s,x,y){if(x<6||x>W-6||y<62||y>H-6)return false;
  for(var i=0;i<s.items.length;i++){var o=s.items[i],f=FT[o.t];if(!f)continue;var k=o.sc||1,dx=(x-o.x)/(f[0]*k+8),dy=(y-o.y)/(f[1]*k+5);if(dx*dx+dy*dy<1)return true}
  var wa=s.w||[];for(i=0;i<wa.length;i++){dx=(x-wa[i][0])/wa[i][2];dy=(y-wa[i][1])/wa[i][3];if(dx*dx+dy*dy<1)return true}
@@ -340,7 +340,8 @@ function drawItem(c,o,t){var f=FT[o.t];switch(o.t){
  case"path":var pd=Math.hypot(P.x-o.x,P.y-o.y);if(pd<110){var pa=(1-pd/110)*(RM?.5:.35+.2*Math.sin(t/300));glowDot(c,o.x,o.y,26,"#d8ffb0",pa)}break;
  case"fish":c.strokeStyle="rgba(250,240,210,.8)";c.lineWidth=1.2;c.beginPath();c.moveTo(o.x+18,o.y+6);c.lineTo(o.x+30,o.y-30);c.stroke();blob(c,o.x,o.y-4+(RM?0:Math.sin(t/400)*1.5),3.5,3,"#e0503a",0);c.fillStyle="#5a3418";c.fillRect(o.x+16,o.y+2,16,4);break;
  case"qitem":if(S.q[o.qk]===1&&!S.q[o.qk+"_got"]){glowDot(c,o.x,o.y-6,22,"#ffd98a",RM?.5:.35+.2*Math.sin(t/400));if(o.qk==="q_wick"){c.strokeStyle="#f4efe4";c.lineWidth=2.5;c.beginPath();c.moveTo(o.x-8,o.y-2);c.quadraticCurveTo(o.x,o.y-12,o.x+8,o.y-4);c.stroke()}else{poly(c,[[o.x-7,o.y-12],[o.x+7,o.y-12],[o.x+7,o.y],[o.x-7,o.y]],"#c9a24a");blob(c,o.x,o.y-6,3,3,"#e86a8a",0)}}break;
- case"find":if(S.found.indexOf(o.key)<0){glow(c,o.x,o.y-8,26,t);DEC[o.item].d(c,o.x,o.y,t)}break}}
+ case"find":if(S.found.indexOf(o.key)<0){glow(c,o.x,o.y-8,26,t);DEC[o.item].d(c,o.x,o.y,t)}break;
+ default:if(GJT[o.t])gjDraw(c,o,t)}}
 function drawEnemy(c,e,t){var col=R(e.reg).col,bob=RM?0:Math.sin(t/400+e.ph)*3,inB=B&&B.e===e,x=e.x,y=e.y;
  if(inB){var pul=RM?.5:.5+.3*Math.sin(t/250);c.fillStyle="rgba(255,207,90,"+(.18*pul)+")";c.beginPath();c.ellipse(x,y,e.boss?70:36,e.boss?18:10,0,0,7);c.fill()}
  shadow(c,x,y,e.boss?44:18,e.boss?9:5);
@@ -357,14 +358,14 @@ function drawEnemy(c,e,t){var col=R(e.reg).col,bob=RM?0:Math.sin(t/400+e.ph)*3,i
  if(inB&&B.hit===1)B.hit=performance.now();if(inB&&B.hit){var k=Math.max(0,1-(performance.now()-B.hit)/350);if(k>0){c.fillStyle="rgba(255,250,230,"+(.5*k)+")";c.beginPath();c.arc(x,y-(e.boss?70:28),(e.boss?80:30)*(1.2-k*.2),0,7);c.fill();if(B.crack){c.strokeStyle="rgba(255,200,80,"+k+")";c.lineWidth=3;c.beginPath();c.arc(x,y-(e.boss?70:28),(e.boss?90:36)*(1.5-k*.5),0,7);c.stroke()}}}}
 function lock(c,x,y){c.strokeStyle="#5a4a20";c.lineWidth=3;c.beginPath();c.arc(x,y-6,6,Math.PI,0);c.stroke();poly(c,[[x-9,y-6],[x+9,y-6],[x+9,y+8],[x-9,y+8]],"#c9a84a");c.fillStyle="#3b2a1a";c.fillRect(x-1,y-1,2,5)}
 /* ---------- interaction ---------- */
-function interactables(){return cur.items.filter(function(o){return o.t==="sign"||o.t==="npc"||o.t==="look"||o.t==="door"||(o.t==="chest"&&S.opened.indexOf(o.key)<0)||(o.t==="find"&&S.found.indexOf(o.key)<0)||(o.t==="page"&&S.pages.indexOf(o.pg)<0)||o.t==="fish"||(o.t==="path"&&Math.hypot(P.x-o.x,P.y-o.y)<70)||(o.t==="qitem"&&S.q[o.qk]===1&&!S.q[o.qk+"_got"])||(o.t==="house"&&(o.role||o.look))||o.t==="chest"})}
+function interactables(){return cur.items.filter(function(o){return (GJT[o.t]&&(o.t!=="clue"||S.clues.indexOf(o.gj)<0))||o.t==="sign"||o.t==="npc"||o.t==="look"||o.t==="door"||(o.t==="chest"&&S.opened.indexOf(o.key)<0)||(o.t==="find"&&S.found.indexOf(o.key)<0)||(o.t==="page"&&S.pages.indexOf(o.pg)<0)||o.t==="fish"||(o.t==="path"&&Math.hypot(P.x-o.x,P.y-o.y)<70)||(o.t==="qitem"&&S.q[o.qk]===1&&!S.q[o.qk+"_got"])||(o.t==="house"&&(o.role||o.look))||o.t==="chest"})}
 function dist(o){return Math.hypot(P.x-o.x,(P.y-o.y)*1.2)-(o.t==="look"?o.r*.6:o.t==="house"?40*(o.sc||1):0)}
 function near(){var b=null,bd=52;interactables().forEach(function(o){var d=dist(o);if(d<bd){bd=d;b=o}});return b}
 function give(k){S.bag[k]=(S.bag[k]||0)+1;save()}
 function interact(o){if(!o)return;switch(o.t){
  case"sign":say(o.text,"Signpost");break;
  case"look":say(o.text);break;
- case"npc":var qk=questFor(o.name);if(qk)questTalk(o,qk);else say(o.lines,o.name);break;
+ case"npc":var qk=questFor(o.name);gjNpc(o);if(qk)questTalk(o,qk);else say(o.lines,o.name);break;
  case"page":S.pages.push(o.pg);if(S.secrets.indexOf("page")<0)S.secrets.push("page");save();say(["You found a journal page ("+S.pages.length+" of "+PAGES.length+").","\u201c"+PAGES[o.pg]+"\u201d","It's saved in your skill journal."],"Journal page");break;
  case"path":if(S.secrets.indexOf("path")<0){S.secrets.push("path");save()}enter("hollow",320,370);say("You push through the ferns and find a hidden hollow with a still pond.");break;
  case"fish":fishing();break;
@@ -375,7 +376,7 @@ function interact(o){if(!o)return;switch(o.t){
  case"house":if(o.role==="hall")hall();else if(o.role==="office"){if(officeOpen())office();else say("The door is closed for now. A note reads: \"Calm all eight bosses and come in.\" Bosses calmed: "+S.beaten.length+" of 8.","Open Book Office")}break}}
 function officeOpen(){return BOSS.every(function(b){return S.beaten.indexOf(b)>=0})}
 function closeOV(){var o=stage&&stage.querySelector(".w-say,.w-pan");if(o)o.remove();OV=DM?"dec":null;if(stage)stage.focus()}
-function say(lines,who){if(typeof lines==="string")lines=[lines];var i=0;closeOV();OV="say";held={};
+function say(lines,who){if(typeof lines==="string")lines=[lines];if(gjFeel){if(gjFeel.who===who)lines=lines.concat(gjFeel.l);gjFeel=null}var i=0;closeOV();OV="say";held={};
  var d=document.createElement("div");d.className="w-say w-par";d.setAttribute("role","dialog");d.setAttribute("aria-label",who||"Message");stage.appendChild(d);
  function show(){d.innerHTML=(who?'<p class="w-who">'+esc(who)+'</p>':'')+'<p>'+esc(lines[i])+'</p><div class="w-sayb">'+(i<lines.length-1?'<button class="w-btn pri" id="s-next">Next</button>':'<button class="w-btn pri" id="s-ok">Close</button>')+'</div>';
   var n=d.querySelector("#s-next"),k=d.querySelector("#s-ok");if(n){n.onclick=function(){i++;show()};n.focus()}if(k){k.onclick=closeOV;k.focus()}live((who?who+": ":"")+lines[i])}
@@ -416,7 +417,7 @@ addEventListener("blur",function(){held={}});
 /* ---------- casting battle, overlaid on the scene where you met the symptom ---------- */
 var BRK=0;
 function battle(e){if(B)return;closeOV();held={};tgt=null;
- var id=e.reg,base=BD[id],d=e.boss?base:Object.assign({},base,{name:"The "+MIN[id],hp:10,mini:1,tip:"A smaller symptom. "+base.tip}),g=guideOf(id);
+ var id=e.reg,base=BD[id],d=e.echo?echoD(id):e.boss?base:Object.assign({},base,{name:"The "+MIN[id],hp:10,mini:1,tip:"A smaller symptom. "+base.tip}),g=guideOf(id);
  B={e:e,id:id,d:d,g:g,hp:d.hp,max:d.hp,hope:10,hmax:10,turn:0,weak:Math.floor(Math.random()*4),chg:0,last:null,recent:[],gust:0,locks:0,shield:0,mom:0,listen:-9,gUsed:0,gShield:0,gMod:0,log:[],say:null,card:0,over:0,busy:0,hit:0,crack:0};
  var o=document.createElement("div");o.className="w-bov";o.setAttribute("role","region");o.setAttribute("aria-label","Casting battle with "+d.name);
  o.innerHTML='<div class="w-bhud w-par"><h2>'+esc(d.name)+'</h2><div class="w-bars"><div class="w-bar"><span>'+(d.gentle?'Lanterns lit':esc(d.name.replace("The ","")))+'</span><i><b id="b-bh"></b></i><em id="b-bhn"></em></div>'+
@@ -432,13 +433,13 @@ function battle(e){if(B)return;closeOV();held={};tgt=null;
  document.getElementById("b-btog").onchange=function(ev){CFG.breath=ev.target.checked};
  document.getElementById("b-leave").onclick=function(){stepBack()};
  msg(esc(d.name)+(e.boss?' rises before you.':' drifts into your path.')+' '+esc(g.name)+' and '+esc(petName())+' are with you. '+esc(d.tip));
- ui();live("A casting battle begins with "+d.name+".");o.querySelector("[data-s]").focus()}
-function endBattle(){if(!B)return;B.over=1;var o=stage.querySelector(".w-bov");if(o)o.remove();var e=B.e;B=null;return e}
+ gjStart(); ui();live("A casting battle begins with "+d.name+".");o.querySelector("[data-s]").focus()}
+function endBattle(){if(!B)return;B.over=1;var o=stage.querySelector(".w-bov");if(o)o.remove();var e=B.e;B=null;if(e&&e.echo&&cur){var k=cur.ens.indexOf(e);if(k>=0)cur.ens.splice(k,1)}return e}
 function stepBack(){var e=endBattle();if(!e)return;e.cd=3;var dx=P.x-e.x,dy=P.y-e.y,l=Math.hypot(dx,dy)||1,p=free(cur,P.x+dx/l*60,P.y+dy/l*60);P.x=p[0];P.y=p[1];stage.focus()}
 var EDHELP='<p class="w-edhelp">Need support with eating? <a href="https://www.anad.org/get-help/eating-disorders-helpline/" target="_blank" rel="noopener">ANAD helpline</a> · free · <a href="tel:+18883757767">1-888-375-7767</a> · Mon–Fri, 9am–9pm Central</p>';
 var _hit=function(){};
 function bend(html,btns){var o=stage.querySelector(".w-bov");o.querySelectorAll(".w-bbot,.w-breath").forEach(function(n){n.remove()});var d=document.createElement("div");d.className="w-bend w-par";d.innerHTML=html+'<p>'+btns+'</p>';o.appendChild(d);var f=d.querySelector("button");if(f)f.focus()}
-function win(){var d=B.d,e=B.e,id=B.id,drop="";B.over=1;bondAdd(2);
+function win(){if(B.d.practice)return gjEchoWin();var d=B.d,e=B.e,id=B.id,drop="";B.over=1;bondAdd(2);
  if(e.boss){if(S.beaten.indexOf(id)<0)S.beaten.push(id);if(S.loot.indexOf(d.loot)<0){S.loot.push(d.loot);give("k_"+id)}}
  else{if(S.cleared.indexOf(e.id)<0){S.cleared.push(e.id);drop=["stone","flowers","shell","lantern","sapling","chime","books","blanket"][S.cleared.length%8];give(drop)}}
  save();var all=officeOpen();
@@ -446,7 +447,7 @@ function win(){var d=B.d,e=B.e,id=B.id,drop="";B.over=1;bondAdd(2);
  (e.boss?'<p>You found the <b>'+esc(d.loot)+'</b>. It can rest in your safe place as a keepsake.</p>':'<p>It left something behind: <b>'+esc(decName(drop)||"a quiet moment")+'</b>.</p>')+
  '<p>'+esc(B.g.name)+': "You used real skills there. They work outside the game too."</p>'+(e.boss?'<p>Bosses calmed: '+S.beaten.length+' of 8.'+(all?' The Open Book Office is open now.':'')+'</p>':'')+(id==="ed"?EDHELP:''),
  '<button class="w-btn pri" id="b-on">Keep exploring</button>');
- var vc=stage.querySelector('.w-vic');if(vc)victory(vc,id);
+ gjWin(e,id);var vc=stage.querySelector('.w-vic');if(vc)victory(vc,id);
  document.getElementById("b-on").onclick=function(){endBattle();stage.focus();if(all&&e.boss)say("Word travels fast: the Open Book Office door is open. It's south of the Crossroads.")}}
 function lose(){var d=B.d;B.over=1;
  bend('<h2>Time to rest and regroup</h2><p>'+esc(d.name)+' was strong today. That happens, in the game and in life. Your hope refills when you rest.</p>',
@@ -510,7 +511,7 @@ function resolve(k,bonus){
  B.hp=Math.max(0,B.hp-dmg);B.hit=1;B.crack=weakHit;hitFX(weakHit||k==='sig',typeof cmb!=='undefined'&&cmb);
  if(B.e.boss&&!B.phase&&B.hp>0&&B.hp<=B.max/2&&PHASE[B.id]){B.phase=1;if(B.id==='ocd')B.locks=Math.min(3,B.locks+1);if(B.id==='fog'){B.fogHide=3;B.fogSet=B.turn}txt+=' '+PHASE[B.id][0]}
  if(B.hp<=0){ui();return win()}
- castSay();var lost=boss(weakHit);B.turn++;B.weak=(B.weak+1+Math.floor(Math.random()*3))%4;
+ castSay();var lost=boss(weakHit);B.turn++;B.weak=B.d.practice?B.d.fixWeak:(B.weak+1+Math.floor(Math.random()*3))%4;
  if(d.twist==="lock"&&k!=="sig"&&d.sk[k][0]!=="erp")B.locks=Math.min(3,B.locks+1);
  if(B.comfMsg){B.comfMsg=0;txt+=' '+esc(petName())+' curls up beside you. You feel comforted, and some hope comes back.'}
  if(B.fogHide&&B.turn>B.fogSet)B.fogHide--;
@@ -518,7 +519,7 @@ function resolve(k,bonus){
  ui();
  if(B.hope<=0){if(d.gentle){B.hope=B.hmax;msg('You sit and rest by the lantern. The Keeper waits as long as you need. Your hope is restored.','Grief has no deadline. Rest is allowed.');ui()}else lose()}
 }
-function boss(weakHit){var n=drain(weakHit);if(B.shield){B.shield=0;return 0}B.hope=Math.max(0,B.hope-n);if(B.hope>0&&B.hope<=3&&!B.comf&&bondLv()>=3){B.comf=1;B.comfT=performance.now();B.hope=Math.min(B.hmax,B.hope+2);B.comfMsg=1}return n}
+function boss(weakHit){if(B.d.practice){drain(weakHit);return 0}var n=drain(weakHit);if(B.shield){B.shield=0;return 0}B.hope=Math.max(0,B.hope-n);if(B.hope>0&&B.hope<=3&&!B.comf&&bondLv()>=3){B.comf=1;B.comfT=performance.now();B.hope=Math.min(B.hmax,B.hope+2);B.comfMsg=1}return n}
 function breathCast(cb){
  var el=document.getElementById("b-br"),done=0,t0=performance.now(),D=1600,id;
  el.hidden=false;
@@ -651,7 +652,7 @@ function castBubble(c,now){var el=document.getElementById("b-cast"),cb=B&&B.cast
  if(!cb||age>D){if(cb)B.cast=null;if(el)el.hidden=true;return}
  var ov=document.querySelector(".w-bov"),cv=c.canvas;if(!ov||!cv)return;
  if(!el){el=document.createElement("div");el.id="b-cast";el.className="w-cast";el.setAttribute("aria-hidden","true");ov.appendChild(el)}
- if(el.dataset.k!==cb.name+cb.t0){el.dataset.k=cb.name+cb.t0;el.innerHTML='<b></b><i></i>';el.firstChild.textContent=(B.d.gentle?"The Keeper\u2019s lantern flickers: ":"Casts: ")+cb.name;el.lastChild.textContent=cb.line?"\u201C"+cb.line+"\u201D":"";el.classList.toggle("rm",!!RM)}
+ if(el.dataset.k!==cb.name+cb.t0){el.dataset.k=cb.name+cb.t0;el.innerHTML='<b></b><i></i>';el.firstChild.textContent=(B.d.gentle?"The Keeper\u2019s lantern flickers: ":"Casts: ")+cb.name+(S.clues&&S.clues.indexOf(B.id)>=0&&!B.d.practice?" \u00b7 from your clue page":"");el.lastChild.textContent=cb.line?"\u201C"+cb.line+"\u201D":"";el.classList.toggle("rm",!!RM)}
  el.hidden=false;var R=cv.getBoundingClientRect(),O=ov.getBoundingClientRect(),k=R.width/W,e=B.e;
  var hud=document.querySelector(".w-bhud"),hb=hud?hud.getBoundingClientRect().bottom-O.top:0;
  var sk=document.querySelector(".w-bpan,.w-bact,[data-s]"),pan=sk&&sk.closest(".w-bov>*")||sk,pt=pan?pan.getBoundingClientRect().top-O.top:R.height;
@@ -705,6 +706,7 @@ function office(){if(B||!officeOpen())return;
  panel('<h2>Welcome to the Open Book Office</h2><p>'+esc(S.hero.name||"Wanderer")+', you and '+esc(petName())+' calmed all eight bosses. Your satchel holds: '+S.loot.map(esc).join(", ")+'.</p>'+
  '<p class="w-code">Your prize code: <b id="w-code">'+esc(S.code)+'</b></p>'+
  '<div class="w-rules"><h3>Prize rules</h3><ul><li>Anyone who beats the game can get one free fidget stress ring at an Open Book Counseling office.</li><li>One ring per person per year, while supplies last.</li><li>Show this code at the front desk.</li><li>The code is saved on this device. Write it down or take a screenshot.</li></ul></div>'+
+ '<div class="w-gj-end"><h3>Want to keep going with a real person?</h3><p>Open Book Counseling offers a free 15-minute consultation. The guides you met are real clinicians on our team.</p><p><a class="w-btn pri" href="https://www.openbooktherapist.com/professional/intake.html" target="_blank" rel="noopener">Start the intake form</a></p></div>'+
  '<p><a class="w-btn" href="../#team">Meet the real team</a></p>',"Open Book Office")}
 /* ---------- hero creator ---------- */
 function creator(){cancelAnimationFrame(raf);stage=null;var h=S.hero,dirs=0;
@@ -728,7 +730,7 @@ var _play=play;play=function(){_play();safeBar()};
 var _enter=enter;enter=function(id,x,y,q){_enter(id,x,y,q);if(stage)setTimeout(safeBar,0)};
 
 /* ===== v3i: walk cycles, weather, sparks, quests, secrets, pet bond, combos, phases, skill journal ===== */
-function extFix(){if(!S.bond||S.bond.length!==3)S.bond=[0,0,0];S.q=S.q||{};S.pages=S.pages||[];S.skx=S.skx||{};S.fishN=S.fishN|0;S.secrets=S.secrets||[];S.sniffed=S.sniffed||[]}extFix();
+function extFix(){if(!S.bond||S.bond.length!==3)S.bond=[0,0,0];S.q=S.q||{};S.pages=S.pages||[];S.skx=S.skx||{};S.fishN=S.fishN|0;S.secrets=S.secrets||[];S.sniffed=S.sniffed||[];gjFix()}extFix();
 /* --- 1. walk cycles: front, back (painted hair over the face), side (narrowed, leaning, striding) --- */
 var BACKC={};
 function heroBack(h){var cv=heroCanvas(h);if(!cv)return null;var b=BODY[h.body|0]||BODY[0],key=b.k+"|"+(h.skin|0)+"|"+(h.hc|0)+"|"+(h.c1|0);if(BACKC[key])return BACKC[key];
@@ -831,7 +833,7 @@ var REALL={};BOSS.forEach(function(id){(BD[id].sk||[]).forEach(function(s){if(!R
 function journal(){if(B)return;var ids=Object.keys(S.skx).filter(function(k){return S.skx[k]>0&&REALL[k]});
  var h='<h2>Skill journal</h2><p>Each skill grows as you use it. New levels unlock real-life tips.</p>'+(ids.length?'<ul class="w-jr">'+ids.map(function(k){var l=skLv(k),n=S.skx[k],nx=l<3?LV[l]-n:0;return '<li data-sk="'+k+'"><b>'+esc(REALL[k][0])+'</b> · level '+l+(nx>0?' <small>('+nx+' more '+(nx>1?'uses':'use')+' to level '+(l+1)+')</small>':' <small>(mastered)</small>')+'<ul><li>'+esc(REALL[k][1])+'</li>'+(l>=2?'<li>'+esc(TIPS[k][0])+'</li>':'')+(l>=3?'<li>'+esc(TIPS[k][1])+'</li>':'')+'</ul></li>'}).join("")+'</ul>':'<p>No skills used yet. Walk into a symptom to begin.</p>')+
  '<h3>Journal pages found: '+S.pages.length+' of '+PAGES.length+'</h3>'+(S.pages.length?'<ol class="w-jp">'+PAGES.map(function(p,i){return S.pages.indexOf(i)>=0?'<li>'+esc(p)+'</li>':''}).join("")+'</ol>':'<p>Pages are tucked away around the land. Look closely.</p>')+
- '<h3>Secrets found: '+S.secrets.length+'</h3><p>Fish caught at the hidden pond: '+S.fishN+'.</p>';
+ '<h3>Secrets found: '+S.secrets.length+'</h3><p>Fish caught at the hidden pond: '+S.fishN+'.</p>'+gjJournal();
  panel(h,"Skill journal")}
 /* --- 5. secrets: journal pages, hidden path, fishing --- */
 var PAGES=["Slow breathing, with an out-breath a little longer than the in-breath, is a common way people help their body settle.",
@@ -870,7 +872,7 @@ function questTalk(o,qk){var q=QS[qk],st=S.q[qk]|0;
  if(st===2)return say(o.lines.concat(["Thanks again for your help."]),o.name);
  if(st===1){if(q.done()){S.q[qk]=2;give(q.reward);save();return say([q.thanks,decName(q.reward)+" is in your satchel."],o.name)}return say([q.ask[0],"Still looking? No rush at all."],o.name)}
  closeOV();OV="say";held={};var d=document.createElement("div");d.className="w-say w-par";d.setAttribute("role","dialog");d.setAttribute("aria-label",o.name);stage.appendChild(d);
- d.innerHTML='<p class="w-who">'+esc(o.name)+'</p><p>'+esc(o.lines[0])+'</p><p>'+esc(q.ask[0])+'</p><div class="w-sayb"><button class="w-btn pri" id="q-yes">I\'ll help</button> <button class="w-btn" id="q-no">Maybe later</button></div>';
+ d.innerHTML='<p class="w-who">'+esc(o.name)+'</p><p>'+esc(o.lines[0])+'</p><p>'+esc(q.ask[0])+'</p><div class="w-sayb"><button class="w-btn pri" id="q-yes">I\'ll help</button> <button class="w-btn" id="q-no">Maybe later</button>'+(gjFeel?' <button class="w-btn" id="q-feel">What does it feel like here?</button>':'')+'</div>';var fl=gjFeel;gjFeel=null;if(fl)d.querySelector("#q-feel").onclick=function(){say(fl.l,o.name)};
  live(o.name+": "+q.ask[0]);d.querySelector("#q-yes").onclick=function(){S.q[qk]=1;save();closeOV();say(q.done()?"You already have what's needed. Talk to "+o.name+" again.":"Quest added. You can see it in your satchel.",o.name)};d.querySelector("#q-no").onclick=closeOV;d.querySelector("#q-yes").focus()}
 function questList(){var ks=Object.keys(QS).filter(function(k){return S.q[k]});return ks.length?'<ul>'+ks.map(function(k){var q=QS[k];return '<li>'+esc(q.npc)+': '+esc(q.ask[0])+(S.q[k]===2?' <b>Done.</b>':q.done()?' <b>Ready to return.</b>':'')+'</li>'}).join("")+'</ul>':'<p>No side quests yet. Villagers may ask for help.</p>'}
 DEC.birdhouse={n:"Painted birdhouse",d:function(c,x,y){c.fillStyle="#6b4520";c.fillRect(x-2,y-40,4,40);poly(c,[[x-14,y-40],[x+14,y-40],[x+14,y-62],[x-14,y-62]],"#d9a24a");poly(c,[[x-18,y-60],[x,y-74],[x+18,y-60]],"#b8553f");blob(c,x,y-52,4,4,"#3a2414",0)}};
@@ -894,7 +896,130 @@ function companion(){var i=S.hero.pet|0,l=bondLv(),b=S.bond[i]||0,nx=l<4?BL[l]-b
  var d=panel('<h2>'+esc(petName())+'</h2><p>Bond level '+l+' of 4'+(nx>0?' · '+nx+' more to the next level':' · best friends')+'.</p><p>Your bond grows as you walk together, calm symptoms, and spend time with '+esc(petName())+'.</p><ul>'+[1,2,3,4].map(function(k){return '<li'+(l>=k?'':' class="w-lock"')+'>Level '+k+': '+esc(bondPerk(k))+(l>=k?'':' (not yet)')+'</li>'}).join("")+'</ul>'+
  '<p><button class="w-btn" id="pb-pet">Spend time with '+esc(petName())+'</button> <button class="w-btn" id="pb-t0"'+(l<2?' disabled':'')+'>'+esc(TRICK[i][0])+'</button> <button class="w-btn" id="pb-t1"'+(l<4?' disabled':'')+'>'+esc(TRICK[i][1])+'</button></p>',"Companion");
  d.querySelector("#pb-pet").onclick=function(){petPet();closeOV();companion()};d.querySelector("#pb-t0").onclick=function(){closeOV();petTrick(0)};d.querySelector("#pb-t1").onclick=function(){closeOV();petTrick(1)}}
-window.obcWorld3={state:function(){return S},scr:function(){return cur&&cur.id},P:P,go:function(id,x,y){closeOV();if(B)endBattle();enter(id,x,y)},battle:function(i){var e=(cur.ens||[]).filter(function(e){return !gone(e)})[i||0];if(e)battle(e);return !!e},
+/* ---------- guides journey: mentors at each gate, echo practice, waystations, clues, calm spots, reflections ---------- */
+var GJT={mentor:1,way:1,clue:1,calm:1};FT.mentor=[10,6,58];FT.way=[14,7,50];
+var GJF={fast:1};
+/* each region's gate mentor. Method must be listed for them in shared/data.js; skill must be one of the region's skills */
+var GJ={
+ anx:{g:"amber",m:"CBT",sk:"reframe",at:"anx1",xy:[70,175],tag:"anxiety",
+  teach:"In CBT, you practice catching a worried thought and checking it against the facts. Ask: what is most likely, not just most scary? Then write down a more balanced thought.",
+  why:"Checking a scary thought against the facts can turn the volume down on worry. That is a core idea in CBT."},
+ ptsd:{g:"abby",m:"TF-CBT",sk:"ground",at:"ptsd1",xy:[575,180],tag:"trauma",tough:1,
+  teach:"Trauma-Focused CBT starts with skills for feeling safe in your body before anything else. One is grounding: feet on the floor, then say today's date and where you are, out loud.",
+  why:"Grounding helps your body notice that you are safe right now, here and today, not back then."},
+ rel:{g:"shanna",m:"Gottman",sk:"soft",at:"rel1",xy:[205,385],tag:"relationships",
+  teach:"The Gottman Method teaches a soft start-up. Instead of \"You always\u2026\", try \"I feel\u2026 about\u2026 and I need\u2026\". How a hard talk starts often shapes how it goes.",
+  why:"Starting gently helps the other person stay open instead of getting defensive."},
+ ocd:{g:"aspen",m:"ERP",sk:"erp",at:"ocd1",xy:[590,210],tag:"ocd",
+  teach:"In Exposure and Response Prevention, you notice the urge to check and you don't do the ritual. The worry rises, then fades on its own. With practice, the urge gets weaker.",
+  why:"Each time you let an urge pass without the ritual, your brain learns the worry can fade on its own."},
+ adhd:{g:"aspen",m:"CBT",sk:"quest",at:"adhd1",xy:[588,190],tag:"adhd",
+  teach:"CBT for ADHD includes practical planning skills. One is breaking a big task into a first step that takes under two minutes, then starting there.",
+  why:"A tiny first step lowers the hurdle to starting, and starting builds momentum."},
+ ed:{g:"scott",m:"ACT",sk:"values",at:"ed1",xy:[205,388],tag:"eating",tough:1,
+  teach:"In ACT, you name what matters most to you, your values, and take one small step toward them, even while a harsh voice is loud.",
+  why:"Values give you a direction that belongs to you, not to the disorder's voice. Support helps recovery too."},
+ grief:{g:"amanda",m:"ACT",sk:"wave",at:"grief1",xy:[205,392],tag:"grief",
+  teach:"ACT helps you make room for hard feelings instead of fighting them. Grief comes in waves. Let the wave rise, breathe, and let it pass in its own time.",
+  why:"Making room for grief, instead of pushing it away, can help the waves feel more bearable over time."},
+ fog:{g:"shanna",m:"CBT",sk:"step",at:"fog1",xy:[205,385],tag:"depression",tough:1,big:1,
+  teach:"CBT for depression often uses behavioral activation: small, doable actions, even before you feel like doing them. Motivation often follows action, not the other way around.",
+  why:"Small actions can lift mood a little, even before motivation shows up. That is called behavioral activation."}};
+/* optional local talks: what the symptom can feel like, plus weak-spot hints taken from the boss's own skills */
+var FEEL={
+ anx:["Anxiety can feel like your heart racing and your mind jumping to the worst case."],
+ ptsd:["After something scary, a sound or smell can make it feel like it's happening again, even when you're safe."],
+ rel:["When people we love argue, it can feel like we're on opposite banks, both shouting and nobody hearing."],
+ ocd:["OCD can feel like a door that won't stay locked in your mind. You check, feel better for a moment, then the doubt comes back."],
+ adhd:["ADHD can feel like ten ideas at once, and the one task you need slipping away."],
+ ed:["The mist can feel like a strict voice that's always watching and always making rules."],
+ grief:["Grief can feel heavy and quiet, and then a wave of missing someone arrives out of nowhere."],
+ fog:["Depression can feel like a heavy fog. Getting out of bed takes everything, and a voice says, why bother."]};
+function feelOf(r){var k=BD[r].sk;return FEEL[r].concat(["A hint: when it casts "+k[0][2]+", "+k[0][1]+" is its weak spot. When it casts "+k[1][2]+", try "+k[1][1]+"."])}
+var CLUEAT={anx:["anx1",290,118],ptsd:["ptsd1",230,122],rel:["rel1",560,232],ocd:["ocd1",320,118],adhd:["adhd1",330,118],ed:["ed1",80,240],grief:["grief1",370,115],fog:["fog1",330,115]};
+var CALMAT={anx:["anx1",380,380],ptsd:["ptsd1",380,372],rel:["rel1",450,376],ocd:["ocd1",440,385],adhd:["adhd1",220,385],ed:["ed1",440,385],grief:["grief1",90,232],fog:["fog1",430,382]};
+var WAYAT=[["cross",420,330],["woods",240,360]];
+REG.forEach(function(r){var g=GJ[r.id];SC[g.at].p.push(["mentor",g.xy[0],g.xy[1],r.id]);var c=CLUEAT[r.id];SC[c[0]].p.push(["clue",c[1],c[2],r.id]);var k=CALMAT[r.id];SC[k[0]].p.push(["calm",k[1],k[2],r.id]);
+});
+WAYAT.forEach(function(a){SC[a[0]].p.push(["way",a[1],a[2],"makayla"])});
+function gjFix(){S.met=S.met||[];S.clues=S.clues||[];S.duo=S.duo||{};S.refl=S.refl||{};S.calm=S.calm|0;S.calmUsed=S.calmUsed||[];S.practiced=S.practiced||[]}gjFix();
+function photo(id){var c=id==="makayla"?((window.OBC&&OBC.staff)||[]).filter(function(s){return s.id==="makayla"})[0]:C(id);return "../../professional/img/team/"+String(c&&c.name||id).toLowerCase().replace(/[^a-z]+/g,"-")+".webp"}
+function gskill(rid){var g=GJ[rid],l=BD[rid].sk;for(var i=0;i<l.length;i++)if(l[i][0]===g.sk)return i;return 0}
+function gjOK(rid){var g=GJ[rid],c=C(g.g);return (c.mods||[]).indexOf(g.m)>=0&&(c.concerns||[]).indexOf(g.tag)>=0}
+function staff(){return ((window.OBC&&OBC.staff)||[]).filter(function(s){return s.id==="makayla"})[0]||{name:"Makayla Jones",role:"Admin Manager",email:"makayla@openbooktherapist.com"}}
+function gjDraw(c,o,t){var pulse=RM?.45:.3+.15*Math.sin(t/500+o.x);switch(o.t){
+ case"mentor":var col=R(o.gj).col;glowDot(c,o.x,o.y-26,30,col,S.met.indexOf(o.gj)>=0?.25:pulse+.1);shadow(c,o.x,o.y,12,4);
+  c.fillStyle="#6b4520";c.fillRect(o.x-2,o.y-44,4,44);poly(c,[[o.x-14,o.y-52],[o.x+14,o.y-52],[o.x+12,o.y-38],[o.x-12,o.y-38]],"#f4ead2");c.strokeStyle="#8a5a2a";c.lineWidth=1.5;c.beginPath();c.moveTo(o.x,o.y-52);c.lineTo(o.x,o.y-38);c.stroke();
+  c.font="600 11px Georgia,serif";c.textAlign="center";var lb=C(GJ[o.gj].g).name.split(" ")[0]+"'s gate";var lw=c.measureText(lb).width+10;c.fillStyle="rgba(250,240,215,.9)";c.fillRect(o.x-lw/2,o.y-70,lw,15);c.fillStyle="#5a2e0e";c.fillText(lb,o.x,o.y-59);c.textAlign="left";break;
+ case"way":glow(c,o.x,o.y-30,44,t);shadow(c,o.x,o.y,16,5);poly(c,[[o.x-16,o.y-30],[o.x+16,o.y-30],[o.x+12,o.y],[o.x-12,o.y]],"#9a6a3a");poly(c,[[o.x-18,o.y-34],[o.x+18,o.y-34],[o.x+16,o.y-28],[o.x-16,o.y-28]],"#c8553f");sp(c,"lantern",o.x+22,o.y+2,34);
+  c.font="600 11px Georgia,serif";c.textAlign="center";lw=c.measureText("Waystation").width+10;c.fillStyle="rgba(250,240,215,.9)";c.fillRect(o.x-lw/2,o.y-54,lw,15);c.fillStyle="#5a2e0e";c.fillText("Waystation",o.x,o.y-43);c.textAlign="left";break;
+ case"clue":if(S.clues.indexOf(o.gj)<0){glowDot(c,o.x,o.y-6,16,"#ffe6a8",pulse);c.save();c.translate(o.x,o.y-4);c.rotate(.25);c.fillStyle="#efe0bc";c.fillRect(-8,-6,16,12);c.strokeStyle="#8a5a2a";c.lineWidth=1;c.strokeRect(-8,-6,16,12);c.restore()}break;
+ case"calm":var used=S.calmUsed.indexOf(o.gj)>=0;for(var i=0;i<7;i++){var a=i/7*6.283;blob(c,o.x+Math.cos(a)*18,o.y+Math.sin(a)*7,3.2,2.4,"#a9a294")}glowDot(c,o.x,o.y-4,22,"#bfe8d8",used?.15:pulse);break}}
+function gjInteract(o){switch(o.t){case"mentor":mentor(o.gj);break;case"way":waystation();break;case"clue":clue(o.gj);break;case"calm":calmSpot(o.gj);break}}
+var gjFeel=null;function gjNpc(o){var r=cur&&cur.reg;gjFeel=r&&GJ[r]&&GJ[r].at===cur.id&&FEEL[r]?{who:o.name,l:feelOf(r)}:null}
+function card(id,role,extra){var c=id==="makayla"?staff():C(id);return '<div class="w-gj-card"><img src="'+photo(id)+'" alt="Photo of '+esc(c.name)+'" width="88" height="88"><div><h3>'+esc(c.name)+'</h3><p class="w-pcc">'+esc(role||c.cred)+'</p>'+(extra||'')+'</div></div>'}
+function mentor(rid){if(B)return;var g=GJ[rid],c=C(g.g),s=BD[rid].sk[gskill(rid)],first=S.met.indexOf(rid)<0;if(first){S.met.push(rid);save()}
+ var d=panel('<h2>'+esc(R(rid).name)+' gate</h2>'+card(g.g,null,'<p><b>Lists among their methods:</b> '+esc(modLabel(g.m))+'</p>')+
+  '<p class="w-gj-sk"><b>Skill to carry in: '+esc(s[1])+'</b></p><p>'+esc(g.teach)+'</p><p class="w-gj-rl"><b>In real life:</b> '+esc(s[3])+'</p>'+
+  (first?'<p class="w-gj-note">A page about '+esc(c.name.split(" ")[0])+' was added to your skill journal.</p>':'')+
+  '<p><button class="w-btn pri" id="gj-prac">Practice with an echo</button> '+(g.tough?'<button class="w-btn" id="gj-duo">Choose two guides for the boss</button> ':'')+'<a href="../#team" target="_blank" rel="noopener">Meet the real '+esc(c.name.split(" ")[0])+'</a></p>'+
+  '<p class="w-gj-small">The photo is the real '+esc(c.name)+'. In the game, the skill is a short practice, not therapy.</p>',c.name+" at the gate");
+ d.querySelector("#gj-prac").onclick=function(){practice(rid)};var du=d.querySelector("#gj-duo");if(du)du.onclick=function(){duo(rid)};
+ live(c.name+" waits at the gate and shares a skill: "+s[1])}
+function practice(rid){closeOV();var e={id:"echo:"+rid,echo:1,reg:rid,hx:P.x,hy:P.y-70,x:P.x,y:Math.max(110,P.y-70),ph:0,cd:0};cur.ens.push(e);battle(e)}
+function echoD(rid){var base=BD[rid],i=gskill(rid);return Object.assign({},base,{name:"An echo of "+base.name.replace("The ",""),hp:6,mini:1,practice:1,fixWeak:i,tip:"Practice round: echoes can't take your hope. Try "+base.sk[i][1]+"."})}
+function gjStart(){if(!B)return;var add=[];
+ if(B.d.practice){B.weak=B.d.fixWeak;ui();return}
+ var du=S.duo[B.id];if(du&&du.length===2&&B.e.boss){B.g=C(du[0]);B.g2=C(du[1]);B.shield=Math.max(B.shield,1);add.push(esc(B.g.name)+' and '+esc(B.g2.name)+' walk in with you. '+esc(B.g2.name.split(" ")[0])+' raises a shield for the first hit.');var gb=document.getElementById("b-guide");if(gb)gb.textContent="Call "+B.g.name.split(" ")[0]}
+ if(S.calm){S.calm=0;save();B.shield=Math.max(B.shield,1);add.push('The calm from your grounding stays with you: a small shield blocks the next hit.')}
+ if(add.length){var m=document.getElementById("b-msg");if(m)m.insertAdjacentHTML("beforeend",'<p class="w-gj-add">'+add.join(" ")+'</p>');ui()}}
+function gjEchoWin(){var id=B.id,g=GJ[id],s=BD[id].sk[gskill(id)];B.over=1;if(S.practiced.indexOf(id)<0){S.practiced.push(id);save()}
+ bend('<h2>The echo fades.</h2><p>Practice done. You\'re ready to use <b>'+esc(s[1])+'</b> on '+esc(BD[id].name)+'.</p><p class="w-gj-why"><b>Why it works:</b> '+esc(g.why)+'</p>'+(id==="ed"?EDHELP:''),'<button class="w-btn pri" id="b-on">Back to the gate</button>');
+ document.getElementById("b-on").onclick=function(){endBattle();stage.focus()}}
+function gjWin(e,id){var bd=stage.querySelector(".w-bend");if(!bd||!GJ[id])return;var p=bd.querySelector("p:last-child"),s=BD[id].sk[gskill(id)];
+ var h='<p class="w-gj-why"><b>Why it works:</b> '+esc(GJ[id].why)+'</p>';
+ if(e.boss)h+='<div class="w-gj-refl"><label for="gj-rt"><b>When might you try '+esc(s[1])+' this week?</b></label><textarea id="gj-rt" rows="2" maxlength="300" placeholder="For example: before a hard conversation">'+esc(S.refl[id]||"")+'</textarea><p class="w-gj-small">Kept only on this device, in your journal. Nothing is sent anywhere.</p><button class="w-btn" id="gj-rs">Save to my journal</button> <span id="gj-rok" role="status"></span></div>';
+ p.insertAdjacentHTML("beforebegin",h);var rs=document.getElementById("gj-rs");if(rs)rs.onclick=function(){var v=document.getElementById("gj-rt").value.trim().slice(0,300);if(v)S.refl[id]=v;else delete S.refl[id];save();document.getElementById("gj-rok").textContent=v?"Saved on this device.":"Cleared."}}
+function fitOf(c,rid){var g=GJ[rid],mt=(c.mods||[]).filter(function(m){return (MATCH[rid]||[]).indexOf(m)>=0}),f=(c.concerns||[]).indexOf(g.tag)>=0;
+ return{score:(f?2:0)+mt.length,text:(f?'Lists '+(TAG[g.tag]||g.tag)+' as a focus area. ':'')+(mt.length?'Methods that fit this fight: '+mt.map(modLabel).join(", ")+'.':'No listed methods match this fight closely, but any guide can walk with you.')}}
+function duo(rid){var pick=(S.duo[rid]||[]).slice(),r=R(rid);
+ function draw(){var d=panel('<h2>Two guides for '+esc(BD[rid].name)+'</h2><p>This is a tougher boss. Pick two guides. The first leads; the second raises a shield for the first hit. The fit notes come from each person\'s listed focus areas and methods.</p>'+
+  '<div class="w-hall">'+CL.slice().sort(function(a,b){return fitOf(b,rid).score-fitOf(a,rid).score}).map(function(c){var on=pick.indexOf(c.id);return '<article class="w-gcard'+(on>=0?' cur':'')+'">'+'<img src="'+photo(c.id)+'" alt="Photo of '+esc(c.name)+'" width="72" height="72"><div><h3>'+esc(c.name)+'</h3><p>'+esc(c.cred)+'</p><p class="w-gj-fit">'+esc(fitOf(c,rid).text)+'</p><p><button class="w-btn'+(on>=0?' pri':'')+'" data-duo="'+c.id+'" aria-pressed="'+(on>=0)+'">'+(on===0?'Leads':on===1?'Shields':'Choose')+'</button></p></div></article>'}).join("")+'</div>'+
+  '<p id="gj-duos" role="status">'+(pick.length===2?'Ready: '+esc(C(pick[0]).name)+' leads, '+esc(C(pick[1]).name)+' shields.':'Chosen: '+pick.length+' of 2.')+'</p>',"Choose two guides");
+  d.querySelectorAll("[data-duo]").forEach(function(b){b.onclick=function(){var id=b.dataset.duo,i=pick.indexOf(id);if(i>=0)pick.splice(i,1);else{pick.push(id);if(pick.length>2)pick.shift()}if(pick.length===2)S.duo[rid]=pick.slice();else delete S.duo[rid];save();draw();var n=stage.querySelector('[data-duo="'+id+'"]');if(n)n.focus()}})}
+ draw()}
+function clue(rid){if(S.clues.indexOf(rid)<0){S.clues.push(rid);save()}var d=BD[rid];
+ say(["You found a clue page about "+d.name+".","It is known to cast: "+d.sk.map(function(s){return s[2]}).join(", ")+".","Matching each one: "+d.sk.map(function(s){return s[2]+" \u2192 "+s[1]}).join("; ")+".","When it casts, the bubble will mark the ones you've read about."],"Clue page")}
+function calmSpot(rid){if(B)return;var edr=rid==="ed",D=30000/GJF.fast;
+ var d=panel('<h2>A calm spot</h2><p>Take a short pause here. Finish the activity and you\'ll carry a small shield into your next fight.</p><p><button class="w-btn pri" id="gj-cb">Breathing circle</button>'+(edr?'':' <button class="w-btn" id="gj-cg">5-4-3-2-1 senses</button>')+'</p><div id="gj-ca" aria-live="polite"></div>'+(S.calm?'<p class="w-gj-small">Your shield is already waiting for the next fight.</p>':''),"Calm spot");
+ function run(kind){var a=d.querySelector("#gj-ca"),t0=performance.now(),tm;d.querySelectorAll("#gj-cb,#gj-cg").forEach(function(b){b.disabled=true});
+  var G=["Name 5 things you can see.","Name 4 things you can feel.","Name 3 things you can hear.","Name 2 things you can smell.","Name 1 thing you can taste, or one slow breath."];
+  a.innerHTML='<div class="w-gj-circ'+(RM?' rm':'')+'" id="gj-circ" aria-hidden="true"></div><p id="gj-ct"></p><div class="w-gj-prog"><i id="gj-cp"></i></div><p><button class="w-btn" id="gj-cx">Stop</button></p>';
+  function tick(){var p=Math.min(1,(performance.now()-t0)/D),el=document.getElementById("gj-ct");if(!el){clearInterval(tm);return}
+   document.getElementById("gj-cp").style.width=(p*100)+"%";
+   if(kind==="b"){var ph=((performance.now()-t0)*GJF.fast/1000)%10,inh=ph<4;el.textContent=inh?"Breathe in slowly as the circle grows.":"Breathe out slowly as it shrinks.";var ci=document.getElementById("gj-circ");if(!RM)ci.style.transform="scale("+(inh?.6+.4*ph/4:1-.4*(ph-4)/6)+")";else ci.textContent=inh?"in":"out"}
+   else el.textContent=G[Math.min(4,Math.floor(p*5))];
+   if(p>=1){clearInterval(tm);S.calm=1;if(S.calmUsed.indexOf(rid)<0)S.calmUsed.push(rid);save();a.innerHTML='<p class="w-gj-done"><b>Nice.</b> You took a real pause. A small shield will block the first hit in your next fight.</p>';live("Calm spot complete. A small shield is ready for your next fight.")}}
+  tm=setInterval(tick,RM?500:100);tick();d.querySelector("#gj-cx").onclick=function(){clearInterval(tm);calmSpot(rid)};}
+ d.querySelector("#gj-cb").onclick=function(){run("b")};var g=d.querySelector("#gj-cg");if(g)g.onclick=function(){run("g")}}
+function nextReg(){for(var i=0;i<REG.length;i++)if(S.beaten.indexOf(REG[i].id)<0)return REG[i];return null}
+function waystation(){if(B)return;var m=staff();
+ var d=panel('<h2>Waystation</h2>'+card("makayla",m.role,'<p>In real life, '+esc(m.name.split(" ")[0])+' helps people get scheduled and answers their questions. She is not a therapist, so the skills come from the guides.</p>')+
+  '<p><button class="w-btn pri" id="gj-kit">Pack a prep kit</button> <button class="w-btn" id="gj-sv">Save my progress</button> <button class="w-btn" id="gj-pv">What\'s ahead?</button></p><div id="gj-wo" aria-live="polite"></div>'+
+  '<p class="w-gj-small">Questions about real appointments: <a href="mailto:'+esc(m.email)+'">'+esc(m.email)+'</a></p>',"Waystation with "+m.name);
+ var o=d.querySelector("#gj-wo");
+ d.querySelector("#gj-kit").onclick=function(){S.kit=1;CFG.breath=true;save();o.innerHTML='<div class="w-gj-kit"><h3>Your coping card</h3><ul><li>Breathe out a little longer than you breathe in.</li><li>Name a few things you can see around you.</li><li>Text one safe person.</li><li>Crisis: call or text 988 \u00b7 SafeUT \u00b7 911.</li></ul><p><b>Breathe reminder:</b> breath timing is on for your next fight. Press when the ring glows.</p><p class="w-gj-small">The coping card is in your journal.</p></div>'};
+ d.querySelector("#gj-sv").onclick=function(){save();o.innerHTML='<p>Progress saved on this device. Bosses calmed: '+S.beaten.length+' of 8. Guides met: '+S.met.length+' of 8.</p>'};
+ d.querySelector("#gj-pv").onclick=function(){var r=nextReg();if(!r){o.innerHTML='<p>Every boss is calm. The Open Book Office is waiting for you, south of the Crossroads.</p>';return}var g=GJ[r.id],c=C(g.g);
+  o.innerHTML='<p><b>Ahead: '+esc(r.name)+'</b> ('+esc(r.sub)+'). '+esc(c.name)+' waits at the gate'+(S.met.indexOf(r.id)>=0?' (met)':'')+'. '+(S.clues.indexOf(r.id)>=0?'You have the clue page.':'A clue page is hidden nearby.')+' '+(S.calmUsed.indexOf(r.id)>=0?'You visited its calm spot.':'There is a calm spot there too.')+(g.tough?' This boss is tougher, so you can pick two guides.':'')+'</p>'}}
+function gjJournal(){var h='';
+ if(S.met.length)h+='<h3>Guides you\'ve met: '+S.met.length+' of 8</h3><div class="w-gj-pages">'+S.met.map(function(rid){var g=GJ[rid],c=C(g.g),s=BD[rid].sk[gskill(rid)];return '<article class="w-gj-pg">'+card(g.g,null,'<p><b>'+esc(R(rid).sub)+':</b> '+esc(s[1])+' ('+esc(modLabel(g.m))+')</p>')+'<p>'+esc(g.teach)+'</p><p><b>In real life:</b> '+esc(s[3])+'</p>'+(S.refl[rid]?'<p><b>My plan this week:</b> '+esc(S.refl[rid])+'</p>':'')+'</article>'}).join("")+'</div>';
+ if(S.clues.length)h+='<h3>Clue pages: '+S.clues.length+' of 8</h3><ul>'+S.clues.map(function(rid){return '<li><b>'+esc(BD[rid].name)+':</b> '+BD[rid].sk.map(function(s){return esc(s[2])}).join(", ")+'</li>'}).join("")+'</ul>';
+ if(S.kit)h+='<h3>Coping card</h3><p>Breathe out longer than in. Name a few things you can see. Text one safe person. Crisis: 988 \u00b7 SafeUT \u00b7 911.</p>';
+ var rf=Object.keys(S.refl).filter(function(k){return S.met.indexOf(k)<0});if(rf.length)h+='<h3>My plans this week</h3><ul>'+rf.map(function(k){return '<li>'+esc(R(k).sub)+': '+esc(S.refl[k])+'</li>'}).join("")+'</ul>';
+ return h}
+function gjEnter(s){if(s.boss&&s.reg&&S.met.indexOf(s.reg)<0&&S.beaten.indexOf(s.reg)<0){var g=GJ[s.reg];setTimeout(function(){toast(C(g.g).name+" waits at the gate in "+SC[g.at].n+" with a skill for this boss.")},500)}}
+window.obcWorld3={gj:{GJ:GJ,FEEL:FEEL,feel:feelOf,F:GJF,mentor:mentor,practice:practice,duo:duo,clue:clue,calm:calmSpot,way:waystation,journal:gjJournal,ok:gjOK,photo:photo,fit:fitOf,fix:gjFix},state:function(){return S},scr:function(){return cur&&cur.id},P:P,go:function(id,x,y){closeOV();if(B)endBattle();enter(id,x,y)},battle:function(i){var e=(cur.ens||[]).filter(function(e){return !gone(e)})[i||0];if(e)battle(e);return !!e},
  B:function(){return B},near:function(){var n=near();return n&&(n.name||n.t)},interact:function(){interact(near())},safe:goSafe,decorate:decorate,hall:hall,office:office,cfg:CFG,SC:SC,build:build,guide:{MX:MX,MATCH:MATCH,methods:guideMethods,half:halfHP,card:photoCard,fx:function(){return FXL.length}},x:{frame:function(){return HF},petFrame:function(){return PT.frame},wx:function(){return WXK},sparks:function(){return SPN},shake:function(){return SHK},vic:function(){return VIC},journal:journal,skx:function(){return S.skx},tips:TIPS,pages:PAGES,quests:QS,companion:companion,bondLv:bondLv,bondAdd:bondAdd,trick:petTrick,petPet:petPet,fish:FISH,fishing:fishing,combo:comboOf,phase:PHASE,lv:LV},reset:function(){localStorage.removeItem(KEY);location.reload()}};
 if(S.made)play();else creator();
 })();
