@@ -114,8 +114,8 @@ var SC={
    ["chest",110,350,"books"]]},
  office:{n:"Open Book Office",sub:"Finale",g:"castle",at:[2,2],tone:"rgba(255,200,130,.12)",
   p:[["house",320,190,0,1.35,"office"],["lantern",230,200],["lantern",410,200],["tree",90,170],["tree",560,170],["tree",110,360],["tree",540,360],
-   ["sign",250,300,"The Open Book Office. The door opens once all eight bosses are calm."],
-   ["npc",400,310,"vil1","A friendly greeter",["The office opens when the eight bosses are calm. There's a prize waiting inside."]]]},
+   ["sign",250,300,"__office__"],
+   ["npc",400,310,"vil1","A friendly greeter",["__office__"]]]},
  anx1:{n:"Windy Steps",sub:"Anxiety",reg:"anx",g:"cliffs",at:[1,0],tone:"rgba(160,200,240,.12)",
   p:[["rock",140,160],["rock",500,170],["tree",90,320],["rock",560,330],["lantern",380,150],
    ["npc",220,300,"vil3","A climber catching her breath",["The wind up here makes my heart race. Breathing slow helps it pass.","The Whirligust lives west, on the Peak."]],
@@ -284,7 +284,7 @@ function edges(s){var d=null;if(P.x<6)d="w";else if(P.x>W-6)d="e";else if(P.y<62
  if(s.id==="safe"){enter("hub",560,370);return}
  if(s.id==="hollow"){enter("woods",590,120);return}
  var x=P.x,y=P.y;if(d==="w")x=W-14;if(d==="e")x=14;if(d==="n")y=H-14;if(d==="s")y=70;enter(n,x,y)}
-function gone(e){return e.boss?S.beaten.indexOf(e.reg)>=0:S.cleared.indexOf(e.id)>=0}
+function gone(e){if(S.bloom)return true;return e.boss?S.beaten.indexOf(e.reg)>=0:S.cleared.indexOf(e.id)>=0}
 /* ---------- drawing ---------- */
 var PAT={},WXK="";
 function render(t){var r=stage.getBoundingClientRect(),dpr=Math.min(2,devicePixelRatio||1);if(r.width<2||r.height<2)return;
@@ -310,14 +310,14 @@ function render(t){var r=stage.getBoundingClientRect(),dpr=Math.min(2,devicePixe
  L.push({y:P.y,f:function(){drawHero(c,S.hero,P.x,P.y,1,B?(B.e.x<P.x?3:2):P.dir,RM?0:P.ph);if(B&&B.shield){c.strokeStyle="rgba(255,214,120,.8)";c.lineWidth=3;c.beginPath();c.arc(P.x,P.y-30,34,0,7);c.stroke()}}});
  L.sort(function(a,b){return a.y-b.y}).forEach(function(d){d.f()});
  c.save();c.beginPath();c.rect(0,0,W,H);c.clip();
- if(s.tone){c.fillStyle=s.tone;c.fillRect(0,0,W,H)}
+ if(s.tone&&!S.bloom){c.fillStyle=s.tone;c.fillRect(0,0,W,H)}
  WXK=weather(c,s,t);
  var g=c.createRadialGradient(W*.55,H*.3,60,W/2,H/2,W*.75);g.addColorStop(0,"rgba(255,220,150,.10)");g.addColorStop(1,"rgba(60,30,10,.32)");c.fillStyle=g;c.fillRect(0,0,W,H);
  if(B){c.fillStyle="rgba(30,20,40,.18)";c.fillRect(0,0,W,H)}
  if(fade>0){c.fillStyle="rgba(20,12,4,"+fade+")";c.fillRect(0,0,W,H)}
  c.restore();
  drawFX(c,t);drawSparks(c);
- LBL=null;var n=busy()?null:near();if(n)label(c,n);actBtn(n)
+ if(S.bloom&&!B)bloomFX(c,t);LBL=null;var n=busy()?null:near();if(n)label(c,n);actBtn(n)
  if(DM&&DM.pick){c.fillStyle="rgba(255,214,120,.5)";c.beginPath();c.ellipse(P.x,P.y-34,6,6,0,0,7);c.fill()}}
 var LBL=null,ACTK="";document.addEventListener("click",function(e){if(e.target&&e.target.closest&&e.target.closest("#w-act")){doAct();if(stage&&!OV)stage.focus()}});
 /* on-screen action button: same as pressing E, for touch and mouse players */
@@ -368,9 +368,9 @@ function dist(o){return Math.hypot(P.x-o.x,(P.y-o.y)*1.2)-(o.t==="look"?o.r*.6:o
 function near(){var b=null,bd=52;interactables().forEach(function(o){var d=dist(o);if(d<bd){bd=d;b=o}});return b}
 function give(k){S.bag[k]=(S.bag[k]||0)+1;save()}
 function interact(o){if(!o)return;switch(o.t){
- case"sign":say(o.text,"Signpost");break;
+ case"sign":say(o.text==="__office__"?gateMsg():o.text,"Signpost");break;
  case"look":say(o.text);break;
- case"npc":var qk=questFor(o.name);gjNpc(o);if(qk)questTalk(o,qk);else say(o.lines,o.name);break;
+ case"npc":var qk=questFor(o.name);gjNpc(o);if(qk)questTalk(o,qk);else say(o.lines.map(function(l){return l==="__office__"?gateMsg():l}),o.name);break;
  case"page":S.pages.push(o.pg);if(S.secrets.indexOf("page")<0)S.secrets.push("page");save();say(["You found a journal page ("+S.pages.length+" of "+PAGES.length+").","\u201c"+PAGES[o.pg]+"\u201d","It's saved in your skill journal."],"Journal page");break;
  case"path":if(S.secrets.indexOf("path")<0){S.secrets.push("path");save()}enter("hollow",320,370);say("You push through the ferns and find a hidden hollow with a still pond.");break;
  case"fish":fishing();break;
@@ -378,10 +378,12 @@ function interact(o){if(!o)return;switch(o.t){
  case"chest":if(S.opened.indexOf(o.key)>=0){say("The chest is empty now. You already took what was inside.");break}S.opened.push(o.key);give(o.item);say("Inside the chest: "+decName(o.item)+". It's in your satchel, ready for your safe place.");break;
  case"find":S.found.push(o.key);give(o.item);say("You found "+decName(o.item)+". It's in your satchel.");break;
  case"door":goSafe();break;
- case"house":if(o.role==="hall")hall();else if(o.role==="office"){if(officeOpen())office();else say("The door is closed for now. A note reads: \"Calm all eight bosses and come in.\" Bosses calmed: "+S.beaten.length+" of 8.","Open Book Office")}break
+ case"house":if(o.role==="hall")hall();else if(o.role==="office"){if(officeOpen())office();else say("The door is closed for now. "+gateMsg(),"Open Book Office")}break
  default:if(GJT[o.t])gjInteract(o)}}
-function officeOpen(){return BOSS.every(function(b){return S.beaten.indexOf(b)>=0})}
-function closeOV(){var o=stage&&stage.querySelector(".w-say,.w-pan");if(o)o.remove();OV=DM?"dec":null;if(stage)stage.focus()}
+var GATE=4;function nBeat(){return BOSS.filter(function(b){return S.beaten.indexOf(b)>=0}).length}
+function officeOpen(){return nBeat()>=GATE}
+function gateMsg(){var n=nBeat();return n>=GATE?"The Open Book Office door is open. You've calmed "+n+" of 8 bosses, so come on in. There's a prize waiting inside.":"The Open Book Office opens once you calm "+GATE+" of the 8 bosses. You've calmed "+n+" so far, "+(GATE-n)+" more to go."}
+function closeOV(){if(ENDP){ENDP=0;setTimeout(bloom,30)}var o=stage&&stage.querySelector(".w-say,.w-pan");if(o)o.remove();OV=DM?"dec":null;if(stage)stage.focus()}
 function say(lines,who){if(typeof lines==="string")lines=[lines];if(gjFeel){if(gjFeel.who===who)lines=lines.concat(gjFeel.l);gjFeel=null}var i=0;closeOV();OV="say";held={};
  var d=document.createElement("div");d.className="w-say w-par";d.setAttribute("role","dialog");d.setAttribute("aria-label",who||"Message");stage.appendChild(d);
  function show(){d.innerHTML=(who?'<p class="w-who">'+esc(who)+'</p>':'')+'<p>'+esc(lines[i])+'</p><div class="w-sayb">'+(i<lines.length-1?'<button class="w-btn pri" id="s-next">Next</button>':'<button class="w-btn pri" id="s-ok">Close</button>')+'</div>';
@@ -449,10 +451,10 @@ function bend(html,btns){var o=stage.querySelector(".w-bov");o.querySelectorAll(
 function win(){if(B.d.practice)return gjEchoWin();var d=B.d,e=B.e,id=B.id,drop="";B.over=1;bondAdd(2);
  if(e.boss){if(S.beaten.indexOf(id)<0)S.beaten.push(id);if(S.loot.indexOf(d.loot)<0){S.loot.push(d.loot);give("k_"+id)}}
  else{if(S.cleared.indexOf(e.id)<0){S.cleared.push(e.id);drop=["stone","flowers","shell","lantern","sapling","chime","books","blanket"][S.cleared.length%8];give(drop)}}
- save();var all=officeOpen();
+ save();var all=e.boss&&nBeat()===GATE;
  bend((e.boss?'<canvas class="w-vic" width="320" height="200" role="img" aria-label="Your hero stands in the golden light, holding up the '+esc(d.loot)+', with '+esc(petName())+' hopping beside them."></canvas>':'')+'<h2>'+esc(d.name)+(d.gentle?' glows softly. '+(e.boss?'Every lantern is lit.':'The wave passes.'):(id==='rel'&&e.boss?' calm and drift apart, gently.':' calms and drifts away.'))+'</h2>'+
  (e.boss?'<p>You found the <b>'+esc(d.loot)+'</b>. It can rest in your safe place as a keepsake.</p>':'<p>It left something behind: <b>'+esc(decName(drop)||"a quiet moment")+'</b>.</p>')+
- '<p>'+esc(B.g.name)+': "You used real skills there. They work outside the game too."</p>'+(e.boss?'<p>Bosses calmed: '+S.beaten.length+' of 8.'+(all?' The Open Book Office is open now.':'')+'</p>':'')+(id==="ed"?EDHELP:''),
+ '<p>'+esc(B.g.name)+': "You used real skills there. They work outside the game too."</p>'+(e.boss?'<p>Bosses calmed: '+S.beaten.length+' of 8.'+(all?' That is half of them, so the Open Book Office is open now.':'')+'</p>':'')+(id==="ed"?EDHELP:''),
  '<button class="w-btn pri" id="b-on">Keep exploring</button>');
  gjWin(e,id);var vc=stage.querySelector('.w-vic');if(vc)victory(vc,id);
  document.getElementById("b-on").onclick=function(){endBattle();stage.focus();if(all&&e.boss)say("Word travels fast: the Open Book Office door is open. It's south of the Crossroads.")}}
@@ -709,13 +711,28 @@ function hall(rid){if(B)return;rid=rid||(cur&&cur.reg)||"anx";var r=R(rid);
  d.querySelectorAll("[data-g]").forEach(function(b){b.onclick=function(){S.pick[rid]=b.dataset.g;save();hall(rid);var n=stage.querySelector('[data-g="'+b.dataset.g+'"]');if(n)n.focus()}})}
 function portrait(id){return "../img/q-pt-"+id+".webp"}
 /* ---------- office finale ---------- */
+var ENDP=0;
+/* ending: leaving the office after getting the prize code, the world blooms */
+var BLOOMLINE="Your symptoms aren't running loose anymore. They're in the pen, and you hold the gate.",PEN=0;
+function bloom(){if(!S.code)return;var first=!S.bloom;S.bloom=1;save();if(first)say(["You step out of the Open Book Office. The sun is warm, flowers line the path, and the whole world looks brighter. Over by the trees, the bosses rest calmly inside a fenced pen.",BLOOMLINE,"You can keep exploring. The skills you practiced come with you."],"A brighter world")}
+function bloomFX(c,t){c.fillStyle="rgba(255,236,170,.16)";c.fillRect(0,0,W,H);var C=["#ff9fb8","#ffd166","#ffffff","#c7a6ff","#ff8a5c"];for(var i=0;i<60;i++){var x=(i*97+31)%W,y=(i*53+17)%H;if(y<60)y+=120;var col=C[i%5];c.fillStyle="#4d8a3a";c.fillRect(x-.6,y,1.2,5);for(var k=0;k<5;k++){var a=k*1.256;c.fillStyle=col;c.beginPath();c.arc(x+Math.cos(a)*2.6,y+Math.sin(a)*2.6,1.9,0,6.283);c.fill()}c.fillStyle="#ffcc33";c.beginPath();c.arc(x,y,1.3,0,6.283);c.fill()}
+ if(cur&&cur.id==="office")drawPen(c,t); for(var j=0;j<10;j++){var gx=(j*137+60)%W,gy=(j*71+90)%(H-80)+40;glowDot(c,gx+(RM?0:Math.sin(t/700+j)*6),gy,10,"#fff2b0",.5)}}
+/* calm bosses resting in a fenced farm pen: managed, not on the loose */
+function drawPen(c,t){var x0=440,y0=232,w=180,h=96;c.fillStyle="rgba(120,170,80,.55)";c.fillRect(x0,y0,w,h);
+ var ks=Object.keys(BD);for(var i=0;i<ks.length;i++){var bx=x0+24+(i%4)*44,by=y0+30+Math.floor(i/4)*40+(RM?0:Math.sin(t/900+i)*1.5);shadow(c,bx,by+10,12,4);c.globalAlpha=.9;sp(c,"boss",bx,by,30,i%2);c.globalAlpha=1;c.fillStyle=BD[ks[i]].col||"#ccc";c.globalAlpha=.35;c.beginPath();c.arc(bx,by-4,9,0,6.283);c.fill();c.globalAlpha=1;
+  c.strokeStyle="#3a2c18";c.lineWidth=1.4;c.beginPath();c.arc(bx,by-6,4,.2,2.9);c.stroke()}
+ c.fillStyle="#8a6a3e";c.strokeStyle="#3a2c18";c.lineWidth=1;
+ for(var k=0;k<=9;k++){var px=x0+k*w/9;c.fillRect(px-2,y0-12,4,16);c.fillRect(px-2,y0+h-12,4,16)}
+ for(var k=0;k<=4;k++){var py=y0+k*h/4;c.fillRect(x0-2,py-12,4,16);c.fillRect(x0+w-2,py-12,4,16)}
+ [[x0,y0-8,w,3],[x0,y0-2,w,3],[x0,y0+h-8,w,3],[x0,y0+h-2,w,3],[x0-1,y0-8,3,h+6],[x0+w-2,y0-8,3,h+6]].forEach(function(r){c.fillRect(r[0],r[1],r[2],r[3]);c.strokeRect(r[0],r[1],r[2],r[3])});
+ c.fillStyle="#b8894e";c.fillRect(x0+w/2-16,y0+h-9,32,9);c.strokeRect(x0+w/2-16,y0+h-9,32,9);PEN++}
 function office(){if(B||!officeOpen())return;
  if(!S.code){var A="ABCDEFGHJKMNPQRSTUVWXYZ23456789",a=new Uint32Array(8);crypto.getRandomValues(a);var c="";for(var i=0;i<8;i++)c+=A[a[i]%A.length];S.code="OBC-"+c.slice(0,4)+"-"+c.slice(4);S.wonAt=new Date().toISOString().slice(0,10);save()}
- panel('<h2>Welcome to the Open Book Office</h2><p>'+esc(S.hero.name||"Wanderer")+', you and '+esc(petName())+' calmed all eight bosses. Your satchel holds: '+S.loot.map(esc).join(", ")+'.</p>'+
+ panel('<h2>Welcome to the Open Book Office</h2><p>'+esc(S.hero.name||"Wanderer")+', you and '+esc(petName())+' calmed '+nBeat()+' of 8 bosses. Your satchel holds: '+S.loot.map(esc).join(", ")+'.</p>'+
  '<p class="w-code">Your prize code: <b id="w-code">'+esc(S.code)+'</b></p>'+
  '<div class="w-rules"><h3>Prize rules</h3><ul><li>Anyone who beats the game can get one free fidget stress ring at an Open Book Counseling office.</li><li>One ring per person per year, while supplies last.</li><li>Show this code at the front desk.</li><li>The code is saved on this device. Write it down or take a screenshot.</li></ul></div>'+
  '<div class="w-gj-end"><h3>Want to keep going with a real person?</h3><p>Open Book Counseling offers a free 15-minute consultation. The guides you met are real clinicians on our team.</p><p><a class="w-btn pri" href="https://www.openbooktherapist.com/professional/intake.html" target="_blank" rel="noopener">Start the intake form</a></p></div>'+
- '<p><a class="w-btn" href="../#team">Meet the real team</a></p>',"Open Book Office")}
+ '<p><a class="w-btn" href="../#team">Meet the real team</a></p>',"Open Book Office");ENDP=1}
 /* ---------- hero creator ---------- */
 function creator(){cancelAnimationFrame(raf);stage=null;var h=S.hero,dirs=0;
  function grp(lbl,key,list,sw){return '<fieldset><legend>'+lbl+'</legend>'+list.map(function(v,i){return sw?'<button type="button" class="w-btn w-sw" data-k="'+key+'" data-v="'+i+'" aria-pressed="'+(h[key]===i)+'" aria-label="'+lbl+' '+(i+1)+'" style="background:'+v+'"></button>':'<button type="button" class="w-btn" data-k="'+key+'" data-v="'+i+'" aria-pressed="'+(h[key]===i)+'">'+esc(v)+'</button>'}).join("")+'</fieldset>'}
@@ -1012,7 +1029,7 @@ function calmSpot(rid){if(B)return;var edr=rid==="ed",D=30000/GJF.fast;
  d.querySelector("#gj-cb").onclick=function(){run("b")};var g=d.querySelector("#gj-cg");if(g)g.onclick=function(){run("g")}}
 function nextReg(){for(var i=0;i<REG.length;i++)if(S.beaten.indexOf(REG[i].id)<0)return REG[i];return null}
 function waystation(){if(B)return;var m=staff();
- var d=panel('<h2>Waystation</h2>'+card("makayla",m.role,'<p>In real life, '+esc(m.name.split(" ")[0])+' helps people get scheduled and answers their questions. She is not a therapist, so the skills come from the guides.</p>')+
+ var d=panel('<h2>Waystation</h2><p class="w-gate">'+esc(gateMsg())+'</p>'+card("makayla",m.role,'<p>In real life, '+esc(m.name.split(" ")[0])+' helps people get scheduled and answers their questions. She is not a therapist, so the skills come from the guides.</p>')+
   '<p><button class="w-btn pri" id="gj-kit">Pack a prep kit</button> <button class="w-btn" id="gj-sv">Save my progress</button> <button class="w-btn" id="gj-pv">What\'s ahead?</button></p><div id="gj-wo" aria-live="polite"></div>'+
   '<p class="w-gj-small">Questions about real appointments: <a href="mailto:'+esc(m.email)+'">'+esc(m.email)+'</a></p>',"Waystation with "+m.name);
  var o=d.querySelector("#gj-wo");
@@ -1027,7 +1044,7 @@ function gjJournal(){var h='';
  var rf=Object.keys(S.refl).filter(function(k){return S.met.indexOf(k)<0});if(rf.length)h+='<h3>My plans this week</h3><ul>'+rf.map(function(k){return '<li>'+esc(R(k).sub)+': '+esc(S.refl[k])+'</li>'}).join("")+'</ul>';
  return h}
 function gjEnter(s){if(s.boss&&s.reg&&S.met.indexOf(s.reg)<0&&S.beaten.indexOf(s.reg)<0){var g=GJ[s.reg];setTimeout(function(){toast(C(g.g).name+" waits at the gate in "+SC[g.at].n+" with a skill for this boss.")},500)}}
-window.obcWorld3={gj:{GJ:GJ,FEEL:FEEL,feel:feelOf,F:GJF,mentor:mentor,practice:practice,duo:duo,clue:clue,calm:calmSpot,way:waystation,journal:gjJournal,ok:gjOK,photo:photo,fit:fitOf,fix:gjFix},state:function(){return S},scr:function(){return cur&&cur.id},P:P,go:function(id,x,y){closeOV();if(B)endBattle();enter(id,x,y)},battle:function(i){var e=(cur.ens||[]).filter(function(e){return !gone(e)})[i||0];if(e)battle(e);return !!e},
+window.obcWorld3={gj:{GJ:GJ,FEEL:FEEL,feel:feelOf,F:GJF,mentor:mentor,practice:practice,duo:duo,clue:clue,calm:calmSpot,way:waystation,journal:gjJournal,ok:gjOK,photo:photo,fit:fitOf,fix:gjFix},state:function(){return S},pen:function(){return PEN},scr:function(){return cur&&cur.id},P:P,go:function(id,x,y){closeOV();if(B)endBattle();enter(id,x,y)},battle:function(i){var e=(cur.ens||[]).filter(function(e){return !gone(e)})[i||0];if(e)battle(e);return !!e},
  B:function(){return B},near:function(){var n=near();return n&&(n.name||n.t)},interact:function(){interact(near())},safe:goSafe,decorate:decorate,hall:hall,office:office,cfg:CFG,SC:SC,build:build,guide:{MX:MX,MATCH:MATCH,methods:guideMethods,half:halfHP,card:photoCard,fx:function(){return FXL.length}},x:{frame:function(){return HF},petFrame:function(){return PT.frame},wx:function(){return WXK},sparks:function(){return SPN},shake:function(){return SHK},vic:function(){return VIC},journal:journal,skx:function(){return S.skx},tips:TIPS,pages:PAGES,quests:QS,companion:companion,bondLv:bondLv,bondAdd:bondAdd,trick:petTrick,petPet:petPet,fish:FISH,fishing:fishing,combo:comboOf,phase:PHASE,lv:LV},reset:function(){localStorage.removeItem(KEY);location.reload()}};
 /* ---------- title: continue or start over when a save exists ---------- */
 function title(){cancelAnimationFrame(raf);stage=null;
@@ -1047,33 +1064,34 @@ var OPEN=[
  {s:0,h:"A night at camp",t:["You set up camp at the edge of the woods. The tent is up, the air is cool, and the moon is rising."]},
  {s:1,h:"By the fire",t:["You sit by the fire and watch the sparks drift up. In the quiet, you start thinking about the things in life that hold you back."]},
  {s:2,h:"Your own story",t:["You are tired of feeling like a side character in your own story. You want to be the hero of it.","So you decide: tomorrow, you go on an adventure."]},
- {s:3,h:"A friendly face",mk:1,t:["In the morning, someone walks up the trail with a warm smile. It's Makayla, the Admin Manager at Open Book Counseling.","\u201cThe path to Open Book Counseling starts right here,\u201d she says. \u201cYou'll meet our therapists along the way. I'll be at the waystations if you need me.\u201d"]},
+ {s:3,h:"A friendly face",mk:1,t:["In the morning, someone walks up the trail with a warm smile. It's Makayla, the Admin Manager at Open Book Counseling.","\u201cThe path to Open Book Counseling starts right here,\u201d she says. \u201cYou'll meet our therapists along the way. Calm half of the eight bosses, any four, and the Open Book Counseling office door will open for you. I'll be at the waystations if you need me.\u201d"]},
  {s:4,h:"The journey begins",t:["You pack up your camp, take a deep breath, and step onto the path.","Your adventure starts now."]}];
-function opening(done){cancelAnimationFrame(raf);stage=null;var i=0,rm=matchMedia("(prefers-reduced-motion: reduce)").matches,ff=[],t0=performance.now(),orf=0,fin=false;
+function opening(done){cancelAnimationFrame(raf);stage=null;var opat=null;["map-town","sp-tree","sp-lantern","sp-sign","sp-house"].forEach(img);var i=0,rm=matchMedia("(prefers-reduced-motion: reduce)").matches,ff=[],t0=performance.now(),orf=0,fin=false;
  for(var k=0;k<14;k++)ff.push([Math.random(),.62+Math.random()*.25,Math.random()*6.28]);
- app.innerHTML='<div class="w-top"><h1>Wanderer\'s Quest</h1><span class="w-where">The story begins</span></div><div class="w-open w-par" role="region" aria-label="Opening story"><canvas id="o-cv" width="640" height="300" role="img"></canvas><div id="o-mk"></div><h2 id="o-h" tabindex="-1"></h2><div id="o-t" aria-live="polite"></div><p class="w-open-btns"><button class="w-btn pri" id="o-next">Next</button> <button class="w-btn" id="o-skip">Skip story</button></p><p class="w-open-n" id="o-n"></p></div>';
+ app.innerHTML='<div class="w-top"><h1>Wanderer\'s Quest</h1><span class="w-where">The story begins</span></div><div class="w-open w-par" role="region" aria-label="Opening story"><div class="w-open-stage"><canvas id="o-cv" width="640" height="300" role="img"></canvas></div><div id="o-mk"></div><h2 id="o-h" tabindex="-1"></h2><div id="o-t" aria-live="polite"></div><p class="w-open-btns"><button class="w-btn pri" id="o-next">Next</button> <button class="w-btn" id="o-skip">Skip story</button></p><p class="w-open-n" id="o-n"></p></div>';
  var cv2=document.getElementById("o-cv"),c=cv2.getContext("2d");
  function end(){if(fin)return;fin=true;cancelAnimationFrame(orf);document.removeEventListener("keydown",kd);done()}
  function show(){var p=OPEN[i];document.getElementById("o-h").textContent=p.h;document.getElementById("o-t").innerHTML=p.t.map(function(x){return "<p>"+esc(x)+"</p>"}).join("");
   document.getElementById("o-mk").innerHTML=p.mk?card("makayla",staff().role,""):"";cv2.setAttribute("aria-label",["A tent by the woods under a rising moon","A campfire with fireflies around it","The hero standing tall by the fire","Morning on the trail","A path leading into the woods"][p.s]);
   document.getElementById("o-next").textContent=i===OPEN.length-1?"Begin the adventure":"Next";document.getElementById("o-n").textContent="Page "+(i+1)+" of "+OPEN.length+" \u00b7 Enter or E for next, Esc to skip";draw(performance.now())}
  function next(){if(i<OPEN.length-1){i++;show();document.getElementById("o-next").focus()}else end()}
- function draw(t){var p=OPEN[i],W=640,H=300,day=p.s>=3,g=c.createLinearGradient(0,0,0,H);
-  if(day){g.addColorStop(0,"#f3c98b");g.addColorStop(.6,"#f6e2b8");g.addColorStop(1,"#c9b07a")}else{g.addColorStop(0,"#16203a");g.addColorStop(.65,"#3a3150");g.addColorStop(1,"#2a2418")}
-  c.fillStyle=g;c.fillRect(0,0,W,H);
-  if(!day){c.fillStyle="rgba(255,248,220,.95)";c.beginPath();c.arc(520,62,26,0,6.283);c.fill();c.fillStyle="#2b3150";c.beginPath();c.arc(531,55,22,0,6.283);c.fill()}else{c.fillStyle="rgba(255,236,180,.9)";c.beginPath();c.arc(110,70,30,0,6.283);c.fill()}
-  for(var k=0;k<9;k++){var x=k*80-20;c.fillStyle=day?"#4f6a3a":"#1d2a22";c.beginPath();c.moveTo(x,230);c.lineTo(x+40,120+(k%3)*18);c.lineTo(x+80,230);c.fill()}
-  c.fillStyle=day?"#8a7a46":"#2f2a1c";c.fillRect(0,225,W,75);
-  if(p.s===4){c.fillStyle="#c9a86a";c.beginPath();c.moveTo(280,300);c.lineTo(360,300);c.lineTo(330,226);c.lineTo(312,226);c.fill()}
-  if(p.s<4){c.fillStyle=day?"#c8553f":"#7a3a2c";c.beginPath();c.moveTo(90,250);c.lineTo(150,180);c.lineTo(210,250);c.fill();c.fillStyle="#3a1e14";c.beginPath();c.moveTo(140,250);c.lineTo(150,205);c.lineTo(160,250);c.fill()}
-  if(p.s>=1&&p.s<=2){var f=rm?0:Math.sin(t/120)*3;c.fillStyle="#5a3a1e";c.fillRect(296,250,48,8);var fg=c.createRadialGradient(320,245,4,320,240,80);fg.addColorStop(0,"rgba(255,190,90,.55)");fg.addColorStop(1,"rgba(255,190,90,0)");c.fillStyle=fg;c.fillRect(220,160,200,120);
-   c.fillStyle="#f08a2c";c.beginPath();c.moveTo(304,252);c.quadraticCurveTo(320,206+f,336,252);c.fill();c.fillStyle="#ffd36a";c.beginPath();c.moveTo(312,252);c.quadraticCurveTo(320,224-f,328,252);c.fill()}
-  if(!day)ff.forEach(function(q){var a=rm?q[2]:q[2]+t/900,x=q[0]*W+Math.cos(a)*10,y=q[1]*H+Math.sin(a*1.3)*8,al=rm?.8:.45+.45*Math.sin(a*2);c.fillStyle="rgba(230,255,140,"+al.toFixed(2)+")";c.beginPath();c.arc(x,y,2.4,0,6.283);c.fill()});
-  try{drawHero(c,S.hero,p.s===2?320:(p.s===4?330:380),p.s===2?236:(p.s===4?268:262),p.s===2?1.5:1.25,p.s===4?1:0,0)}catch(e){}
+ function draw(t){if(fin)return;var p=OPEN[i],W=640,H=300,night=p.s<3,mor=p.s>=3;c.setTransform(1,0,0,1,0,0);
+  var gi=img("map-town");if(gi){if(!opat)opat=c.createPattern(gi,"repeat");c.save();c.scale(.5,.5);c.fillStyle=opat;c.fillRect(0,0,W*2,H*2);c.restore()}else{c.fillStyle="#6f8a4a";c.fillRect(0,0,W,H)}
+  var sk=c.createLinearGradient(0,0,0,120);if(night){sk.addColorStop(0,"#141a33");sk.addColorStop(1,"#3b3656")}else{sk.addColorStop(0,"#f2c48a");sk.addColorStop(1,"#f7e4bd")}c.fillStyle=sk;c.fillRect(0,0,W,118);
+  if(night){c.fillStyle="#fff6dc";c.beginPath();c.arc(540,46,20,0,6.283);c.fill();c.fillStyle="#2e3152";c.beginPath();c.arc(549,40,17,0,6.283);c.fill()}else glow(c,96,58,60,t,"#ffe6a8");
+  for(var k=0;k<10;k++)sp(c,"tree",k*70+(k%2?18:0),150+(k%3)*6,108,k%2);
+  c.fillStyle=night?"rgba(16,20,44,.45)":"rgba(255,220,160,.10)";c.fillRect(0,0,W,H);
+  if(p.s===4){poly(c,[[300,300],[380,300],[352,170],[334,170]],"#c9a86a",0);sp(c,"sign",392,218,42);sp(c,"house",470,176,96)}
+  if(p.s<4){shadow(c,150,262,62,10);poly(c,[[92,262],[150,186],[208,262]],"#c8553f");poly(c,[[140,262],[150,214],[160,262]],"#3a1e14",0)}
+  if(p.s>=1&&p.s<=3){var f=rm?0:Math.sin(t/130)*3;if(p.s<3){glow(c,320,240,110,t,"#ffb35a");glow(c,320,240,60,t,"#ffd27a")}shadow(c,320,258,26,6);c.fillStyle="#5a3a1e";c.fillRect(298,250,44,7);
+   if(p.s<3){poly(c,[[304,253],[320,206+f],[336,253]],"#f08a2c",0);poly(c,[[312,253],[320,224-f],[328,253]],"#ffd36a",0)}else{c.fillStyle="rgba(120,110,100,.5)";c.fillRect(312,236,16,14)}}
+  sp(c,"lantern",250,266,44);
+  if(night)ff.forEach(function(q){var a=rm?q[2]:q[2]+t/900,x=q[0]*W+Math.cos(a)*10,y=q[1]*H+Math.sin(a*1.3)*8,al=rm?.8:.5+.4*Math.sin(a*2);glowDot(c,x,y,7,"#e6ff8c",al)});
+  var hx=p.s===2?320:(p.s===4?340:390),hy=p.s===2?236:(p.s===4?280:262);shadow(c,hx,hy,14,4);try{drawHero(c,S.hero,hx,hy,p.s===2?1.5:1.25,p.s===4?1:0,0)}catch(e){}
   if(!rm&&!fin)orf=requestAnimationFrame(draw)}
  function kd(e){var ae=document.activeElement,k=(e.key||"").toLowerCase();if(k==="escape"){e.preventDefault();end();return}
   if(k==="e"||k==="arrowright"||((k==="enter"||k===" ")&&(!ae||ae===document.body||ae.id==="o-h"))){e.preventDefault();next()}}
  document.addEventListener("keydown",kd);document.getElementById("o-next").onclick=next;document.getElementById("o-skip").onclick=end;
- show();document.getElementById("o-next").focus()}
+ show();if(rm)[250,700,1500].forEach(function(d){setTimeout(function(){if(!fin)draw(performance.now())},d)});document.getElementById("o-next").focus()}
 if(S.made)title();else creator();
 })();
