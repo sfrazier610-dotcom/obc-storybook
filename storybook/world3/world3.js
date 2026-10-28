@@ -1023,5 +1023,18 @@ function gjJournal(){var h='';
 function gjEnter(s){if(s.boss&&s.reg&&S.met.indexOf(s.reg)<0&&S.beaten.indexOf(s.reg)<0){var g=GJ[s.reg];setTimeout(function(){toast(C(g.g).name+" waits at the gate in "+SC[g.at].n+" with a skill for this boss.")},500)}}
 window.obcWorld3={gj:{GJ:GJ,FEEL:FEEL,feel:feelOf,F:GJF,mentor:mentor,practice:practice,duo:duo,clue:clue,calm:calmSpot,way:waystation,journal:gjJournal,ok:gjOK,photo:photo,fit:fitOf,fix:gjFix},state:function(){return S},scr:function(){return cur&&cur.id},P:P,go:function(id,x,y){closeOV();if(B)endBattle();enter(id,x,y)},battle:function(i){var e=(cur.ens||[]).filter(function(e){return !gone(e)})[i||0];if(e)battle(e);return !!e},
  B:function(){return B},near:function(){var n=near();return n&&(n.name||n.t)},interact:function(){interact(near())},safe:goSafe,decorate:decorate,hall:hall,office:office,cfg:CFG,SC:SC,build:build,guide:{MX:MX,MATCH:MATCH,methods:guideMethods,half:halfHP,card:photoCard,fx:function(){return FXL.length}},x:{frame:function(){return HF},petFrame:function(){return PT.frame},wx:function(){return WXK},sparks:function(){return SPN},shake:function(){return SHK},vic:function(){return VIC},journal:journal,skx:function(){return S.skx},tips:TIPS,pages:PAGES,quests:QS,companion:companion,bondLv:bondLv,bondAdd:bondAdd,trick:petTrick,petPet:petPet,fish:FISH,fishing:fishing,combo:comboOf,phase:PHASE,lv:LV},reset:function(){localStorage.removeItem(KEY);location.reload()}};
-if(S.made)play();else creator();
+/* ---------- title: continue or start over when a save exists ---------- */
+function title(){cancelAnimationFrame(raf);stage=null;
+ var bt=(S.beaten||[]).length,mt=(S.met||[]).length,where=(SC[S.at]&&SC[S.at].n)||"the village";
+ app.innerHTML='<div class="w-top"><h1>Wanderer\'s Quest</h1><span class="w-where">Welcome back</span></div><div class="w-title w-par"><h2>Welcome back, '+esc(S.hero.name||"Wanderer")+'</h2>'+
+  '<p>Your story is saved on this device: '+esc(where)+', '+bt+' of 8 bosses calmed'+(mt?', '+mt+' guide'+(mt>1?'s':'')+' met':'')+'.</p>'+
+  '<p class="w-title-btns"><button class="w-btn pri" id="t-cont">Continue the story</button> <button class="w-btn" id="t-new">Start over</button></p><div id="t-conf" hidden></div></div>';
+ var cf=document.getElementById("t-conf");
+ document.getElementById("t-cont").onclick=function(){play()};
+ document.getElementById("t-new").onclick=function(){cf.hidden=false;cf.innerHTML='<p role="alert"><b>Start a brand new story?</b> This erases your hero, progress, guides met, clue pages, reflections, calm spots and prize code on this device. It cannot be undone.</p><p><button class="w-btn pri" id="t-yes">Yes, erase and start over</button> <button class="w-btn" id="t-no">Keep my story</button></p>';
+  document.getElementById("t-no").onclick=function(){cf.hidden=true;cf.innerHTML="";document.getElementById("t-new").focus()};
+  document.getElementById("t-yes").onclick=function(){try{localStorage.removeItem(KEY);localStorage.removeItem("obc_world_v2")}catch(e){}location.reload()};
+  document.getElementById("t-no").focus()};
+ document.getElementById("t-cont").focus()}
+if(S.made)title();else creator();
 })();

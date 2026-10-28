@@ -132,3 +132,5 @@ details.w-rl{font-size:11.5px;margin:0 0 2px}
 .w-gj-pages{display:grid;gap:10px}.w-gj-pg{border-bottom:1px solid #d8c7a4;padding-bottom:6px}
 .w-gj-end{border:2px solid #c9853a;border-radius:12px;padding:8px 12px;margin:10px 0;background:#fff6dc}
 @media (max-width:480px){.w-gj-card img{width:64px;height:64px}.w-gj-card h3{font-size:17px}}
+
+.w-title{max-width:560px;margin:24px auto;padding:22px 20px;text-align:center}.w-title h2{margin:.2em 0 .4em}.w-title-btns{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}.w-title-btns .w-btn,#t-conf .w-btn{min-height:44px}#t-conf{margin-top:14px}
