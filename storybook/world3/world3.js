@@ -5,7 +5,8 @@ var app=document.getElementById("w-app");
 var RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 /* ---------- painted images ---------- */
-var IM={};function img(n){var i=IM[n];if(!i){i=new Image();i.src="../img/q-"+n+".webp";IM[n]=i}return i.complete&&i.naturalWidth?i:null}
+var IM={};var INL=window.OBC_INLINE||{};/* offline preview only: pixel-read images inlined so file:// can read them */
+function img(n){var i=IM[n];if(!i){i=new Image();var u="../img/q-"+n+".webp";i.src=INL[u]||u;IM[n]=i}return i.complete&&i.naturalWidth?i:null}
 ["map-town","map-cliffs","map-marsh","map-castle","sp-tree","sp-rock","sp-house","sp-chest","sp-chesto","sp-door","sp-sign","sp-lantern","sp-fog","sp-storm","sp-boss","sp-cat","sp-dog","sp-vil1","sp-vil2","sp-vil3","sp-wall"].forEach(img);
 var ROCKC=null;function rockClean(){if(ROCKC)return ROCKC;var im=img("sp-rock");if(!im)return null;var cv=document.createElement("canvas");cv.width=im.naturalWidth;cv.height=im.naturalHeight;var x=cv.getContext("2d");x.drawImage(im,0,0);var d=x.getImageData(0,0,cv.width,cv.height),p=d.data,W=cv.width,H=cv.height,A=new Uint8Array(W*H);for(var i=0;i<W*H;i++)A[i]=p[i*4+3];
  for(var y=0;y<H;y++)for(var xx=0;xx<W;xx++){var i=y*W+xx,k=i*4;if(!A[i])continue;var r=p[k],g=p[k+1],b=p[k+2],mx=Math.max(r,g,b),mn=Math.min(r,g,b),edge=0;for(var dy=-3;dy<=3&&!edge;dy++)for(var dx=-3;dx<=3;dx++){var yy=y+dy,x2=xx+dx;if(yy<0||x2<0||yy>=H||x2>=W||A[yy*W+x2]<40){edge=1;break}}
@@ -25,7 +26,7 @@ var COL=["#2f4a86","#3f7a5a","#8a3b3b","#6b4a8a","#b8792e","#2f6f78","#7a6a4a","
 var HC=["#2a1a10","#5a3418","#8a5a2a","#c9893a","#e3c27a","#a03a22","#6b6b72"];
 var SKIN=["#f6d7bf","#eec19c","#d9a27a","#b97d55","#8f5a3a","#62402a"];
 var PETS=[{n:"Kenneth",d:"Orange tabby in a red cape, carrying a red book"},{n:"Ragnar",d:"Loyal shepherd dog"},{n:"Orion",d:"Loyal shepherd dog, Ragnar's twin in looks"}];
-var HIMG={};function himg(src){var i=HIMG[src];if(!i){i=new Image();i.src=src;HIMG[src]=i}return i.complete&&i.naturalWidth?i:null}
+var HIMG={};function himg(src){var i=HIMG[src];if(!i){i=new Image();i.src=INL[src]||src;HIMG[src]=i}return i.complete&&i.naturalWidth?i:null}
 BODY.forEach(function(b){himg("../img/q-hero-"+b.k+".webp");himg("../img/q-hmask-"+b.k+".png")});
 function hex(c){var n=parseInt(c.slice(1),16);return[n>>16,n>>8&255,n&255]}
 var HCACHE={};
