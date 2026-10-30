@@ -166,3 +166,5 @@ details.w-rl{font-size:11.5px;margin:0 0 2px}
 .art-ink .w-bar b{background:#b8342a}.art-ink .w-bar.hope b{background:#c9a24a}
 .art-ink [tabindex="-1"]:focus{outline:none;box-shadow:0 3px 0 #c9a24a}
 .art-ink .w-open{margin:8px auto;flex:0 1 auto;min-height:0;overflow-y:auto}
+/* phone: hint toast spans the width so it stays two lines and the fight camera can reserve a fixed band for it */
+@media (max-width:599px){.w-toast,.art-ink .w-toast{width:calc(100% - 12px);max-width:calc(100% - 12px);box-sizing:border-box;font-size:.84rem;line-height:1.3;padding:.35rem .6rem}}
