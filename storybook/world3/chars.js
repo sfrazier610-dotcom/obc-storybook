@@ -72,11 +72,11 @@ function cloud(c,x,y,r,col,t,boss,hap,E){var T=t||0,RM=E.RM,bob=RM?0:Math.sin(T/
  var lobes=[[-17,4,11],[-7,-7,14],[8,-6,13],[18,4,10.5],[0,8,12.5],[-9,9,9],[10,9,9]];
  var pth=function(){lobes.forEach(function(l,i){var w=RM?0:Math.sin(T/500+i)*.6;c.moveTo(l[0]+l[2]+w,l[1]);c.arc(l[0],l[1],l[2]+w,0,6.283)})};
  /* ink wash body: dark storm ink when upset, warm paper when calmed */
+ c.strokeStyle=K;c.lineJoin="round";c.lineWidth=boss?6.5:5;c.beginPath();pth();c.stroke();c.globalAlpha=.25;c.lineWidth=boss?11:9;c.beginPath();pth();c.stroke();c.globalAlpha=1;
  c.fillStyle=hap?"#fbf3e0":"#cfcbd6";c.beginPath();pth();c.fill();
  c.save();c.beginPath();pth();c.clip();var g=c.createLinearGradient(0,-20,0,22);g.addColorStop(0,hap?"rgba(255,255,255,.6)":"rgba(255,255,255,.25)");g.addColorStop(.5,"rgba(0,0,0,0)");g.addColorStop(1,hap?shade(tint,1.3):shade(tint,.55));c.fillStyle=g;c.fillRect(-32,-24,64,48);
- c.globalAlpha=hap?.2:.35;c.strokeStyle=hap?"#c9a24a":K;c.lineWidth=1.2;for(var i=0;i<3;i++){c.beginPath();var q=[[-14,2,6],[9,-7,6],[17,5,4]][i];for(var u=0;u<=24;u++){var th=u/24*8+(RM?0:T/900)*(i%2?1:-1),rr=q[2]*(1-u/28);u?c.lineTo(q[0]+Math.cos(th)*rr,q[1]+Math.sin(th)*rr):c.moveTo(q[0]+rr,q[1])}c.stroke()}c.globalAlpha=1;c.restore();
- /* dry-brush outline: broken tapered strokes */
- c.strokeStyle=K;c.lineCap="round";lobes.forEach(function(l,i){if(i>4)return;for(var k=0;k<3;k++){var a0=-2.6+k*1.1+i*.3;c.lineWidth=(boss?3.4:2.6)*(k===1?1:.6);c.beginPath();c.arc(l[0],l[1],l[2],a0,a0+.95);c.stroke()}});
+ c.globalAlpha=hap?.15:.18;c.strokeStyle=hap?"#c9a24a":K;c.lineWidth=1.2;for(var i=0;i<3;i++){c.beginPath();var q=[[-14,2,6],[9,-7,6],[17,5,4]][i];for(var u=0;u<=24;u++){var th=u/24*8+(RM?0:T/900)*(i%2?1:-1),rr=q[2]*(1-u/28);u?c.lineTo(q[0]+Math.cos(th)*rr,q[1]+Math.sin(th)*rr):c.moveTo(q[0]+rr,q[1])}c.stroke()}c.globalAlpha=1;c.restore();
+ /* dry-brush flicks off the rim */c.strokeStyle=K;c.lineCap="round";[[-28,-2,-33,-6],[27,0,32,-3],[-12,-21,-15,-25],[14,-19,18,-23]].forEach(function(f){c.lineWidth=1.6;c.beginPath();c.moveTo(f[0],f[1]);c.lineTo(f[2],f[3]);c.stroke()});
  if(!hap&&!RM){c.strokeStyle="rgba(26,20,16,.4)";c.lineWidth=1.1;for(var d=0;d<3;d++){var dy=((T/12+d*9)%18);c.beginPath();c.moveTo(-10+d*10,20+dy);c.lineTo(-11+d*10,24+dy);c.stroke()}}
  /* face */
  c.strokeStyle=K;c.fillStyle=K;c.lineCap="round";
