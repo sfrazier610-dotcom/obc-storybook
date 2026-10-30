@@ -717,7 +717,7 @@ function portrait(id){return "../img/q-pt-"+id+".webp"}
 /* ---------- office finale ---------- */
 /* PROTOTYPE art-blend: watercolor scenery (paper, washes, calm-to-color) with crisp pixel characters on top. Formerly: cozy 16-bit look. The world is resampled onto a 3-unit pixel grid with nearest-neighbour scaling, then a warm limited-palette pass; regions stay muted until their boss is calmed */
 var ART=!(/[?&]art=classic\b/.test(location.search)||(function(){try{return localStorage.getItem("obc_art")==="classic"}catch(e){return false}})()),PXC=null,PXMIX={},PXMS=0,PXU=3;
-var INK=ART&&(/[?&]art=ink\b/.test(location.search)||(window.OBC_ART==="ink"&&!/[?&]art=blend\b/.test(location.search)));if(ART)document.documentElement.classList.add("art-blend");if(INK)document.documentElement.classList.add("art-ink");
+var INK=ART&&(/[?&]art=ink\b/.test(location.search)||(window.OBC_ART!=="blend"&&!/[?&]art=blend\b/.test(location.search)));if(ART)document.documentElement.classList.add("art-blend");if(INK)document.documentElement.classList.add("art-ink");
 function wcPaper(c){var g=document.createElement("canvas");g.width=g.height=160;var x=g.getContext("2d"),d=x.createImageData(160,160);
  for(var i=0;i<d.data.length;i+=4){var v=226+Math.random()*29|0;d.data[i]=v;d.data[i+1]=v-4;d.data[i+2]=v-14;d.data[i+3]=255}x.putImageData(d,0,0);
  x.strokeStyle="rgba(150,120,80,.10)";for(var k=0;k<70;k++){x.lineWidth=.5+Math.random();x.beginPath();var px=Math.random()*160,py=Math.random()*160;x.moveTo(px,py);x.quadraticCurveTo(px+Math.random()*20-10,py+Math.random()*20-10,px+Math.random()*30-15,py+Math.random()*30-15);x.stroke()}
