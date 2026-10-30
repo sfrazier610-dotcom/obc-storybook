@@ -790,7 +790,7 @@ var PXB={};function pxFig(c,x,y,h,p,t,flip){if(defer(c,function(){pxFig(c,x,y,h,
   case 4:c.fillStyle=A;c.fillRect(cx-ax*6*u-(flip?0:u),Y+10*u,2*u,3*u);c.fillStyle="#2a1a10";c.fillRect(X+3*u,Y+7*u,u,u);c.fillRect(X+8*u,Y+7*u,u,u);break;/* satchel */
   default:var fl=["#ff8fb0","#ffd25a","#b89cff","#ffffff"];for(var i=0;i<5;i++){c.fillStyle=fl[i%4];c.fillRect(X+(2+i*2)*u,Y+0*u,u,u)}c.fillStyle="#5aa04a";c.fillRect(X+3*u,Y+1*u,u,u);c.fillRect(X+8*u,Y+1*u,u,u)}/* flower crown */
 }
-function pxPal(key,coat){var n=pxH(key);return{coat:coat||["#5a8ac8","#c85a6a","#5aa86a","#d8a040","#8a6ac8","#e07a50"][n%6],hair:PXHAIR[(n>>3)%6],skin:PXSKIN[(n>>6)%5],pants:["#4a4a6a","#5a4030","#3a5a4a"][(n>>9)%3],acc:(n>>4)%6,acc2:["#e0503a","#3a7ac8","#f0c040","#4aa070","#f2e2b0"][(n>>11)%5],seed:n%7}}
+function pxPal(key,coat){var n=pxH(key);return{who:key,coat:coat||["#5a8ac8","#c85a6a","#5aa86a","#d8a040","#8a6ac8","#e07a50"][n%6],hair:PXHAIR[(n>>3)%6],skin:PXSKIN[(n>>6)%5],pants:["#4a4a6a","#5a4030","#3a5a4a"][(n>>9)%3],acc:(n>>4)%6,acc2:["#e0503a","#3a7ac8","#f0c040","#4aa070","#f2e2b0"][(n>>11)%5],seed:n%7}}
 /* pixel companions: original cat (red cape, red book) and shepherd dog, side view on a 3-unit grid */
 var PXCAT=["..o.....o...",".oco...oco..",".occooocco..",".ocecccecco.",".occcnccccoo",".orrrrrrcco.","orrrrrrrcccoo","orrbbrrcccco.",".occo..occo..","..oo....oo..."].map(function(r){return (r+"............").slice(0,13)});
 var PXDOG=["oo..........","odo.........","oddoooo.....","odedddddooo.","odddddtdddo.","onddttttdddo","oodddttttddo",".oddddddddoo",".odo.odo.odo",".oo..oo..oo."].map(function(r){return (r+"............").slice(0,12)});
@@ -905,7 +905,7 @@ function inkGround(w,h,top,night){var k=w+"x"+h+"|"+top+"|"+(night?1:0);if(INKGC
 function inkFrame(c,w,h){c.save();c.strokeStyle="rgba(26,20,16,.85)";c.lineCap="round";var rn=inkRnd(w+h);for(var b=0;b<4;b++){c.lineWidth=3+rn()*3;var o=3+rn()*2;c.beginPath();if(b===0){c.moveTo(o,o);c.lineTo(w-o,o+rn()*2)}else if(b===1){c.moveTo(w-o,o);c.lineTo(w-o-rn()*2,h-o)}else if(b===2){c.moveTo(w-o,h-o);c.lineTo(o,h-o-rn()*2)}else{c.moveTo(o,h-o);c.lineTo(o+rn()*2,o)}c.stroke()}c.restore()}
 /* brush stroke helpers: shape filled flat, then a thick ink outline with a thinner offset pass so the line weight varies */
 function inkShape(c,path,fill,lw){c.beginPath();path();c.fillStyle=fill;c.fill();c.strokeStyle=INKK;c.lineJoin="round";c.lineCap="round";c.lineWidth=lw;c.stroke();c.save();c.translate(lw*.25,lw*.3);c.lineWidth=lw*.45;c.beginPath();path();c.stroke();c.restore()}
-function inkFig(c,x,y,h,p,t,flip){var s=h/58,bob=(!RM&&Math.sin((t||0)/400+(p.seed||0))>.6)?-1.5*s:0,lw=Math.max(1.2,2.2*s),wk=p.walk||0;c.save();c.translate(x,y+bob);c.scale(flip?-s:s,s);var L=lw/s;
+function inkFig(c,x,y,h,p,t,flip){if(window.OBC_CHARS&&OBC_CHARS.fig&&OBC_CHARS.fig(c,x,y,h,p,t,flip,{RM:RM,shade:pxShade}))return;var s=h/58,bob=(!RM&&Math.sin((t||0)/400+(p.seed||0))>.6)?-1.5*s:0,lw=Math.max(1.2,2.2*s),wk=p.walk||0;c.save();c.translate(x,y+bob);c.scale(flip?-s:s,s);var L=lw/s;
  c.fillStyle="rgba(26,20,16,.22)";c.beginPath();c.ellipse(0,0-bob/s,14,3.5,0,0,6.283);c.fill();
  /* legs + feet */
  inkShape(c,function(){c.moveTo(-7+wk*3,-14);c.lineTo(-6+wk*4,-2);c.lineTo(-1,-2);c.lineTo(-1,-14)},p.pants,L);inkShape(c,function(){c.moveTo(1,-14);c.lineTo(1,-2);c.lineTo(6-wk*4,-2);c.lineTo(7-wk*3,-14)},p.pants,L);
@@ -954,7 +954,7 @@ function inkPet(c,x,y,i,dir,t){var fl=dir===3||(dir!==2&&x>P.x),L=1.8;c.save();c
   inkShape(c,function(){c.moveTo(9,-16);c.quadraticCurveTo(12,-26,18,-24);c.lineTo(24,-19);c.lineTo(17,-15);c.quadraticCurveTo(13,-12,9,-14)},"#c89058",L);
   inkShape(c,function(){c.moveTo(11,-22);c.lineTo(12,-31);c.lineTo(16,-24)},"#3a2618",L*.7);c.fillStyle=INKK;c.beginPath();c.arc(24,-19,1.5,0,6.283);c.fill();if(dir!==1){c.beginPath();c.arc(16.5,-21,1.1,0,6.283);c.fill()}}
  c.restore()}
-function inkCloud(c,x,y,r,col,t,boss,hap){var bob=RM?0:Math.sin(t/600)*2,s=r/26;c.save();c.translate(x,y+bob);c.scale(s,s);var L=boss?3.2:2.6,tint=col&&col.length===7?col:"#aaaaaa";
+function inkCloud(c,x,y,r,col,t,boss,hap){if(window.OBC_CHARS&&OBC_CHARS.cloud&&OBC_CHARS.cloud(c,x,y,r,col,t,boss,hap,{RM:RM}))return;var bob=RM?0:Math.sin(t/600)*2,s=r/26;c.save();c.translate(x,y+bob);c.scale(s,s);var L=boss?3.2:2.6,tint=col&&col.length===7?col:"#aaaaaa";
  var lobes=[[-16,4,11],[-6,-6,14],[9,-4,13],[18,5,10],[0,8,12]],ph=RM?0:t/900;
  var path=function(){lobes.forEach(function(l){c.moveTo(l[0]+l[2],l[1]);c.arc(l[0],l[1],l[2],0,6.283)})};
  c.strokeStyle=INKK;c.lineWidth=L*2.2;c.lineJoin="round";c.beginPath();path();c.stroke();
@@ -1029,7 +1029,7 @@ function heroBack(h){var cv=heroCanvas(h);if(!cv)return null;var b=BODY[h.body|0
  x.strokeStyle="rgba(30,18,8,.28)";x.lineWidth=Math.max(1,Wd*.006);for(var i=-3;i<=3;i++){x.beginPath();x.moveTo(cx0+i*rx*.18,cy0-ry*.9);x.quadraticCurveTo(cx0+i*rx*.26,cy0,cx0+i*rx*.2,cy0+ry*.95);x.stroke()}
  x.restore();return BACKC[key]=o}
 function heroFrame(dir){return dir===1?"back":dir>=2?"side":"front"}
-var HPX=-1;function drawHero(c,h,x,y,sc,dir,ph){if(ART){pxFig(c,x,y,58*sc,{coat:["#5a7ab0","#b05a5a","#5a9a6a","#9a7ab0","#c08a3a","#4a8a9a"][(h.c1||0)%6],hair:HC[h.hc||0]||"#5a3418",skin:PXSKIN[(h.skin|0)%6],pants:"#4a4a6a",acc:4,acc2:"#a0703a",seed:1,body:(h.body|0)%3,back:dir===1,walk:!RM&&ph>0?Math.sin(ph):0},performance.now(),dir===3);HF=heroFrame(dir);return}var back=dir===1,cv=back?(heroBack(h)||heroCanvas(h)):heroCanvas(h);shadow(c,x,y,13*sc,4*sc);if(!cv)return;
+var HPX=-1;function drawHero(c,h,x,y,sc,dir,ph){if(ART){pxFig(c,x,y,58*sc,{coat:["#5a7ab0","#b05a5a","#5a9a6a","#9a7ab0","#c08a3a","#4a8a9a"][(h.c1||0)%6],hair:HC[h.hc||0]||"#5a3418",skin:PXSKIN[(h.skin|0)%6],pants:"#4a4a6a",acc:4,acc2:"#a0703a",seed:1,who:"hero",hc:h.hc|0,skinI:h.skin|0,body:(h.body|0)%3,back:dir===1,walk:!RM&&ph>0?Math.sin(ph):0},performance.now(),dir===3);HF=heroFrame(dir);return}var back=dir===1,cv=back?(heroBack(h)||heroCanvas(h)):heroCanvas(h);shadow(c,x,y,13*sc,4*sc);if(!cv)return;
  var hh=62*sc,ww=hh*cv.width/cv.height,mv=!RM&&ph>0,s=Math.sin(ph||0),bob=mv?Math.abs(s)*1.6*sc:0,side=dir>=2,sy=Math.round(cv.height*.66),top=hh*.66,lw=cv.width/2;
  var lift=mv?s*2.4*sc:0,sw=mv&&side?s*3.2*sc:0;
  c.save();c.translate(x,y);if(dir===3)c.scale(-1,1);if(side){c.scale(.86,1);if(mv)c.transform(1,0,-.05,1,0,0)}
