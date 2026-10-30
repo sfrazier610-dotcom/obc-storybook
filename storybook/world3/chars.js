@@ -80,7 +80,7 @@ function cloud(c,x,y,r,col,t,boss,hap,E){var T=t||0,RM=E.RM,bob=RM?0:Math.sin(T/
  if(!hap&&!RM){c.strokeStyle="rgba(26,20,16,.4)";c.lineWidth=1.1;for(var d=0;d<3;d++){var dy=((T/12+d*9)%18);c.beginPath();c.moveTo(-10+d*10,20+dy);c.lineTo(-11+d*10,24+dy);c.stroke()}}
  /* face */
  c.strokeStyle=K;c.fillStyle=K;c.lineCap="round";
- if(hap){c.lineWidth=2;c.beginPath();c.arc(-6,1,2.8,3.5,5.9);c.moveTo(8.8,1);c.arc(6,1,2.8,3.5,5.9);c.stroke();c.beginPath();c.arc(0,4,5,.25,2.9);c.stroke();c.fillStyle="rgba(235,120,120,.55)";c.beginPath();c.ellipse(-11,5,3,1.8,0,0,6.283);c.ellipse(11,5,3,1.8,0,0,6.283);c.fill()}
+ if(hap){c.lineWidth=2;c.beginPath();c.arc(-6,1,2.8,3.5,5.9);c.moveTo(3.4,0);c.arc(6,1,2.8,3.5,5.9);c.stroke();c.beginPath();c.arc(0,4,5,.25,2.9);c.stroke();c.fillStyle="rgba(235,120,120,.55)";c.beginPath();c.ellipse(-11,5,3,1.8,0,0,6.283);c.ellipse(11,5,3,1.8,0,0,6.283);c.fill()}
  else{c.lineWidth=2.2;c.beginPath();c.moveTo(-11,-5);c.quadraticCurveTo(-7,-5,-3,-2);c.moveTo(11,-5);c.quadraticCurveTo(7,-5,3,-2);c.stroke();c.beginPath();c.ellipse(-6,1.5,1.7,2.2,0,0,6.283);c.ellipse(6,1.5,1.7,2.2,0,0,6.283);c.fill();c.lineWidth=2.4;c.beginPath();c.moveTo(-5,11);c.quadraticCurveTo(0,6.5,5,11);c.stroke()}
  c.restore();return true}
 window.OBC_CHARS={fig:fig,cloud:cloud,v:"a"}})();
