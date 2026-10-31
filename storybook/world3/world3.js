@@ -960,42 +960,43 @@ function inkPet(c,x,y,i,dir,t){var fl=dir===3||(dir!==2&&x>P.x),L=1.8,tt=RM?0:(t
   strokes([[9,-25,10,-23,9,-21],[12,-25,12.5,-23,12,-21]],OD,1.3);c.fillStyle="#f6d8b0";c.beginPath();c.ellipse(15,-16.5,3,2,0,0,6.283);c.fill();
   c.strokeStyle=INKK;c.lineWidth=1.1;c.beginPath();c.moveTo(16,-17);c.lineTo(22,-18);c.moveTo(16,-16);c.lineTo(22,-15);c.stroke();if(dir!==1){c.fillStyle=INKK;c.beginPath();c.ellipse(13.5,-20,1.3,1.6,0,0,6.283);c.fill()}
   inkShape(c,function(){c.rect(-4,-9,6,5)},"#8a1a1a",L*.5)}
- else{/* long-legged, long-haired shepherd: tapered brush wisps, sloping back, plume tail, ruff and breeches */
-   var TN="#c4813f",TL="#dca266",TD="#9c5e2a",BK="#24180f";c.scale(.82,.82);
-   function leg(p,col){inkShape(c,function(){c.moveTo(p[0],p[1]);for(var k=2;k<p.length;k+=2)c.lineTo(p[k],p[k+1]);c.closePath()},col,L*.6)}
-   /* tail: S-curve flame plume of tapered wisps, sways from its root */
-   c.save();c.translate(-15,-31);c.rotate(sw*.14);
-   wisp(0,0,-17,7,-24,-13,5.2,TN,L*1.2);wisp(-3,2,-20,9,-29,-8+fl2,2.6,TN,L*.8);wisp(-2,-2,-15,1,-19,-19+fl2,2.4,TN,L*.8);wisp(-22,-11,-25,-17,-21,-22-fl2,1.8,TL,L*.7);wisp(-26,-7,-30,-12,-28,-16+fl2,1.3,TL,L*.6);
-   wisp(-1,-1,-14,3,-20,-12,2.2,BK,0);wisp(-8,4,-16,6,-22,-2,1,TL,0);c.restore();
-   /* far legs (darker): hind with hock angle, fore with one paw stepping forward */
-   leg([-7,-26,-5,-16,-10,-8,-9,0,-5.5,0,-6,-1.5,-12.5,-1.5,-13,-8,-16,-15,-15,-25],TD);
-   leg([8.5,-22,13.5,-22,15.5,-1.5,18.5,0,12,0,11.5,-2,8.5,-12],TD);
-   /* body: deep chest, tucked waist, back sloping down to the hips */
-   inkShape(c,function(){c.moveTo(12,-41);c.quadraticCurveTo(21,-30,15,-21);c.quadraticCurveTo(9,-17,3,-20);c.quadraticCurveTo(-3,-23.5,-7,-25);c.quadraticCurveTo(-15,-23,-18,-28);c.quadraticCurveTo(-20,-33,-14,-34);c.quadraticCurveTo(-2,-35,8,-42);c.closePath()},TN,L);
-   c.save();c.beginPath();c.moveTo(12,-41);c.quadraticCurveTo(21,-30,15,-21);c.quadraticCurveTo(9,-17,3,-20);c.quadraticCurveTo(-3,-23.5,-7,-25);c.quadraticCurveTo(-15,-23,-18,-28);c.quadraticCurveTo(-20,-33,-14,-34);c.quadraticCurveTo(-2,-35,8,-42);c.closePath();c.clip();
-   c.fillStyle=BK;c.beginPath();c.moveTo(-19,-32);c.quadraticCurveTo(-3,-37,10,-43);c.lineTo(9,-36);c.quadraticCurveTo(-2,-29,-17,-27);c.fill();c.restore();
-   /* belly fringe */
-   wisp(5,-22,4,-19,1,-16.5+fl2*.4,1.6,TL,L*.6);wisp(0,-23,-1,-20,-4,-18.5+fl2*.4,1.4,TL,L*.6);
-   /* near legs: hind with fur breeches, fore with feathering behind */
-   leg([-6,-27,-3,-16,-9,-8,-7.5,0,-4,0,-4.5,-1.5,-11.5,-1.5,-12,-8,-15,-15,-16,-26],TN);
-   wisp(-15,-23,-20,-18,-19,-10+fl2*.5,2.6,TN,L*.8);wisp(-13,-17,-17,-13,-15,-7,1.8,TL,L*.6);
-   leg([4.5,-23,9.5,-23,9.5,-1.5,12,0,5.5,0,5,-2,4.5,-12],TN);
-   wisp(5.5,-19,3,-13,2.6,-7+fl2*.4,1.5,TL,L*.6);
-   /* back tufts flicking up */
-   wisp(-10,-34,-12,-37,-14,-39+fl2*.5,1.2,BK,0);wisp(-2,-36,-3,-39,-6,-41+fl2*.5,1.2,BK,0);
-   strokes([[-10,-27,-8,-24,-9,-22],[-1,-28,1,-25,0,-23],[10,-30,12,-27,11,-24]],"#8a5424",1.1);
-   /* layered ruff / mane and tufted chest: a fluffy mass, then thin flowing wisps */
-   inkShape(c,function(){fluff(13,-37,7.5,10,-Math.PI*.55,Math.PI*1.1,10,1.8);c.closePath()},TL,L*.8);
-   [[11,-44,5,-38,1,-33,2.2,TN],[13,-41,8,-34,5,-28,2.2,TL],[16,-40,19,-32,15,-25,2.2,TL],[18,-34,20,-28,16,-21,1.8,TL],[14,-36,12,-30,11,-24,1.6,TN],[9,-38,5,-33,3,-30,1.5,TL]].forEach(function(q,n){wisp(q[0],q[1],q[2],q[3],q[4],q[5]+fl2*(.4+n*.08),q[6],q[7],L*.55)});
-   strokes([[14,-38,12,-34,10,-31],[17,-35,16,-30,14,-27]],TD,.9);
-   /* head: long muzzle with black mask, cheek tufts */
-   var hd=function(){c.moveTo(13,-47);c.quadraticCurveTo(15,-53,21,-52);c.lineTo(25,-50);c.lineTo(33,-47);c.quadraticCurveTo(35,-45.5,33.5,-44);c.lineTo(25,-42.5);c.quadraticCurveTo(18,-40,13,-44);c.closePath()};
-   inkShape(c,hd,TN,L);c.save();c.beginPath();hd();c.clip();c.fillStyle=BK;c.beginPath();c.moveTo(24.5,-51.5);c.lineTo(35,-48);c.lineTo(34,-41);c.lineTo(25.5,-41);c.quadraticCurveTo(23.5,-45,24,-49);c.fill();c.beginPath();c.moveTo(16,-51);c.quadraticCurveTo(20,-54,24,-51);c.quadraticCurveTo(20,-50,16,-51);c.fill();c.restore();
-   wisp(16,-44,13,-42,10,-40+fl2*.4,1.6,TL,L*.6);wisp(19,-43,17,-40,15,-38+fl2*.4,1.3,TL,L*.5);
+ else{/* soft long-haired shepherd: billowing scalloped fur masses, curved tapered legs, one plume tail */
+   var TN="#c4813f",TL="#dca266",TD="#9c5e2a",BK="#24180f",FU="#8a5424";c.scale(.82,.82);
+   /* scal: n rounded bumps from the current point to (x1,y1), bulging outward (path runs clockwise) */
+   var px0=0,py0=0;function mv(x,y){c.moveTo(x,y);px0=x;py0=y}function bz(a,b,d,e,x,y){c.bezierCurveTo(a,b,d,e,x,y);px0=x;py0=y}
+   function scal(x1,y1,n,b){n=fine?n:Math.max(1,n-1);var x0=px0,y0=py0,dx=(x1-x0)/n,dy=(y1-y0)/n,l=Math.hypot(dx,dy)||1;for(var k=0;k<n;k++){var ax=x0+dx*k,ay=y0+dy*k;c.quadraticCurveTo(ax+dx/2+dy/l*b,ay+dy/2-dx/l*b,ax+dx,ay+dy)}px0=x1;py0=y1}
+   function curl(x0,y0,cx,cy,x1,y1,r,col,w){if(!fine)return;c.strokeStyle=col;c.lineWidth=w;c.lineCap="round";c.beginPath();c.moveTo(x0,y0);c.quadraticCurveTo(cx,cy,x1,y1);c.arc(x1+r,y1,r,Math.PI,Math.PI*2.2);c.stroke()}
+   function shape(fn,col,w){inkShape(c,fn,col,w)}
+   function paw(x,y,col){shape(function(){c.ellipse(x,y,3.3,1.7,0,0,6.283)},col,L*.55)}
+   /* tail: one soft plume hanging back, curling up to a rounded tip */
+   c.save();c.translate(-15,-31);c.rotate(sw*.1);c.translate(15,31);
+   var tl=function(){mv(-14,-35.5);bz(-27,-38,-35,-29,-37,-18);bz(-38,-13,-41,-12,-43,-16);c.quadraticCurveTo(-46,-13,-42,-9.5);scal(-31,-8.5,1,-2.4);scal(-15,-27,3,-2.6);c.closePath()};
+   shape(tl,TN,L);c.save();c.beginPath();tl();c.clip();c.fillStyle=BK;c.beginPath();c.moveTo(-12,-37);c.bezierCurveTo(-27,-39.5,-36,-30,-38.5,-19);c.lineTo(-35,-20);c.bezierCurveTo(-33,-28,-25,-32,-13,-31);c.fill();c.fillStyle=TL;c.beginPath();c.ellipse(-42,-13,3.4,2.8,.5,0,6.283);c.fill();c.restore();
+   curl(-19,-26,-26,-21,-29,-14+fl2*.5,1.2,FU,1);curl(-24,-30,-31,-25,-34,-17,1,FU,.9);c.restore();
+   /* far legs (shaded): hind S-curve and the forward-stepping fore leg, paw lifted */
+   function hind(o,col){shape(function(){mv(-8+o,-27);bz(-4.5+o,-23,-4+o,-18,-6.8+o,-14.5);bz(-9+o,-11.5,-10.5+o,-8,-9.6+o,-2);c.lineTo(-11.8+o,-2);bz(-12+o,-6,-12.4+o,-8.5,-13.4+o,-10.5);bz(-16.5+o,-15,-17.5+o,-21,-16+o,-28);c.closePath()},col,L*.7);paw(-9.8+o,-1.6,col)}
+   hind(2.5,TD);
+   shape(function(){mv(9,-24);bz(13,-22,15,-14,17.5,-6.5);c.lineTo(15,-5.5);bz(12.5,-11,10,-16,7,-20);c.closePath()},TD,L*.65);shape(function(){c.ellipse(17.6,-5.2,3,1.6,-.5,0,6.283)},TD,L*.55);
+   /* near hind leg, then the unified body: ruff, chest, tucked belly, breeches, haunch */
+   hind(0,TN);
+   var bd=function(){mv(13,-46);scal(19.5,-33,2,3);scal(15.5,-21,2,2.4);bz(11,-18.5,5,-20,1,-22);bz(-3,-24,-6,-25.5,-9,-24);scal(-19,-22.5,2,2.2);scal(-18,-34,2,2.4);bz(-10,-36,0,-36,6,-41.5);scal(13,-46,1,2.5);c.closePath()};
+   shape(bd,TN,L);c.save();c.beginPath();bd();c.clip();
+   c.fillStyle=BK;c.beginPath();c.moveTo(-20,-31);c.bezierCurveTo(-12,-38,0,-37,8,-43);c.bezierCurveTo(9,-38,4,-34,-2,-32);c.bezierCurveTo(-8,-30,-14,-28,-20,-27);c.fill();
+   /* light ruff and chest masses inside the silhouette */
+   c.fillStyle=TL;c.beginPath();mv(10,-44);scal(18.5,-33,2,2.6);scal(15,-22,2,2);bz(12,-26,10,-31,9,-36);c.closePath();c.fill();
+   c.fillStyle=TL;c.beginPath();c.ellipse(-15,-24,4,3.2,.3,0,6.283);c.fill();c.restore();
+   curl(15,-38,13,-33,13.5,-29+fl2*.4,1.2,TD,1);curl(17,-32,16,-27,15,-24+fl2*.4,1,TD,.9);curl(-12,-28,-14,-25,-16,-22,1,FU,.9);
+   /* near fore leg: gently curved, tapered, small oval paw, soft feathering behind */
+   shape(function(){mv(5,-26);bz(4,-20,1.5,-15,3,-10);c.quadraticCurveTo(3.5,-13,5.5,-12);c.closePath()},TL,L*.5);
+   shape(function(){mv(4,-25);c.lineTo(10,-25);bz(12.5,-19,8,-10,9.2,-2);c.lineTo(6.8,-2);bz(5.2,-8,3,-16,4,-25);c.closePath()},TN,L*.7);paw(8.6,-1.6,TN);
+   /* head: long muzzle with black mask */
+   var hd=function(){c.moveTo(13,-47);c.quadraticCurveTo(15,-53,21,-52);c.lineTo(25,-50);c.quadraticCurveTo(30,-49,33,-47);c.quadraticCurveTo(35,-45.5,33.5,-44);c.quadraticCurveTo(29,-42.5,25,-42.5);c.quadraticCurveTo(18,-40,13,-44);c.closePath()};
+   shape(hd,TN,L);c.save();c.beginPath();hd();c.clip();c.fillStyle=BK;c.beginPath();c.moveTo(24.5,-51.5);c.lineTo(35,-48);c.lineTo(34,-41);c.lineTo(25.5,-41);c.quadraticCurveTo(23.5,-45,24,-49);c.fill();c.beginPath();c.moveTo(16,-51);c.quadraticCurveTo(20,-54,24,-51);c.quadraticCurveTo(20,-50,16,-51);c.fill();c.restore();
+   shape(function(){mv(17.5,-44);scal(12,-41.5,1,1.6);c.quadraticCurveTo(14,-44,17.5,-44)},TL,L*.5);
    c.fillStyle=i===1?"#2f5f8a":"#3f7a4a";c.strokeStyle=INKK;c.lineWidth=.8;c.beginPath();c.moveTo(11,-46);c.lineTo(15,-42);c.lineTo(13.6,-40.2);c.lineTo(9.4,-44);c.closePath();c.fill();c.stroke();
-   /* tall ears with tufts flicking out */
-   inkShape(c,function(){c.moveTo(14,-50);c.quadraticCurveTo(13.5,-56,15.5,-60);c.quadraticCurveTo(19,-55,20,-51.5)},BK,L*.7);inkShape(c,function(){c.moveTo(18.5,-51.5);c.quadraticCurveTo(20,-57,22.5,-61);c.quadraticCurveTo(24.5,-55,24,-50.5)},BK,L*.7);
-   wisp(15,-52,13.5,-54,12,-55.5,.8,TL,0);if(fine){c.strokeStyle=TL;c.lineWidth=.9;c.lineCap="round";c.beginPath();c.moveTo(16.5,-52);c.lineTo(16,-58);c.moveTo(21,-52);c.lineTo(21.8,-59);c.stroke()}
+   /* tall ears, soft-tipped */
+   shape(function(){c.moveTo(14,-50);c.quadraticCurveTo(13.5,-56,15.2,-59.5);c.quadraticCurveTo(16,-60.5,16.8,-59.5);c.quadraticCurveTo(19,-55,20,-51.5)},BK,L*.7);shape(function(){c.moveTo(18.5,-51.5);c.quadraticCurveTo(19.5,-57,22,-60.5);c.quadraticCurveTo(23,-61.2,23.6,-60);c.quadraticCurveTo(24.5,-55,24,-50.5)},BK,L*.7);
+   if(fine){c.strokeStyle=TL;c.lineWidth=.9;c.lineCap="round";c.beginPath();c.moveTo(16.5,-52);c.quadraticCurveTo(15.8,-55,16.2,-57.5);c.moveTo(21,-52);c.quadraticCurveTo(21.3,-55.5,22.4,-58);c.stroke()}
    c.fillStyle=INKK;c.beginPath();c.arc(33.6,-45.6,1.5,0,6.283);c.fill();if(dir!==1){c.fillStyle="#e8b060";c.beginPath();c.ellipse(23,-48.6,1.5,1.1,0,0,6.283);c.fill();c.fillStyle=INKK;c.beginPath();c.arc(23.2,-48.6,.85,0,6.283);c.fill()}
    c.strokeStyle=INKK;c.lineWidth=.9;c.beginPath();c.moveTo(26,-43.2);c.quadraticCurveTo(29,-42.6,32.5,-44);c.stroke()}
 
@@ -1054,7 +1055,7 @@ function creator(){cancelAnimationFrame(raf);stage=null;var h=S.hero,dirs=0;
    drawHero(x,h,hx0,fy2,u*18/58,dirs?3:2,0);x.save();x.translate(hx0+6*u+(window.OBC_CHARS?4:2)*u+pwd/2,fy2);x.scale(pk,pk);pxPet(x,0,0,h.pet|0,dirs?3:2,0);x.restore();FLUSH=F0;
    var hx=Math.max(0,Math.floor((hx0-7*u)*dp)),hy=Math.max(0,Math.floor((fy2-20*u)*dp)),hw=Math.min(c.width-hx,Math.ceil(14*u*dp)),hh=Math.min(c.height-hy,Math.ceil(21*u*dp)),sk=PXSKIN[(h.skin|0)%6],sr=parseInt(sk.slice(1,3),16),sg=parseInt(sk.slice(3,5),16),sb=parseInt(sk.slice(5,7),16),n=0;try{var dd=x.getImageData(hx,hy,hw,hh).data;for(var q=0;q<dd.length;q+=4)if(Math.abs(dd[q]-sr)<3&&Math.abs(dd[q+1]-sg)<3&&Math.abs(dd[q+2]-sb)<3)n++}catch(e){n=-2}HPX=n}
   else{if(window.OBC_CHARS){/* classic + new figures: hero and drawn Kenneth centered as a pair */var hs=Math.min(sc*.78,r.width/62),pk2=hs*.5;drawHero(x,h,r.width/2-hs*11,fy,hs,dirs?3:2,0);x.save();x.translate(r.width/2+hs*14,fy);x.scale(pk2,pk2);inkPet(x,0,0,h.pet|0,dirs?3:2,0);x.restore()}else{drawHero(x,h,lx+sc*15,fy,sc,dirs?3:2,0);if(pc)x.drawImage(pc,lx+sc*34,fy-ph,pw,ph)}HPX=-3}
-  app.querySelectorAll("[data-pc]").forEach(function(cc){var i=+cc.dataset.pc,p=petCanvas(i),g=cc.getContext("2d");g.clearRect(0,0,140,140);if(window.OBC_CHARS){g.save();if(i)g.translate(70,134),g.scale(2.2,2.2);else g.translate(76,128),g.scale(3.4,3.4);inkPet(g,0,0,i,2,0);g.restore();return}if(p){var hh=130,ww=hh*p.width/p.height;g.drawImage(p,70-ww/2,5,ww,hh)}})}
+  app.querySelectorAll("[data-pc]").forEach(function(cc){var i=+cc.dataset.pc,p=petCanvas(i),g=cc.getContext("2d");g.clearRect(0,0,140,140);if(window.OBC_CHARS){g.save();if(i)g.translate(76,134),g.scale(2.05,2.05);else g.translate(76,128),g.scale(3.4,3.4);inkPet(g,0,0,i,2,0);g.restore();return}if(p){var hh=130,ww=hh*p.width/p.height;g.drawImage(p,70-ww/2,5,ww,hh)}})}
  prev();setTimeout(prev,300);setTimeout(prev,900);setTimeout(prev,2000);app.querySelector("h2").tabIndex=-1;document.getElementById("c-name").focus()}
 /* ---------- start ---------- */
 var _play=play;play=function(){_play();safeBar()};
