@@ -942,7 +942,7 @@ function inkFig(c,x,y,h,p,t,flip){if(window.OBC_CHARS&&OBC_CHARS.fig&&OBC_CHARS.
   case 4:c.strokeStyle=INKK;c.beginPath();c.moveTo(-7,-38);c.lineTo(9,-16);c.stroke();inkShape(c,function(){c.rect(-15,-20,8,7)},A,L*.7);break;
   default:var fl=["#ff8fb0","#f4c058","#b89cff","#fff"];for(var i=0;i<5;i++)inkShape(c,function(){c.arc(-8+i*4,-57.5+Math.abs(i-2)*.8,1.9,0,6.283)},fl[i%4],L*.4)}
  c.restore()}
-function inkPet(c,x,y,i,dir,t){var fl=dir===3||(dir!==2&&x>P.x),L=1.8,tt=RM?0:(t||performance.now()),sw=Math.sin(tt/380),m=c.getTransform?c.getTransform():null,zs=m?Math.abs(m.a)/(window.devicePixelRatio||1):2,fine=zs>1.3;c.save();c.translate(x,y);if(fl)c.scale(-1,1);
+function inkPet(c,x,y,i,dir,t){var fl=dir===3||(dir!==2&&x>P.x),L=1.8,tt=RM?0:(t||performance.now()),sw=Math.sin(tt/380),m=c.getTransform?c.getTransform():null,zs=m?Math.abs(m.a)/(window.devicePixelRatio||1):2,fine=zs>1.3;L=fine?1.05:1.8;c.save();c.translate(x,y);if(fl)c.scale(-1,1);
  /* fluffy outline: zigzag along an ellipse arc for brushy fur edges */
  function fluff(cx,cy,rx,ry,a0,a1,n,j){c.moveTo(cx+Math.cos(a0)*rx,cy+Math.sin(a0)*ry);for(var k=1;k<=n;k++){var a=a0+(a1-a0)*k/n,am=a0+(a1-a0)*(k-.5)/n;c.lineTo(cx+Math.cos(am)*(rx+j),cy+Math.sin(am)*(ry+j));c.lineTo(cx+Math.cos(a)*rx,cy+Math.sin(a)*ry)}}
  var fl2=RM?0:Math.sin(tt/230);function wisp(x0,y0,cx,cy,x1,y1,w,col,ol){var dx=x1-x0,dy=y1-y0,d=Math.hypot(dx,dy)||1,nx=-dy/d*w,ny=dx/d*w;c.beginPath();c.moveTo(x0+nx,y0+ny);c.quadraticCurveTo(cx+nx,cy+ny,x1,y1);c.quadraticCurveTo(cx-nx,cy-ny,x0-nx,y0-ny);c.closePath();if(ol){c.strokeStyle=INKK;c.lineWidth=ol;c.lineJoin="round";c.stroke()}c.fillStyle=col;c.fill()}
@@ -961,7 +961,8 @@ function inkPet(c,x,y,i,dir,t){var fl=dir===3||(dir!==2&&x>P.x),L=1.8,tt=RM?0:(t
   c.strokeStyle=INKK;c.lineWidth=1.1;c.beginPath();c.moveTo(16,-17);c.lineTo(22,-18);c.moveTo(16,-16);c.lineTo(22,-15);c.stroke();if(dir!==1){c.fillStyle=INKK;c.beginPath();c.ellipse(13.5,-20,1.3,1.6,0,0,6.283);c.fill()}
   inkShape(c,function(){c.rect(-4,-9,6,5)},"#8a1a1a",L*.5)}
  else{/* soft long-haired shepherd: billowing scalloped fur masses, curved tapered legs, one plume tail */
-   var TN="#c4813f",TL="#dca266",TD="#9c5e2a",BK="#24180f",FU="#8a5424";c.scale(.82,.82);
+   var TN="#c4813f",TL="#dca266",TD="#9c5e2a",BK="#24180f",FU="#8a5424",CR="#ecca94";c.scale(.78,.78);c.translate(0,-4);
+   function LG(f){c.save();c.translate(0,4);c.scale(1,1.15);f();c.restore()}
    /* scal: n rounded bumps from the current point to (x1,y1), bulging outward (path runs clockwise) */
    var px0=0,py0=0;function mv(x,y){c.moveTo(x,y);px0=x;py0=y}function bz(a,b,d,e,x,y){c.bezierCurveTo(a,b,d,e,x,y);px0=x;py0=y}
    function scal(x1,y1,n,b){n=fine?n:Math.max(1,n-1);var x0=px0,y0=py0,dx=(x1-x0)/n,dy=(y1-y0)/n,l=Math.hypot(dx,dy)||1;for(var k=0;k<n;k++){var ax=x0+dx*k,ay=y0+dy*k;c.quadraticCurveTo(ax+dx/2+dy/l*b,ay+dy/2-dx/l*b,ax+dx,ay+dy)}px0=x1;py0=y1}
@@ -970,36 +971,40 @@ function inkPet(c,x,y,i,dir,t){var fl=dir===3||(dir!==2&&x>P.x),L=1.8,tt=RM?0:(t
    function paw(x,y,col){shape(function(){c.ellipse(x,y,3.3,1.7,0,0,6.283)},col,L*.55)}
    /* tail: one soft plume hanging back, curling up to a rounded tip */
    c.save();c.translate(-15,-31);c.rotate(sw*.1);c.translate(15,31);
-   var tl=function(){mv(-14,-35.5);bz(-27,-38,-35,-29,-37,-18);bz(-38,-13,-41,-12,-43,-16);c.quadraticCurveTo(-46,-13,-42,-9.5);scal(-31,-8.5,1,-2.4);scal(-15,-27,3,-2.6);c.closePath()};
-   shape(tl,TN,L);c.save();c.beginPath();tl();c.clip();c.fillStyle=BK;c.beginPath();c.moveTo(-12,-37);c.bezierCurveTo(-27,-39.5,-36,-30,-38.5,-19);c.lineTo(-35,-20);c.bezierCurveTo(-33,-28,-25,-32,-13,-31);c.fill();c.fillStyle=TL;c.beginPath();c.ellipse(-42,-13,3.4,2.8,.5,0,6.283);c.fill();c.restore();
+   var tl=function(){mv(-14,-35.5);bz(-27,-38,-35,-29,-37,-18);bz(-38,-13,-41,-12,-43,-16);c.quadraticCurveTo(-46,-13,-42,-9.5);scal(-31,-7,1,-3.4);scal(-15,-26,3,-3.6);c.closePath()};
+   shape(tl,TN,L);c.save();c.beginPath();tl();c.clip();c.fillStyle=BK;c.beginPath();c.moveTo(-12,-37);c.bezierCurveTo(-27,-39.5,-36,-30,-38.5,-19);c.lineTo(-35,-20);c.bezierCurveTo(-33,-28,-25,-32,-13,-31);c.fill();c.fillStyle=TL;c.beginPath();c.ellipse(-42,-12.5,4,3.2,.5,0,6.283);c.fill();c.restore();
    curl(-19,-26,-26,-21,-29,-14+fl2*.5,1.2,FU,1);curl(-24,-30,-31,-25,-34,-17,1,FU,.9);c.restore();
    /* far legs (shaded): hind S-curve and the forward-stepping fore leg, paw lifted */
    function hind(o,col){shape(function(){mv(-8+o,-27);bz(-4.5+o,-23,-4+o,-18,-6.8+o,-14.5);bz(-9+o,-11.5,-10.5+o,-8,-9.6+o,-2);c.lineTo(-11.8+o,-2);bz(-12+o,-6,-12.4+o,-8.5,-13.4+o,-10.5);bz(-16.5+o,-15,-17.5+o,-21,-16+o,-28);c.closePath()},col,L*.7);paw(-9.8+o,-1.6,col)}
-   hind(2.5,TD);
-   shape(function(){mv(9,-24);bz(13,-22,15,-14,17.5,-6.5);c.lineTo(15,-5.5);bz(12.5,-11,10,-16,7,-20);c.closePath()},TD,L*.65);shape(function(){c.ellipse(17.6,-5.2,3,1.6,-.5,0,6.283)},TD,L*.55);
+   LG(function(){hind(2.5,TD);
+   shape(function(){mv(9,-25);bz(13.5,-22,14,-15,15.5,-9);bz(16,-7,17.5,-6,18.5,-5.5);c.lineTo(17,-3.5);bz(15,-4.5,13.5,-6,12.6,-9);bz(11.5,-14,9.5,-18,7,-21);c.closePath()},TD,L*.65);shape(function(){c.ellipse(18.4,-4.2,2.8,1.5,-.4,0,6.283)},TD,L*.55)});
    /* near hind leg, then the unified body: ruff, chest, tucked belly, breeches, haunch */
-   hind(0,TN);
-   var bd=function(){mv(13,-46);scal(19.5,-33,2,3);scal(15.5,-21,2,2.4);bz(11,-18.5,5,-20,1,-22);bz(-3,-24,-6,-25.5,-9,-24);scal(-19,-22.5,2,2.2);scal(-18,-34,2,2.4);bz(-10,-36,0,-36,6,-41.5);scal(13,-46,1,2.5);c.closePath()};
+   LG(function(){hind(0,TN)});
+   /* near fore leg (under the body): elbow bend, slim angled pastern, small oval paw; long feathering behind; belly fringe */
+   shape(function(){mv(8,-20);scal(-7,-21.5,3,2.6);c.lineTo(-7,-26);c.lineTo(8,-26);c.closePath()},TL,L*.5);
+   LG(function(){shape(function(){mv(4.5,-24);bz(2,-19,-.5,-13,1.4,-6.5);c.quadraticCurveTo(2.6,-9,4.2,-8.6);bz(4,-11,5,-12,6.4,-12);c.closePath()},CR,L*.5);
+   shape(function(){mv(3,-30);c.lineTo(11,-30);bz(12,-24,10.5,-16,9.4,-10.5);bz(9,-7,10.5,-4,12,-2.4);c.lineTo(8.6,-1.6);bz(7,-4,6.2,-7,6.4,-10.5);bz(6.2,-15,3.4,-18,3,-22);c.closePath()},TN,L*.7);paw(10.8,-1.6,TN)});
+   var bd=function(){mv(13,-47);scal(21.5,-33,2,3.6);scal(16,-16.5,2,3);scal(9,-17.5,1,2);scal(-1,-20.5,2,2.2);bz(-4,-22.5,-6,-24,-8.5,-23.5);scal(-20.5,-20,2,3);scal(-18.5,-34,2,3);bz(-10,-36,0,-36,6,-41.5);scal(13,-46,1,2.5);c.closePath()};
    shape(bd,TN,L);c.save();c.beginPath();bd();c.clip();
    c.fillStyle=BK;c.beginPath();c.moveTo(-20,-31);c.bezierCurveTo(-12,-38,0,-37,8,-43);c.bezierCurveTo(9,-38,4,-34,-2,-32);c.bezierCurveTo(-8,-30,-14,-28,-20,-27);c.fill();
    /* light ruff and chest masses inside the silhouette */
-   c.fillStyle=TL;c.beginPath();mv(10,-44);scal(18.5,-33,2,2.6);scal(15,-22,2,2);bz(12,-26,10,-31,9,-36);c.closePath();c.fill();
-   c.fillStyle=TL;c.beginPath();c.ellipse(-15,-24,4,3.2,.3,0,6.283);c.fill();c.restore();
+   c.fillStyle=CR;c.beginPath();mv(11,-45);scal(20.5,-33,2,3);scal(15.5,-18,2,2.6);bz(12,-22,10,-29,9,-36);c.closePath();c.fill();
+   c.fillStyle=TL;c.beginPath();c.ellipse(-16,-23,5,4,.3,0,6.283);c.fill();c.restore();
    curl(15,-38,13,-33,13.5,-29+fl2*.4,1.2,TD,1);curl(17,-32,16,-27,15,-24+fl2*.4,1,TD,.9);curl(-12,-28,-14,-25,-16,-22,1,FU,.9);
-   /* near fore leg: gently curved, tapered, small oval paw, soft feathering behind */
-   shape(function(){mv(5,-26);bz(4,-20,1.5,-15,3,-10);c.quadraticCurveTo(3.5,-13,5.5,-12);c.closePath()},TL,L*.5);
-   shape(function(){mv(4,-25);c.lineTo(10,-25);bz(12.5,-19,8,-10,9.2,-2);c.lineTo(6.8,-2);bz(5.2,-8,3,-16,4,-25);c.closePath()},TN,L*.7);paw(8.6,-1.6,TN);
+   /* big cream mane: bulges past the neck line, down into a bib that hangs below the chest */
+   shape(function(){mv(5,-42);scal(12.5,-50,2,2.8);c.lineTo(16,-44);scal(23.5,-36,2,3.2);scal(19.5,-23,2,3.2);scal(12.5,-13.5,2,2.6);scal(8.5,-27,2,1.8);scal(5,-42,2,1.8);c.closePath()},CR,L*.8);
+   curl(9,-45,11,-41,11.5,-37+fl2*.4,1,TD,.8);curl(18,-38,19.5,-34,18.5,-30+fl2*.4,1,TD,.8);curl(16,-27,16.5,-22,15,-18+fl2*.4,1,TD,.8);curl(12,-33,13,-29,12.5,-25,1,TD,.7);
    /* head: long muzzle with black mask */
    var hd=function(){c.moveTo(13,-47);c.quadraticCurveTo(15,-53,21,-52);c.lineTo(25,-50);c.quadraticCurveTo(30,-49,33,-47);c.quadraticCurveTo(35,-45.5,33.5,-44);c.quadraticCurveTo(29,-42.5,25,-42.5);c.quadraticCurveTo(18,-40,13,-44);c.closePath()};
    shape(hd,TN,L);c.save();c.beginPath();hd();c.clip();c.fillStyle=BK;c.beginPath();c.moveTo(24.5,-51.5);c.lineTo(35,-48);c.lineTo(34,-41);c.lineTo(25.5,-41);c.quadraticCurveTo(23.5,-45,24,-49);c.fill();c.beginPath();c.moveTo(16,-51);c.quadraticCurveTo(20,-54,24,-51);c.quadraticCurveTo(20,-50,16,-51);c.fill();c.restore();
-   shape(function(){mv(17.5,-44);scal(12,-41.5,1,1.6);c.quadraticCurveTo(14,-44,17.5,-44)},TL,L*.5);
+   shape(function(){mv(19,-44);scal(11.5,-40.5,2,1.8);c.quadraticCurveTo(14,-45,19,-44)},CR,L*.5);
    c.fillStyle=i===1?"#2f5f8a":"#3f7a4a";c.strokeStyle=INKK;c.lineWidth=.8;c.beginPath();c.moveTo(11,-46);c.lineTo(15,-42);c.lineTo(13.6,-40.2);c.lineTo(9.4,-44);c.closePath();c.fill();c.stroke();
    /* tall ears, soft-tipped */
    shape(function(){c.moveTo(14,-50);c.quadraticCurveTo(13.5,-56,15.2,-59.5);c.quadraticCurveTo(16,-60.5,16.8,-59.5);c.quadraticCurveTo(19,-55,20,-51.5)},BK,L*.7);shape(function(){c.moveTo(18.5,-51.5);c.quadraticCurveTo(19.5,-57,22,-60.5);c.quadraticCurveTo(23,-61.2,23.6,-60);c.quadraticCurveTo(24.5,-55,24,-50.5)},BK,L*.7);
+   c.fillStyle=CR;c.beginPath();mv(15,-51);scal(17.5,-55,1,-1.3);c.lineTo(18,-51.5);c.fill();c.beginPath();mv(19.5,-51.5);scal(22,-56,1,-1.3);c.lineTo(23.2,-51);c.fill();
    if(fine){c.strokeStyle=TL;c.lineWidth=.9;c.lineCap="round";c.beginPath();c.moveTo(16.5,-52);c.quadraticCurveTo(15.8,-55,16.2,-57.5);c.moveTo(21,-52);c.quadraticCurveTo(21.3,-55.5,22.4,-58);c.stroke()}
    c.fillStyle=INKK;c.beginPath();c.arc(33.6,-45.6,1.5,0,6.283);c.fill();if(dir!==1){c.fillStyle="#e8b060";c.beginPath();c.ellipse(23,-48.6,1.5,1.1,0,0,6.283);c.fill();c.fillStyle=INKK;c.beginPath();c.arc(23.2,-48.6,.85,0,6.283);c.fill()}
    c.strokeStyle=INKK;c.lineWidth=.9;c.beginPath();c.moveTo(26,-43.2);c.quadraticCurveTo(29,-42.6,32.5,-44);c.stroke()}
-
  c.restore()}
 function inkCloud(c,x,y,r,col,t,boss,hap){if(window.OBC_CHARS&&OBC_CHARS.cloud&&OBC_CHARS.cloud(c,x,y,r,col,t,boss,hap,{RM:RM}))return;var bob=RM?0:Math.sin(t/600)*2,s=r/26;c.save();c.translate(x,y+bob);c.scale(s,s);var L=boss?3.2:2.6,tint=col&&col.length===7?col:"#aaaaaa";
  var lobes=[[-16,4,11],[-6,-6,14],[9,-4,13],[18,5,10],[0,8,12]],ph=RM?0:t/900;
