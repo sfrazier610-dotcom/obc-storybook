@@ -94,7 +94,7 @@ var DEC={
 /* boss keepsakes can be placed too */
 BOSS.forEach(function(id){DEC["k_"+id]={n:"",keep:id,d:function(c,x,y,t){glow(c,x,y-26,34,t,R(id).col);poly(c,[[x-12,y],[x+12,y],[x+9,y-14],[x-9,y-14]],"#b8a88a");blob(c,x,y-24,8,8,R(id).col)}}});
 function decName(k){var d=DEC[k];return d&&(d.n||("Keepsake: "+(BD[d.keep]&&BD[d.keep].loot)))}
-function glow(c,x,y,r,t,col){if(FLUSH===2)return;var a=RM?.3:.24+.08*Math.sin((t||0)/500+x);var g=c.createRadialGradient(x,y,1,x,y,r);g.addColorStop(0,(col?hexA(col,a*1.6):"rgba(255,214,120,"+a*1.6+")"));g.addColorStop(1,"rgba(255,214,120,0)");c.fillStyle=g;c.fillRect(x-r,y-r,r*2,r*2)}
+function glow(c,x,y,r,t,col){if(FLUSH===2)return;var a=RM?.3:.24+.08*Math.sin((t||0)/500+x);a*=GLA;var g=c.createRadialGradient(x,y,1,x,y,r);g.addColorStop(0,(col?hexA(col,a*1.6):"rgba(255,214,120,"+a*1.6+")"));g.addColorStop(1,"rgba(255,214,120,0)");c.fillStyle=g;c.fillRect(x-r,y-r,r*2,r*2)}
 function hexA(h,a){var n=parseInt(h.slice(1),16);return "rgba("+(n>>16)+","+(n>>8&255)+","+(n&255)+","+a+")"}
 
 /* ---------- the world: 4 x 5 painted screens, walk off an edge to the next ---------- */
@@ -263,7 +263,9 @@ function blocked(s,x,y){if(x<6||x>W-6||y<62||y>H-6)return false;
  return false}
 function free(s,x,y){if(!blocked(s,x,y)&&x>8&&x<W-8&&y>66&&y<H-8)return[x,y];for(var r=8;r<300;r+=8)for(var a=0;a<6.28;a+=.4){var X=x+Math.cos(a)*r,Y=y+Math.sin(a)*r;if(X>20&&X<W-20&&Y>80&&Y<H-20&&!blocked(s,X,Y))return[X,Y]}return[320,250]}
 function busy(){return !!(OV||B)}
-function loop(t){if(!document.body.contains(cv))return;var dt=Math.min(.05,(t-last)/1000);last=t;lastT=t;update(dt,t);render(t);raf=requestAnimationFrame(loop)}
+/* frame-rate independent easing: k is the per-frame blend tuned at 60 fps */
+var FDT=1/60;function ez(k){return 1-Math.pow(1-k,Math.min(3,FDT*60))}
+function loop(t){if(!document.body.contains(cv))return;var dt=Math.min(.05,(t-last)/1000);last=t;lastT=t;FDT=dt;update(dt,t);render(t);window.OBC_DPRK=0;raf=requestAnimationFrame(loop)}
 function update(dt,t){var s=cur;if(fade>0)fade=Math.max(0,fade-dt*3);
  var vx=0,vy=0;if(!busy()||(DM&&DM.sel==null&&!OVblock())){
   if(held.ArrowLeft||held.a)vx-=1;if(held.ArrowRight||held.d)vx+=1;if(held.ArrowUp||held.w)vy-=1;if(held.ArrowDown||held.s)vy+=1;
@@ -288,22 +290,25 @@ function edges(s){var d=null;if(P.x<6)d="w";else if(P.x>W-6)d="e";else if(P.y<62
 function gone(e){if(B&&B.e===e)return false;if(S.bloom)return true;return e.boss?S.beaten.indexOf(e.reg)>=0:S.cleared.indexOf(e.id)>=0}
 /* ---------- drawing ---------- */
 var PAT={},WXK="";
-function render(t){var r=stage.getBoundingClientRect(),dpr=Math.min(2,devicePixelRatio||1);if(r.width<2||r.height<2)return;
+function render(t){var r=stage.getBoundingClientRect(),dpr=Math.min(2,devicePixelRatio||1);if(r.width<2||r.height<2)return;/* perf: cap the backing store near 2.2 megapixels so big high-DPI screens are not filling 3.5M pixels a frame */dpr=Math.max(1,Math.min(dpr,Math.sqrt(2.2e6/(r.width*r.height))));window.OBC_DPR=dpr;/* figures pick fine or bold line weights from zoom; keep the same thresholds as before the cap */var rd=devicePixelRatio||1;window.OBC_DPRK=dpr*rd/Math.min(2,rd);
  var w=Math.round(r.width*dpr),h=Math.round(r.height*dpr);if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h}
  var c=cx,s=cur,sc=Math.min(r.width/W,r.height/H),ox=(r.width-W*sc)/2,oy=(r.height-H*sc)/2;
  if(B){var tz=stage.querySelector(".w-toast"),hz=stage.querySelector(".w-bhud");if(tz&&hz){var tq=(hz.getBoundingClientRect().bottom-stage.getBoundingClientRect().top+6)+"px";if(tz.style.top!==tq)tz.style.top=tq}var hud=stage.querySelector(".w-bhud"),bot=stage.querySelector(".w-bbot"),t0=hud?hud.getBoundingClientRect().bottom-r.top:0,b0=bot?bot.getBoundingClientRect().top-r.top:r.height;
   sc=Math.max(sc,Math.min(r.width/W,(b0-t0)/(H*.62)));var fx=(P.x+B.e.x)/2,fy=(P.y+B.e.y)/2-40;var tx=r.width/2-fx*sc,ty=(t0+b0)/2-fy*sc;
   if(window.OBC_CHARS){/* frame the lifted boss and the hero between the toast and the action bar */var bb=B.e.boss,by0=B.e.y-(bb?50:20);if(Math.abs(P.x-B.e.x)<(bb?130:70))by0=Math.min(by0,P.y-(bb?158:108));var tp0=by0-(bb?84:34),bt0=P.y+36,tvh=tz&&tz.offsetParent&&tz.textContent.trim()?tz.getBoundingClientRect().height:0;if(VIEW.b!==B)VIEW.tr=r.width<600?58:56;if(tvh>VIEW.tr)VIEW.tr=tvh;var tb=t0+6+VIEW.tr+6,av=Math.max(60,b0-tb-6);/* fixed room for the hint toast so the camera does not re-zoom when it comes and goes */sc=Math.min(av/(bt0-tp0),r.width/(bb?340:260),2.2);if(r.width<600)sc=Math.max(sc,r.width/W,(b0-t0)/H);tx=r.width/2-fx*sc;ty=tb+av/2-(tp0+bt0)/2*sc;if(W*sc>=r.width)tx=Math.min(0,Math.max(r.width-W*sc,tx));if(H*sc>=b0-t0)ty=Math.min(r.width<600?tb:t0,Math.max(b0-H*sc,ty));ty=Math.max(ty,tb+4-tp0*sc)}
-  if(RM||VIEW.b!==B){ox=tx;oy=ty}else{ox=VIEW.ox+(tx-VIEW.ox)*.15;oy=VIEW.oy+(ty-VIEW.oy)*.15}VIEW.b=B}else{if(window.OBC_CHARS&&r.width<600&&r.height>H*sc*1.25){/* phone: zoom the camera so figures and faces read, following the hero */var hdE=document.querySelector(".w-top"),hd=hdE?Math.max(0,Math.min(r.height*.4,hdE.getBoundingClientRect().bottom-r.top)):0,s2=Math.max((r.height-hd)/H,r.width/W),zx=Math.min(0,Math.max(r.width-W*s2,r.width/2-P.x*s2)),zy=Math.min(hd,Math.max(r.height-H*s2,(r.height+hd)/2-(P.y-30)*s2));if(RM||VIEW.z!==s.id||VIEW.b){ox=zx;oy=zy}else{ox=VIEW.ox+(zx-VIEW.ox)*.18;oy=VIEW.oy+(zy-VIEW.oy)*.18}sc=s2;VIEW.z=s.id}else VIEW.z=null;VIEW.b=null}
+  if(RM||VIEW.b!==B){ox=tx;oy=ty}else{var e1=ez(.15);ox=VIEW.ox+(tx-VIEW.ox)*e1;oy=VIEW.oy+(ty-VIEW.oy)*e1}VIEW.b=B}else{if(window.OBC_CHARS&&r.width<600&&r.height>H*sc*1.25){/* phone: zoom the camera so figures and faces read, following the hero */var hdE=document.querySelector(".w-top"),hd=hdE?Math.max(0,Math.min(r.height*.4,hdE.getBoundingClientRect().bottom-r.top)):0,s2=Math.max((r.height-hd)/H,r.width/W),zx=Math.min(0,Math.max(r.width-W*s2,r.width/2-P.x*s2)),zy=Math.min(hd,Math.max(r.height-H*s2,(r.height+hd)/2-(P.y-30)*s2));if(RM||VIEW.z!==s.id||VIEW.b){ox=zx;oy=zy}else{var e2=ez(.18);ox=VIEW.ox+(zx-VIEW.ox)*e2;oy=VIEW.oy+(zy-VIEW.oy)*e2}sc=s2;VIEW.z=s.id}else VIEW.z=null;VIEW.b=null}
  VIEW.s=sc;VIEW.ox=ox;VIEW.oy=oy;var so=shakeOff();ox+=so[0];oy+=so[1];
+ var gi=img("map-"+s.g),IC=INK&&inkReady(s);
+ /* perf: in ink mode the margins (paper frame outside the world) and the ground under the cached plate are static, so they come from cached canvases instead of being re-blended every frame */
+ if(IC)inkMargins(c,r,dpr,sc,ox,oy,s,gi);else{
  c.setTransform(dpr,0,0,dpr,0,0);c.fillStyle="#3a2c18";c.fillRect(0,0,r.width,r.height);
- var gi=img("map-"+s.g);if(gi&&!(s.id==="safe"&&S.safe.kind==="beach")){if(!PAT[s.g])PAT[s.g]=c.createPattern(gi,"repeat");c.save();c.translate(ox,oy);c.scale(sc,sc);c.fillStyle=PAT[s.g];c.fillRect(-ox/sc-W,-oy/sc-H,r.width/sc+2*W,r.height/sc+2*H);c.restore();c.fillStyle="rgba(30,20,10,.45)";c.fillRect(0,0,r.width,r.height)}
+ if(gi&&!(s.id==="safe"&&S.safe.kind==="beach")){if(!PAT[s.g])PAT[s.g]=c.createPattern(gi,"repeat");c.save();c.translate(ox,oy);c.scale(sc,sc);c.fillStyle=PAT[s.g];c.fillRect(-ox/sc-W,-oy/sc-H,r.width/sc+2*W,r.height/sc+2*H);c.restore();c.fillStyle="rgba(30,20,10,.45)";c.fillRect(0,0,r.width,r.height)}}
  c.setTransform(dpr*sc,0,0,dpr*sc,dpr*ox,dpr*oy);
- c.save();c.beginPath();c.rect(0,0,W,H);c.clip();
+ if(!IC){c.save();c.beginPath();c.rect(0,0,W,H);c.clip();
  if(s.id==="safe"&&S.safe.kind==="beach")beach(c,t);else if(gi)c.drawImage(gi,0,0,W,H);
  (s.w||[]).forEach(function(a){water(c,a[0],a[1],a[2],a[3],t)});
  if(s.id==="safe"&&S.safe.kind==="forest")water(c,520,110,70,26,t);
- c.restore();
+ c.restore()}
  var L=[];s.items.forEach(function(o){if(o.t!=="look")L.push({y:o.y,x:o.x,t:o.t,s:1,d:function(k){drawItem(k,o,t)},f:function(){drawItem(c,o,t)}})});
  if(s.id==="office")L.push({y:228,x:530,s:1,d:function(k){drawPen(k,t,1)},f:function(){drawPen(c,t)}});
  if(DEF&&DEF.sc===s.id)L.push({y:DEF.y,x:DEF.x,f:function(){drawDef(c,t)}});
@@ -313,7 +318,11 @@ function render(t){var r=stage.getBoundingClientRect(),dpr=Math.min(2,devicePixe
  var ptx=pt[0],pty=pt[1];if(window.OBC_CHARS&&Math.abs(ptx-P.x)<44&&Math.abs(pty-P.y)<16)ptx=P.x+(ptx<=P.x?-44:44);/* keep the drawn pet beside the hero, not hidden behind */
  L.push({y:pty-.1,x:ptx,f:function(){drawPet(c,ptx,pty,t)}});
  L.push({y:P.y,x:P.x,f:function(){drawHero(c,S.hero,P.x,P.y,1,B?(B.e.x<P.x?3:2):P.dir,RM?0:P.ph);if(B&&B.shield){c.strokeStyle="rgba(255,214,120,.8)";c.lineWidth=3;c.beginPath();c.arc(P.x,P.y-30,34,0,7);c.stroke()}}});
- L.sort(function(a,b){return a.y-b.y});WT=c.getTransform();OCC=ART?L.filter(function(d){return d.s}):[];L.forEach(function(d){DQY=d.y;DQX=d.x;d.f()});if(INK)inkPlate(c,s,t);
+ L.sort(function(a,b){return a.y-b.y});WT=c.getTransform();OCC=ART?L.filter(function(d){return d.s}):[];L.forEach(function(d){DQY=d.y;DQX=d.x;d.f()});
+ if(IC){c.drawImage(inkBase(s),0,0,W,H);var mm=PXMIX[s.id];GLA=mm<1?.45+.55*mm:1;inkPlate(c,s,t,2);GLA=1;
+  /* weather now sits above the cached ink wash, so it is faded while the region is still muted instead of being re-blended every frame */
+  c.save();c.beginPath();c.rect(0,0,W,H);c.clip();c.globalAlpha=mm<1?.45+.55*mm:1;WXK=weather(c,s,t);c.globalAlpha=1;if(fade>0){c.fillStyle="rgba(20,12,4,"+fade+")";c.fillRect(0,0,W,H)}c.restore()}else{
+ if(INK)inkPlate(c,s,t);
  c.save();c.beginPath();c.rect(0,0,W,H);c.clip();
  if(s.tone&&!S.bloom){c.fillStyle=s.tone;c.fillRect(0,0,W,H)}
  WXK=weather(c,s,t);
@@ -321,7 +330,8 @@ function render(t){var r=stage.getBoundingClientRect(),dpr=Math.min(2,devicePixe
  if(B){c.fillStyle="rgba(30,20,40,.18)";c.fillRect(0,0,W,H)}
  if(fade>0){c.fillStyle="rgba(20,12,4,"+fade+")";c.fillRect(0,0,W,H)}
  c.restore();
- if(ART){if(INK)inkFX(c,t);else wcFX(c,t);wcMargins(c,r,dpr,sc,ox,oy);flushDQ(c)}
+ if(ART){if(INK)inkFX(c,t);else wcFX(c,t);wcMargins(c,r,dpr,sc,ox,oy)}}
+ if(ART)flushDQ(c);
  drawFX(c,t);drawSparks(c);if(S.bloom&&!B)bloomFX(c,t);LBL=null;var n=busy()?null:near();if(n)label(c,n);actBtn(n)
  if(DM&&DM.pick){c.fillStyle="rgba(255,214,120,.5)";c.beginPath();c.ellipse(P.x,P.y-34,6,6,0,0,7);c.fill()}}
 var LBL=null,ACTK="";document.addEventListener("click",function(e){if(e.target&&e.target.closest&&e.target.closest("#w-act")){doAct();if(stage&&!OV)stage.focus()}});
@@ -727,7 +737,7 @@ function wcPaper(c){var g=document.createElement("canvas");g.width=g.height=160;
  x.strokeStyle="rgba(150,120,80,.10)";for(var k=0;k<70;k++){x.lineWidth=.5+Math.random();x.beginPath();var px=Math.random()*160,py=Math.random()*160;x.moveTo(px,py);x.quadraticCurveTo(px+Math.random()*20-10,py+Math.random()*20-10,px+Math.random()*30-15,py+Math.random()*30-15);x.stroke()}
  return c.createPattern(g,"repeat")}
 function wcCalm(){if(S.bloom||!cur||!cur.reg)return 1;return S.beaten.indexOf(cur.reg)>=0?1:0}
-function wcFX(c,t){var t0=performance.now(),id=cur.id,tg=wcCalm();if(PXMIX[id]==null)PXMIX[id]=tg;PXMIX[id]+=(tg-PXMIX[id])*(RM?1:.04);var m=PXMIX[id];if(Math.abs(tg-m)<.003)PXMIX[id]=m=tg;
+function wcFX(c,t){var t0=performance.now(),id=cur.id,tg=wcCalm();if(PXMIX[id]==null)PXMIX[id]=tg;PXMIX[id]+=(tg-PXMIX[id])*(RM?1:ez(.04));var m=PXMIX[id];if(Math.abs(tg-m)<.003)PXMIX[id]=m=tg;
  c.save();
  /* muted until calmed */
  if(m<1){c.globalCompositeOperation="saturation";c.globalAlpha=.85*(1-m);c.fillStyle="hsl(30,0%,50%)";c.fillRect(0,0,W,H);
@@ -746,23 +756,43 @@ var WCL={};function wcLayers(c,id,hot){var k=id+(hot?1:0);if(WCL[k])return WCL[k
  var ks=Object.keys(WCL);if(ks.length>8)delete WCL[ks[0]];return WCL[k]=[A,Bc]}
 function pxCalm(){return wcCalm()}
 /* blend: characters, bosses and sign text are queued during the scene pass and drawn crisp after the watercolor pass */
+/* perf caches for ink mode: the scene plate with its tone, vignette and ink-wash blends is composited once per scene state into BASEC (world space at 2x, the plate's own resolution), and the paper margins once per camera framing; per frame only one blit of each is needed */
+var GLA=1;
+var BASEC=null,BASEK="",ICB=null,MTILE={};
+function inkBase(s){var m=inkMix(),k=inkPlateKey(s)+"|"+m.toFixed(3)+"|"+(B?1:0)+"|"+(s.tone&&!S.bloom?s.tone:"");if(BASEC&&BASEK===k)return ICB=BASEC;
+ if(!BASEC){BASEC=document.createElement("canvas");BASEC.width=W*2;BASEC.height=H*2}var b=BASEC.getContext("2d");b.setTransform(2,0,0,2,0,0);b.globalCompositeOperation="source-over";b.globalAlpha=1;b.clearRect(0,0,W,H);
+ inkPlate(b,s,0,1);if(s.tone&&!S.bloom){b.fillStyle=s.tone;b.fillRect(0,0,W,H)}
+ var g=b.createRadialGradient(W*.55,H*.3,60,W/2,H/2,W*.75);g.addColorStop(0,"rgba(255,220,150,.10)");g.addColorStop(1,"rgba(60,30,10,.32)");b.fillStyle=g;b.fillRect(0,0,W,H);
+ if(B){b.fillStyle="rgba(30,20,40,.18)";b.fillRect(0,0,W,H)}inkFX(b,0,m);BASEK=k;return ICB=BASEC}
+function inkMargins(c,r,dpr,sc,ox,oy,s,gi){ICB=null;if(ox<=.01&&oy<=.01&&ox+W*sc>=r.width-.01&&oy+H*sc>=r.height-.01)return;
+ c.setTransform(dpr,0,0,dpr,0,0);c.fillStyle="#3a2c18";c.fillRect(0,0,r.width,r.height);if(!gi)return;
+ /* the margin look (dimmed map pattern, half-desaturated, warm soft-light, paper grain, brown wash) is baked once into one pattern tile per map; per frame only the strips outside the world are filled */
+ var T=MTILE[s.g];if(!T){T=document.createElement("canvas");T.width=gi.naturalWidth||W;T.height=gi.naturalHeight||H;var x=T.getContext("2d"),tw=T.width,th=T.height;if(!WCP)WCP=wcPaper(x);
+  x.drawImage(gi,0,0,tw,th);x.fillStyle="rgba(30,20,10,.45)";x.fillRect(0,0,tw,th);x.globalCompositeOperation="saturation";x.globalAlpha=.5;x.fillStyle="hsl(0,0%,50%)";x.fillRect(0,0,tw,th);x.globalCompositeOperation="soft-light";x.fillStyle="#ffb878";x.fillRect(0,0,tw,th);
+  x.globalCompositeOperation="source-over";x.fillStyle=WCP;x.fillRect(0,0,tw,th);x.fillStyle="#5a3e22";x.fillRect(0,0,tw,th);MTILE[s.g]=T;T.p=c.createPattern(T,"repeat")}
+ c.save();c.beginPath();c.rect(0,0,r.width,r.height);c.rect(ox,oy,W*sc,H*sc);c.clip("evenodd");c.translate(ox,oy);c.scale(sc,sc);c.fillStyle=T.p;c.fillRect(-ox/sc-W,-oy/sc-H,r.width/sc+2*W,r.height/sc+2*H);c.restore()}
 var CHR=ART||!!window.OBC_CHARS;var DQ=[],FLUSH=(!ART&&window.OBC_CHARS)?1:0,WCP=null,DQY=0,DQX=0,OCC=[],WT=null,SNAP=null,MASK=null;
 /* blend depth: crisp pixel actors are queued with their sort y during the scene pass, drawn after the watercolor pass, and any scenery that stands in front of an actor is re-stamped from the watercolored snapshot so trees, walls and fences still cover them */
 function defer(c,f){if(FLUSH===2)return true;if(FLUSH)return false;var T=c.getTransform(),a=c.globalAlpha;DQ.push({y:DQY,x:DQX,f:function(){c.save();c.setTransform(T);c.globalAlpha=a;c.imageSmoothingEnabled=false;f();c.restore()}});return true}
+var OSPR={},OSPK="",OSW=320,OSH=300;
+function occSprite(o){if(OSPK!==BASEK){for(var q in OSPR)OSPR[q].width=0;OSPR={};OSPK=BASEK}var k=o.x+"|"+o.y+"|"+o.t,sp=OSPR[k];if(sp)return sp;
+ sp=document.createElement("canvas");sp.width=OSW*2;sp.height=OSH*2;sp.ox=o.x-OSW/2;sp.oy=o.y-OSH+50;var x=sp.getContext("2d");x.setTransform(2,0,0,2,-2*sp.ox,-2*sp.oy);var F0=FLUSH;FLUSH=2;try{o.d(x)}catch(e){}FLUSH=F0;
+ x.globalCompositeOperation="source-in";x.drawImage(BASEC,0,0,W,H);return OSPR[k]=sp}
 function flushDQ(c){var cv=c.canvas,q,i,j;if(!SNAP){SNAP=document.createElement("canvas");MASK=document.createElement("canvas")}
  DQ.sort(function(a,b){return a.y-b.y});
  /* per actor: which scenery stands in front, and the device-pixel box to restamp */
  var jobs=[],A=WT?WT.a:1;if(OCC.length)for(i=0;i<DQ.length;i++){q=DQ[i];if(q.y>1e5)continue;var os=null;
   for(j=0;j<OCC.length;j++){var o=OCC[j];if(o.y>q.y+.5&&o.y-q.y<130&&Math.abs(o.x-q.x)<(o.t==="tree"||o.t==="house"?85:60))(os||(os=[])).push(o)}
   if(!os)continue;var bx=Math.max(0,Math.floor(WT.e+(q.x-90)*A)),by=Math.max(0,Math.floor(WT.f+(q.y-150)*A)),bw=Math.min(cv.width-bx,Math.ceil(180*A)),bh=Math.min(cv.height-by,Math.ceil(170*A));if(bw<1||bh<1)continue;q.job={os:os,r:[bx,by,bw,bh]};jobs.push(q.job)}
- if(jobs.length){if(SNAP.width!==cv.width||SNAP.height!==cv.height){SNAP.width=MASK.width=cv.width;SNAP.height=MASK.height=cv.height}var sx=SNAP.getContext("2d");sx.setTransform(1,0,0,1,0,0);sx.globalCompositeOperation="source-over";
+ var IB=INK&&ICB;if(jobs.length&&(MASK.width!==cv.width||MASK.height!==cv.height)){MASK.width=cv.width;MASK.height=cv.height}if(jobs.length&&!IB){if(SNAP.width!==cv.width||SNAP.height!==cv.height){SNAP.width=cv.width;SNAP.height=cv.height}var sx=SNAP.getContext("2d");sx.setTransform(1,0,0,1,0,0);sx.globalCompositeOperation="source-over";
   for(i=0;i<jobs.length;i++){var R=jobs[i].r;sx.clearRect(R[0],R[1],R[2],R[3]);sx.drawImage(cv,R[0],R[1],R[2],R[3],R[0],R[1],R[2],R[3])}}
  FLUSH=1;var mx=jobs.length?MASK.getContext("2d"):null;
  for(i=0;i<DQ.length;i++){q=DQ[i];q.f();var jb=q.job;if(!jb)continue;q.job=null;var R=jb.r;
+  if(IB){/* ink: each occluder is cut out of the cached base once (occSprite) and restamped inside the actor's box, with no per-frame mask compositing */c.save();c.setTransform(1,0,0,1,0,0);c.beginPath();c.rect(R[0],R[1],R[2],R[3]);c.clip();c.setTransform(WT);c.globalAlpha=1;c.globalCompositeOperation="source-over";for(j=0;j<jb.os.length;j++){var sp=occSprite(jb.os[j]);if(sp)c.drawImage(sp,sp.ox,sp.oy,OSW,OSH)}c.restore();continue}
   mx.setTransform(1,0,0,1,0,0);mx.globalCompositeOperation="source-over";mx.globalAlpha=1;mx.clearRect(R[0],R[1],R[2],R[3]);mx.save();mx.beginPath();mx.rect(R[0],R[1],R[2],R[3]);mx.clip();mx.setTransform(WT);FLUSH=2;
   for(j=0;j<jb.os.length;j++){try{jb.os[j].d(mx)}catch(e){}}FLUSH=1;mx.restore();
-  mx.setTransform(1,0,0,1,0,0);mx.globalCompositeOperation="source-in";mx.drawImage(SNAP,R[0],R[1],R[2],R[3],R[0],R[1],R[2],R[3]);c.save();c.setTransform(1,0,0,1,0,0);c.globalAlpha=1;c.drawImage(MASK,R[0],R[1],R[2],R[3],R[0],R[1],R[2],R[3]);c.restore()}
- DQ=[];FLUSH=0}
+  mx.globalCompositeOperation="source-in";if(IB){mx.save();mx.beginPath();mx.rect(R[0],R[1],R[2],R[3]);mx.clip();mx.setTransform(WT);mx.drawImage(IB,0,0,W,H);mx.restore()}else{mx.setTransform(1,0,0,1,0,0);mx.drawImage(SNAP,R[0],R[1],R[2],R[3],R[0],R[1],R[2],R[3])}mx.setTransform(1,0,0,1,0,0);c.save();c.setTransform(1,0,0,1,0,0);c.globalAlpha=1;c.drawImage(MASK,R[0],R[1],R[2],R[3],R[0],R[1],R[2],R[3]);c.restore()}
+ DQ=[];FLUSH=0;ICB=null}
 /* margins outside the world: same paper and warm wash so the frame matches */
 function wcMargins(c,r,dpr,sc,ox,oy){if(!WCP)WCP=wcPaper(c);c.save();c.setTransform(dpr,0,0,dpr,0,0);c.beginPath();c.rect(0,0,r.width,r.height);c.rect(ox,oy,W*sc,H*sc);c.clip("evenodd");
  c.globalCompositeOperation="saturation";c.globalAlpha=.5;c.fillStyle="hsl(0,0%,50%)";c.fillRect(0,0,r.width,r.height);c.globalCompositeOperation="soft-light";c.globalAlpha=.5;c.fillStyle="#ffb878";c.fillRect(0,0,r.width,r.height);
@@ -814,7 +844,9 @@ function pxCloud(c,x,y,r,col,t,boss,hap){if(defer(c,function(){pxCloud(c,x,y,r,c
 var INKCAP=3,INKP={},INKL={},INKK="#1a1410",INKG="#c9a24a";
 function inkRnd(s){return function(){s=(s*1103515245+12345)&0x7fffffff;return s/0x7fffffff}}
 function inkPlateKey(s){return s.id+"|"+s.items.length+"|"+S.opened.length+"|"+S.beaten.length+"|"+(S.bloom?1:0)+"|"+(s.id==="safe"?JSON.stringify(S.safe).length:0)}
-function inkPlate(c,s,t){var gi=img("map-"+s.g);if(!gi||(s.id==="safe"&&S.safe.kind==="beach"))return;var k=inkPlateKey(s),P2=INKP[s.id];
+function inkReady(s){return !!img("map-"+s.g)&&!(s.id==="safe"&&S.safe.kind==="beach")}
+function inkPlate(c,s,t,part){var gi=img("map-"+s.g);if(!gi||(s.id==="safe"&&S.safe.kind==="beach"))return;var k=inkPlateKey(s),P2=INKP[s.id];if(part===2){if(!P2)return}else
+
  if(!P2||P2.k!==k){var Z=2,w2=W*Z,h2=H*Z,i,mk=function(w,h){var e=document.createElement("canvas");e.width=w;e.height=h;return e};
   /* 1 ground: flat cel fields = quantized luminance bands tinted by a heavily blurred hue */
   var G=mk(W,H),g=G.getContext("2d");g.drawImage(gi,0,0,W,H);(s.w||[]).forEach(function(q){water(g,q[0],q[1],q[2],q[3],0)});if(s.id==="safe"&&S.safe.kind==="forest")water(g,520,110,70,26,0);
@@ -833,7 +865,7 @@ function inkPlate(c,s,t){var gi=img("map-"+s.g);if(!gi||(s.id==="safe"&&S.safe.k
   if(s.id==="safe")S.safe.items.forEach(function(it){var d=DEC[it.k];if(d)try{d.d(a,it.x,it.y,0)}catch(e){}});FLUSH=F0;a.setTransform(1,0,0,1,0,0);
   delete INKP[s.id];P2=INKP[s.id]={k:k,c:A};var ik=Object.keys(INKP);while(ik.length>INKCAP){var dk=ik.shift();INKP[dk].c.width=0;delete INKP[dk]}}
  else if(Object.keys(INKP).pop()!==s.id){delete INKP[s.id];INKP[s.id]=P2}
- c.drawImage(P2.c,0,0,W,H);
+ if(part!==2)c.drawImage(P2.c,0,0,W,H);if(part===1)return;
  /* live items (pages, quest glows, finds, game items) sit above the cached plate; office lantern glow too */
  s.items.forEach(function(o){if(o.t!=="look"&&!INKST[o.t]&&o.t!=="npc")try{drawItem(c,o,t)}catch(e){}if(o.t==="house"&&o.role==="office"||o.t==="lantern"||o.t==="door")glow(c,o.x,o.y-(o.t==="house"?30:44),o.t==="house"?50:40,t)});
  /* animated ink ripples on water */
@@ -849,7 +881,8 @@ function inkLayers(id,hot){var k=id+(hot?1:0);if(INKL[k])return INKL[k];var A=do
  /* brush-edged frame */
  a.strokeStyle="rgba(26,20,16,.8)";for(var b=0;b<4;b++){a.lineWidth=3+rn()*4;a.beginPath();var o=4+rn()*3;if(b===0){a.moveTo(o,o);a.lineTo(W-o,o+rn()*3)}else if(b===1){a.moveTo(W-o,o);a.lineTo(W-o-rn()*3,H-o)}else if(b===2){a.moveTo(W-o,H-o);a.lineTo(o,H-o-rn()*3)}else{a.moveTo(o,H-o);a.lineTo(o+rn()*3,o)}a.stroke()}
  var ks=Object.keys(INKL);while(ks.length>3){INKL[ks[0]].width=0;delete INKL[ks.shift()]}return INKL[k]=A}
-function inkFX(c,t){var t0=performance.now(),id=cur.id,tg=wcCalm();if(PXMIX[id]==null)PXMIX[id]=tg;PXMIX[id]+=(tg-PXMIX[id])*(RM?1:.025);var m=PXMIX[id];if(Math.abs(tg-m)<.003)PXMIX[id]=m=tg;
+function inkMix(){var id=cur.id,tg=wcCalm();if(PXMIX[id]==null)PXMIX[id]=tg;PXMIX[id]+=(tg-PXMIX[id])*(RM?1:ez(.025));var m=PXMIX[id];if(Math.abs(tg-m)<.003)PXMIX[id]=m=tg;return m}
+function inkFX(c,t,m0){var t0=performance.now(),id=cur.id,m=m0==null?inkMix():m0;
  c.save();
  /* muted: ink on paper; color washes bloom outward from the center as m rises */
  if(m<1){var g=c.createRadialGradient(W/2,H*.55,Math.max(0,m*W*.9-80),W/2,H*.55,m*W*.9+1);g.addColorStop(0,"rgba(128,128,128,0)");g.addColorStop(1,"rgba(128,128,128,1)");c.globalCompositeOperation="saturation";c.fillStyle=g;c.fillRect(0,0,W,H);
@@ -942,7 +975,7 @@ function inkFig(c,x,y,h,p,t,flip){if(window.OBC_CHARS&&OBC_CHARS.fig&&OBC_CHARS.
   case 4:c.strokeStyle=INKK;c.beginPath();c.moveTo(-7,-38);c.lineTo(9,-16);c.stroke();inkShape(c,function(){c.rect(-15,-20,8,7)},A,L*.7);break;
   default:var fl=["#ff8fb0","#f4c058","#b89cff","#fff"];for(var i=0;i<5;i++)inkShape(c,function(){c.arc(-8+i*4,-57.5+Math.abs(i-2)*.8,1.9,0,6.283)},fl[i%4],L*.4)}
  c.restore()}
-function inkPet(c,x,y,i,dir,t){var fl=dir===3||(dir!==2&&x>P.x),L=1.8,tt=RM?0:(t||performance.now()),sw=Math.sin(tt/380),m=c.getTransform?c.getTransform():null,zs=m?Math.abs(m.a)/(window.devicePixelRatio||1):2,fine=zs>1.3;L=fine?1.05:1.8;c.save();c.translate(x,y);if(fl)c.scale(-1,1);
+function inkPet(c,x,y,i,dir,t){var fl=dir===3||(dir!==2&&x>P.x),L=1.8,tt=RM?0:(t||performance.now()),sw=Math.sin(tt/380),m=c.getTransform?c.getTransform():null,zs=m?Math.abs(m.a)/(window.OBC_DPRK||window.devicePixelRatio||1):2,fine=zs>1.3;L=fine?1.05:1.8;c.save();c.translate(x,y);if(fl)c.scale(-1,1);
  /* fluffy outline: zigzag along an ellipse arc for brushy fur edges */
  function fluff(cx,cy,rx,ry,a0,a1,n,j){c.moveTo(cx+Math.cos(a0)*rx,cy+Math.sin(a0)*ry);for(var k=1;k<=n;k++){var a=a0+(a1-a0)*k/n,am=a0+(a1-a0)*(k-.5)/n;c.lineTo(cx+Math.cos(am)*(rx+j),cy+Math.sin(am)*(ry+j));c.lineTo(cx+Math.cos(a)*rx,cy+Math.sin(a)*ry)}}
  var fl2=RM?0:Math.sin(tt/230);function wisp(x0,y0,cx,cy,x1,y1,w,col,ol){var dx=x1-x0,dy=y1-y0,d=Math.hypot(dx,dy)||1,nx=-dy/d*w,ny=dx/d*w;c.beginPath();c.moveTo(x0+nx,y0+ny);c.quadraticCurveTo(cx+nx,cy+ny,x1,y1);c.quadraticCurveTo(cx-nx,cy-ny,x0-nx,y0-ny);c.closePath();if(ol){c.strokeStyle=INKK;c.lineWidth=ol;c.lineJoin="round";c.stroke()}c.fillStyle=col;c.fill()}
