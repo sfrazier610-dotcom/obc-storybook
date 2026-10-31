@@ -948,7 +948,7 @@ function inkPet(c,x,y,i,dir,t){var fl=dir===3||(dir!==2&&x>P.x),L=1.8,tt=RM?0:(t
  var fl2=RM?0:Math.sin(tt/230);function wisp(x0,y0,cx,cy,x1,y1,w,col,ol){var dx=x1-x0,dy=y1-y0,d=Math.hypot(dx,dy)||1,nx=-dy/d*w,ny=dx/d*w;c.beginPath();c.moveTo(x0+nx,y0+ny);c.quadraticCurveTo(cx+nx,cy+ny,x1,y1);c.quadraticCurveTo(cx-nx,cy-ny,x0-nx,y0-ny);c.closePath();if(ol){c.strokeStyle=INKK;c.lineWidth=ol;c.lineJoin="round";c.stroke()}c.fillStyle=col;c.fill()}
  function strokes(list,col,w){if(!fine)return;c.strokeStyle=col;c.lineWidth=w;c.lineCap="round";c.beginPath();list.forEach(function(s){c.moveTo(s[0],s[1]);c.quadraticCurveTo(s[2],s[3],s[4],s[5])});c.stroke()}
  c.fillStyle="rgba(26,20,16,.22)";c.beginPath();c.ellipse(0,0,17,3.2,0,0,6.283);c.fill();
- if(i===0){/* orange tabby in a red cape with a little red book, brushy ink fur */
+ if(i===0){/* orange tabby in a red cape with a little red book, brushy ink fur */if(fine)L*=.7;
   var OR="#e8923a",OD="#b8621e";c.save();c.translate(-13,-12);c.rotate(sw*.16);wisp(0,0,-17,2,-12,-22,3.4,OR,L);wisp(-12,-21,-11,-27,-5,-26-fl2*.5,1.5,OR,L*.7);wisp(-9,-12,-14,-17,-11,-23+fl2,1.6,OR,L*.7);wisp(-6,-6,-10,-10,-12,-13-fl2,1.4,OR,L*.6);strokes([[-9,-9,-7,-10,-6,-8],[-9,-15,-7,-15,-7,-13]],OD,1.4);c.restore();
   [-10,-4,4,8].forEach(function(lx,n){inkShape(c,function(){c.moveTo(lx,-7);c.lineTo(lx+3.5,-7);c.lineTo(lx+3.5,0);c.lineTo(lx-.5,0)},n%2?OD:OR,L*.7)});
   inkShape(c,function(){fluff(-1,-11,14,7,Math.PI*.15,Math.PI*1.85,9,1.6);c.closePath()},OR,L);
@@ -982,8 +982,9 @@ function inkPet(c,x,y,i,dir,t){var fl=dir===3||(dir!==2&&x>P.x),L=1.8,tt=RM?0:(t
    LG(function(){hind(0,TN)});
    /* near fore leg (under the body): elbow bend, slim angled pastern, small oval paw; long feathering behind; belly fringe */
    shape(function(){mv(8,-20);scal(-7,-21.5,3,2.6);c.lineTo(-7,-26);c.lineTo(8,-26);c.closePath()},TL,L*.5);
-   LG(function(){shape(function(){mv(4.5,-24);bz(2,-19,-.5,-13,1.4,-6.5);c.quadraticCurveTo(2.6,-9,4.2,-8.6);bz(4,-11,5,-12,6.4,-12);c.closePath()},CR,L*.5);
+   LG(function(){shape(function(){mv(5,-25);scal(1.6,-7.5,3,-1.6);c.quadraticCurveTo(4,-6.5,5.6,-9);c.lineTo(6.6,-12);c.closePath()},CR,L*.5);
    shape(function(){mv(3,-30);c.lineTo(11,-30);bz(12,-24,10.5,-16,9.4,-10.5);bz(9,-7,10.5,-4,12,-2.4);c.lineTo(8.6,-1.6);bz(7,-4,6.2,-7,6.4,-10.5);bz(6.2,-15,3.4,-18,3,-22);c.closePath()},TN,L*.7);paw(10.8,-1.6,TN)});
+   shape(function(){mv(-15,-32);c.lineTo(-22,-30);scal(-13.5,-13.5,3,-2.8);c.lineTo(-11,-21);c.closePath()},CR,L*.55);
    var bd=function(){mv(13,-47);scal(21.5,-33,2,3.6);scal(16,-16.5,2,3);scal(9,-17.5,1,2);scal(-1,-20.5,2,2.2);bz(-4,-22.5,-6,-24,-8.5,-23.5);scal(-20.5,-20,2,3);scal(-18.5,-34,2,3);bz(-10,-36,0,-36,6,-41.5);scal(13,-46,1,2.5);c.closePath()};
    shape(bd,TN,L);c.save();c.beginPath();bd();c.clip();
    c.fillStyle=BK;c.beginPath();c.moveTo(-20,-31);c.bezierCurveTo(-12,-38,0,-37,8,-43);c.bezierCurveTo(9,-38,4,-34,-2,-32);c.bezierCurveTo(-8,-30,-14,-28,-20,-27);c.fill();
@@ -992,7 +993,8 @@ function inkPet(c,x,y,i,dir,t){var fl=dir===3||(dir!==2&&x>P.x),L=1.8,tt=RM?0:(t
    c.fillStyle=TL;c.beginPath();c.ellipse(-16,-23,5,4,.3,0,6.283);c.fill();c.restore();
    curl(15,-38,13,-33,13.5,-29+fl2*.4,1.2,TD,1);curl(17,-32,16,-27,15,-24+fl2*.4,1,TD,.9);curl(-12,-28,-14,-25,-16,-22,1,FU,.9);
    /* big cream mane: bulges past the neck line, down into a bib that hangs below the chest */
-   shape(function(){mv(5,-42);scal(12.5,-50,2,2.8);c.lineTo(16,-44);scal(23.5,-36,2,3.2);scal(19.5,-23,2,3.2);scal(12.5,-13.5,2,2.6);scal(8.5,-27,2,1.8);scal(5,-42,2,1.8);c.closePath()},CR,L*.8);
+   var mb=fine?1:1.45;shape(function(){mv(5,-42);scal(12.5,-50,2,2.8*mb);c.lineTo(16,-44);scal(23.5,-36,2,3.2*mb);scal(19.5,-23,2,3.2*mb);scal(12.5,-13.5,2,2.6*mb);scal(8.5,-27,2,1.8*mb);scal(5,-42,2,1.8*mb);c.closePath()},CR,L*.8);
+   if(!fine){c.strokeStyle=TD;c.lineWidth=1.6;c.lineCap="round";c.beginPath();c.moveTo(13,-40);c.quadraticCurveTo(17,-36,14.5,-31);c.moveTo(16,-28);c.quadraticCurveTo(18.5,-24,15.5,-20);c.stroke()}
    curl(9,-45,11,-41,11.5,-37+fl2*.4,1,TD,.8);curl(18,-38,19.5,-34,18.5,-30+fl2*.4,1,TD,.8);curl(16,-27,16.5,-22,15,-18+fl2*.4,1,TD,.8);curl(12,-33,13,-29,12.5,-25,1,TD,.7);
    /* head: long muzzle with black mask */
    var hd=function(){c.moveTo(13,-47);c.quadraticCurveTo(15,-53,21,-52);c.lineTo(25,-50);c.quadraticCurveTo(30,-49,33,-47);c.quadraticCurveTo(35,-45.5,33.5,-44);c.quadraticCurveTo(29,-42.5,25,-42.5);c.quadraticCurveTo(18,-40,13,-44);c.closePath()};
@@ -1130,8 +1132,8 @@ function victory(el,id){var c=el.getContext("2d"),t0=performance.now(),K=DEC["k_
   var g=c.createRadialGradient(160,120,10,160,120,200);g.addColorStop(0,"rgba(255,220,150,.95)");g.addColorStop(.6,"rgba(240,160,90,.55)");g.addColorStop(1,"rgba(120,70,60,0)");c.fillStyle=g;c.fillRect(0,0,320,200);
   c.fillStyle="rgba(120,150,70,.6)";c.beginPath();c.ellipse(160,200,200,40,0,0,7);c.fill();
   var hop=RM?0:Math.abs(Math.sin(k*3.2))*10;for(var i=0;i<14;i++){var px=(rnd(i)*320+(RM?0:Math.sin(k+i)*14)),py=RM?rnd(i+3)*180:((rnd(i+3)*200+k*40*(1+rnd(i)))%200);c.fillStyle=["#f7b6c2","#ffd98a","#f4efe4"][i%3];c.beginPath();c.ellipse(px,py,4,2.2,i,0,7);c.fill()}
-  glowDot(c,160,40-hop,40,"#fff2c0",.8);c.save();c.translate(0,-hop);drawHero(c,S.hero,150,182,2.3,0,0);if(K)K.d(c,150,48,t);c.restore();
-  var pc=window.OBC_CHARS?null:petCanvas(S.hero.pet|0);if(window.OBC_CHARS){c.save();c.translate(228,186-(RM?0:Math.abs(Math.sin(k*3.2+1))*8));c.scale(1.7,1.7);inkPet(c,0,0,S.hero.pet|0,2,0);c.restore()}if(pc){var ph=58,w=ph*pc.width/pc.height,ph2=RM?0:Math.abs(Math.sin(k*3.2+1))*8;c.drawImage(pc,228-w/2,186-ph-ph2,w,ph)}
+  glowDot(c,160,40-hop,40,"#fff2c0",.8);c.save();c.translate(0,-hop);var VF=FLUSH;if(window.OBC_CHARS)FLUSH=1;try{drawHero(c,S.hero,window.OBC_CHARS?112:150,182,window.OBC_CHARS?1.9:2.3,window.OBC_CHARS?2:0,0)}finally{FLUSH=VF}if(K)K.d(c,150,48,t);c.restore();
+  var pc=window.OBC_CHARS?null:petCanvas(S.hero.pet|0);if(window.OBC_CHARS){c.save();c.translate(212,186-(RM?0:Math.abs(Math.sin(k*3.2+1))*8));c.scale(1.7,1.7);inkPet(c,0,0,S.hero.pet|0,2,0);c.restore()}if(pc){var ph=58,w=ph*pc.width/pc.height,ph2=RM?0:Math.abs(Math.sin(k*3.2+1))*8;c.drawImage(pc,228-w/2,186-ph-ph2,w,ph)}
   VIC++;if(!RM)requestAnimationFrame(fr)}
  requestAnimationFrame(fr)}
 /* --- 7. combos --- */
