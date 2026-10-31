@@ -364,10 +364,12 @@ function drawItem(c,o,t){var f=FT[o.t];switch(o.t){
  case"qitem":if(S.q[o.qk]===1&&!S.q[o.qk+"_got"]){glowDot(c,o.x,o.y-6,22,"#ffd98a",RM?.5:.35+.2*Math.sin(t/400));if(o.qk==="q_wick"){c.strokeStyle="#f4efe4";c.lineWidth=2.5;c.beginPath();c.moveTo(o.x-8,o.y-2);c.quadraticCurveTo(o.x,o.y-12,o.x+8,o.y-4);c.stroke()}else{poly(c,[[o.x-7,o.y-12],[o.x+7,o.y-12],[o.x+7,o.y],[o.x-7,o.y]],"#c9a24a");blob(c,o.x,o.y-6,3,3,"#e86a8a",0)}}break;
  case"find":if(S.found.indexOf(o.key)<0){glow(c,o.x,o.y-8,26,t);DEC[o.item].d(c,o.x,o.y,t)}break;
  default:if(GJT[o.t])gjDraw(c,o,t)}}
-function drawEnemy(c,e,t){var col=R(e.reg).col,bob=RM?0:Math.sin(t/400+e.ph)*3,inB=B&&B.e===e,x=e.x,y=e.y;
+function drawEnemy(c,e,t){if(B&&B.e===e&&(SPL||CALM)){var K=bossK(performance.now());if(K.s!==1||K.r||K.dy||K.a!==1||K.hap!=null){var py=e.y-(e.boss?70:28);c.save();c.globalAlpha*=K.a;c.translate(e.x,py+K.dy);c.rotate(K.r);c.scale(K.s,K.s);c.translate(-e.x,-py);BHAP=K.hap;drawEnemy0(c,e,t);BHAP=null;c.restore();return}}drawEnemy0(c,e,t)}
+var BHAP=null;
+function drawEnemy0(c,e,t){var col=R(e.reg).col,bob=RM?0:Math.sin(t/400+e.ph)*3,inB=B&&B.e===e,x=e.x,y=e.y;
  if(inB){var pul=RM?.5:.5+.3*Math.sin(t/250);c.fillStyle="rgba(255,207,90,"+(.18*pul)+")";c.beginPath();c.ellipse(x,y,e.boss?70:36,e.boss?18:10,0,0,7);c.fill()}
  shadow(c,x,y,e.boss?44:18,e.boss?9:5);
- if(CHR){var hap=e.boss?S.beaten.indexOf(e.reg)>=0:pxCalm(),cy=y-(e.boss?50:20),cl=0;if(window.OBC_CHARS){/* lift the cloud above the hero when they stand close (fight and calmed float), eased */var tl=0;if(Math.abs(P.x-x)<(e.boss?130:70)&&P.y>y-(e.boss?120:60)){var lim=P.y-(e.boss?158:108);if(cy>lim)tl=cy-lim}e._lf=inB||RM||e._lf==null?tl:e._lf+(tl-e._lf)*.15;cl=e._lf>.5?e._lf:0;cy-=cl}if(cl){c.strokeStyle="rgba(40,30,30,.25)";c.lineWidth=1.5;c.setLineDash([3,5]);c.beginPath();c.moveTo(x,y-4);c.lineTo(x,cy+(e.boss?60:22));c.stroke();c.setLineDash([])}pxCloud(c,x,cy+bob,e.boss?70:26,col,t,e.boss,hap);if(inB&&B.worries)for(var wq=0;wq<B.worries;wq++){var wv=(RM?wq*2:t/500)+wq*2.1;pxCloud(c,x+Math.cos(wv)*(e.boss?110:44),cy-(e.boss?10:0)+Math.sin(wv)*(e.boss?30:16),e.boss?20:12,col,t,0,hap)}return}
+ if(CHR){var hap=BHAP!=null?BHAP:e.boss?S.beaten.indexOf(e.reg)>=0:pxCalm(),cy=y-(e.boss?50:20),cl=0;if(window.OBC_CHARS){/* lift the cloud above the hero when they stand close (fight and calmed float), eased */var tl=0;if(Math.abs(P.x-x)<(e.boss?130:70)&&P.y>y-(e.boss?120:60)){var lim=P.y-(e.boss?158:108);if(cy>lim)tl=cy-lim}e._lf=inB||RM||e._lf==null?tl:e._lf+(tl-e._lf)*.15;cl=e._lf>.5?e._lf:0;cy-=cl}if(cl){c.strokeStyle="rgba(40,30,30,.25)";c.lineWidth=1.5;c.setLineDash([3,5]);c.beginPath();c.moveTo(x,y-4);c.lineTo(x,cy+(e.boss?60:22));c.stroke();c.setLineDash([])}pxCloud(c,x,cy+bob,e.boss?70:26,col,t,e.boss,hap);if(inB&&B.worries)for(var wq=0;wq<B.worries;wq++){var wv=(RM?wq*2:t/500)+wq*2.1;pxCloud(c,x+Math.cos(wv)*(e.boss?110:44),cy-(e.boss?10:0)+Math.sin(wv)*(e.boss?30:16),e.boss?20:12,col,t,0,hap)}return}
  if(!e.boss){drawC(c,tinted(e.reg==="fog"?"storm":"fog",col,.4),x,y-6+bob,50,.95);if(inB&&B.worries)for(var wj=0;wj<B.worries;wj++){var wb=(RM?wj*2:t/500)+wj*2.1;drawC(c,tinted("fog",col,.3),x+Math.cos(wb)*44,y-10+Math.sin(wb)*16,22,.9)}}
  else switch(e.reg){
   case"anx":drawC(c,tinted("storm",col,.35),x,y-10+bob,130);if(inB&&B.worries)for(var wi=0;wi<B.worries;wi++){var wa=(RM?wi*2:t/500)+wi*2.1;drawC(c,tinted("storm",col,.3),x+Math.cos(wa)*110,y-30+Math.sin(wa)*30,44,.9)}var n=3+(inB?B.gust:0);c.strokeStyle="rgba(230,245,255,.7)";c.lineWidth=2;for(var i=0;i<n;i++){var a=(RM?0:t/600)+i*6.28/n;c.beginPath();c.arc(x,y-70,70+i*3,a,a+.7);c.stroke()}break;
@@ -448,20 +450,23 @@ function battle(e){if(B)return;closeOV();held={};tgt=null;
  B={e:e,id:id,d:d,g:g,hp:d.hp,max:d.hp,hope:10,hmax:10,turn:0,weak:Math.floor(Math.random()*4),chg:0,last:null,recent:[],gust:0,locks:0,shield:0,mom:0,listen:-9,gUsed:0,gShield:0,gMod:0,log:[],say:null,card:0,over:0,busy:0,hit:0,crack:0};
  var o=document.createElement("div");o.className="w-bov";o.setAttribute("role","region");o.setAttribute("aria-label","Casting battle with "+d.name);
  o.innerHTML='<div class="w-bhud w-par"><h2>'+esc(d.name)+'</h2><div class="w-bars"><div class="w-bar"><span>'+(d.gentle?'Lanterns lit':esc(d.name.replace("The ","")))+'</span><i><b id="b-bh"></b></i><em id="b-bhn"></em></div>'+
- '<div class="w-bar hope"><span>Your hope</span><i><b id="b-hh"></b></i><em id="b-hhn"></em></div></div><button class="w-btn" id="b-leave">Step back</button><p class="w-bwarn" id="b-warn"></p>'+(id==="ed"?EDHELP:'')+'</div>'+
+ '<div class="w-bar hope"><span>Your hope</span><i><b id="b-hh"></b></i><em id="b-hhn"></em></div></div><button class="w-btn" id="b-leave">Step back</button><p class="w-bwarn" id="b-warn"></p>'+(id==="ed"?EDHUD:'')+'<p class="w-bhint" id="b-hint" role="status" hidden></p></div>'+
  '<div class="w-breath w-par" id="b-br" hidden></div>'+
- '<div class="w-bbot w-par"><div class="w-bmsg" id="b-msg" aria-live="polite"></div><div class="w-sk" id="b-sk">'+d.sk.map(function(s,i){return '<button class="w-btn" data-s="'+i+'">'+esc(s[1])+'</button>'}).join("")+'</div>'+
+ '<div class="w-bbot w-par"><div class="w-bmsg" id="b-msg" aria-live="polite"></div><div class="w-rlc" id="b-rl" hidden></div><div class="w-sk" id="b-sk" role="group" tabindex="-1" aria-label="Choose a skill. Tab moves between skills.">'+d.sk.map(function(s,i){return '<button class="w-btn" data-s="'+i+'">'+esc(s[1])+'</button>'}).join("")+'</div>'+
  '<div class="w-sk2"><button class="w-btn pri" id="b-sig" disabled>'+SIG.name+' <small id="b-chg"></small></button><button class="w-btn" id="b-guide">Call '+esc(g.name.split(" ")[0])+'</button>'+
  (d.twist==="lock"?'<button class="w-btn" id="b-check">Check one more time</button>':'')+'<label class="w-tog"><input type="checkbox" id="b-btog"'+(CFG.breath?' checked':'')+'> Breath timing</label></div></div>';
  stage.appendChild(o);
- o.querySelectorAll("[data-s]").forEach(function(b){b.onclick=function(){act(+b.dataset.s)}});
+ o.querySelectorAll("[data-s]").forEach(function(b){b.onclick=function(){if(B)B.lastBtn=b.dataset.s;act(+b.dataset.s)}});
+ var ot=stage.querySelector(".w-toast");if(ot){var tt=ot.textContent;ot.remove();hudHint(tt)}
  document.getElementById("b-sig").onclick=function(){act("sig")};document.getElementById("b-guide").onclick=function(){act("guide")};
  var ck=document.getElementById("b-check");if(ck)ck.onclick=function(){act("check")};
  document.getElementById("b-btog").onchange=function(ev){CFG.breath=ev.target.checked};
  document.getElementById("b-leave").onclick=function(){stepBack()};
  msg(esc(d.name)+(e.boss?' rises before you.':' drifts into your path.')+' '+esc(g.name)+' and '+esc(petName())+' are with you. '+esc(d.tip));
- gjStart(); ui();live("A casting battle begins with "+d.name+".");o.querySelector("[data-s]").focus()}
-function endBattle(){if(!B)return;B.over=1;var o=stage.querySelector(".w-bov");if(o)o.remove();var e=B.e;B=null;if(e&&e.echo&&cur){var k=cur.ens.indexOf(e);if(k>=0)cur.ens.splice(k,1)}return e}
+ gjStart(); castSay(); ui();live("A casting battle begins with "+d.name+".");document.getElementById("b-sk").focus()}
+/* one short line in the top bar for guide hints during a fight, so nothing floats over the boss's cast bubble */
+function hudHint(t){var h=document.getElementById("b-hint");if(!h)return false;h.textContent=t;h.title=t;h.hidden=false;h.classList.remove("in");void h.offsetWidth;h.classList.add("in");return true}
+function endBattle(){SPL=null;CALM=null;if(!B)return;B.over=1;var o=stage.querySelector(".w-bov");if(o)o.remove();var e=B.e;B=null;if(e&&e.echo&&cur){var k=cur.ens.indexOf(e);if(k>=0)cur.ens.splice(k,1)}return e}
 function stepBack(){var e=endBattle();if(!e)return;e.cd=3;var dx=P.x-e.x,dy=P.y-e.y,l=Math.hypot(dx,dy)||1,p=free(cur,P.x+dx/l*60,P.y+dy/l*60);P.x=p[0];P.y=p[1];stage.focus()}
 var EDHELP='<p class="w-edhelp">Need support with eating? <a href="https://www.anad.org/get-help/eating-disorders-helpline/" target="_blank" rel="noopener">ANAD helpline</a> · free · <a href="tel:+18883757767">1-888-375-7767</a> · Mon–Fri, 9am–9pm Central</p>';
 var _hit=function(){};
@@ -470,19 +475,21 @@ function win(){if(B.d.practice)return gjEchoWin();var d=B.d,e=B.e,id=B.id,drop="
  if(e.boss){if(S.beaten.indexOf(id)<0)S.beaten.push(id);if(S.pen.indexOf(id)<0)S.pen.push(id);if(S.loot.indexOf(d.loot)<0){S.loot.push(d.loot);give("k_"+id)}}
  else{if(S.cleared.indexOf(e.id)<0){S.cleared.push(e.id);drop=["stone","flowers","shell","lantern","sapling","chime","books","blanket"][S.cleared.length%8];give(drop)}}
  save();var all=e.boss&&nBeat()===GATE;
+ calmThen(function(){if(!B||B.e!==e)return;
  bend((e.boss?'<canvas class="w-vic" width="320" height="200" role="img" aria-label="Your hero stands in the golden light, holding up the '+esc(d.loot)+', with '+esc(petName())+' hopping beside them."></canvas>':'')+'<h2>'+esc(d.name)+(d.gentle?' glows softly. '+(e.boss?'Every lantern is lit.':'The wave passes.'):(id==='rel'&&e.boss?' calm and drift apart, gently.':' calms and drifts away.'))+'</h2>'+
  (e.boss?'<p>You found the <b>'+esc(d.loot)+'</b>. It can rest in your safe place as a keepsake.</p>':'<p>It left something behind: <b>'+esc(decName(drop)||"a quiet moment")+'</b>.</p>')+
  '<p>'+esc(B.g.name)+': "You used real skills there. They work outside the game too."</p>'+(e.boss?'<p>Bosses calmed: '+S.beaten.length+' of 8.'+(all?' That is half of them, so the Open Book Office is open now.':'')+'</p>':'')+(id==="ed"?EDHELP:''),
  '<button class="w-btn pri" id="b-on">Keep exploring</button>');
  gjWin(e,id);var vc=stage.querySelector('.w-vic');if(vc)victory(vc,id);
- document.getElementById("b-on").onclick=function(){endBattle();stage.focus();if(e.boss)floatOff(e,d);if(all&&e.boss)say("Word travels fast: the Open Book Office door is open. It's south of the Crossroads.")}}
+ document.getElementById("b-on").onclick=function(){endBattle();stage.focus();if(e.boss)floatOff(e,d);if(all&&e.boss)say("Word travels fast: the Open Book Office door is open. It's south of the Crossroads.")}})}
 function lose(){var d=B.d;B.over=1;
  bend('<h2>Time to rest and regroup</h2><p>'+esc(d.name)+' was strong today. That happens, in the game and in life. Your hope refills when you rest.</p>',
  '<button class="w-btn pri" id="b-again">Try again</button> <button class="w-btn" id="b-rest">Rest at your safe place</button> <button class="w-btn" id="b-back">Step back</button>');
  document.getElementById("b-again").onclick=function(){var e=endBattle();battle(e)};
  document.getElementById("b-rest").onclick=function(){endBattle();goSafe()};
  document.getElementById("b-back").onclick=function(){B.over=0;stepBack()}}
-function msg(h,rl){var m=document.getElementById("b-msg");if(m)m.innerHTML='<p>'+h+'</p>'+(rl?'<details class="w-rl"'+(innerWidth>760?' open':'')+'><summary><b>In real life</b></summary> '+esc(rl)+'</details>':'')}
+var EDHUD='<p class="w-edhelp w-edl" title="Free, confidential. Mon\u2013Fri, 9am\u20139pm Central"><span aria-hidden="true">\u2661 </span><a href="https://www.anad.org/get-help/eating-disorders-helpline/" target="_blank" rel="noopener">ANAD helpline (free)</a> \u00b7 <a href="tel:+18883757767">Call or text</a></p>';
+function msg(h,rl){var m=document.getElementById("b-msg");if(m)m.innerHTML='<p>'+h+'</p>';var c=document.getElementById("b-rl");if(c){if(rl){c.innerHTML='<b>In real life</b> '+esc(rl);c.hidden=false;c.classList.remove("in");void c.offsetWidth;c.classList.add("in")}else{c.hidden=true;c.innerHTML=""}}}
 function ui(){
  var d=B.d,w=d.sk[B.weak];
  function bar(id,v,mx){document.getElementById(id).style.width=Math.max(0,v/mx*100)+"%"}
@@ -502,7 +509,9 @@ function ui(){
  if(d.twist==="momentum"&&B.mom)wn+='Momentum: +'+B.mom+'. ';
  if(B.worries)wn+='Small worries: '+B.worries+'. ';var cs=B.seq||[],cn=0;for(var ci=Math.min(3,cs.length);ci>0;ci--){if(cs.slice(-ci).join()===comboOf(d).slice(0,ci).join()){cn=ci;break}}
  var hide=B.fogHide>0;app.querySelectorAll('[data-s]').forEach(function(b){if(hide)b.classList.remove('weak')});
- document.getElementById("b-warn").innerHTML=wn+'<span class="w-combo">Combo: '+esc(comboName(d))+(cn?' ('+cn+' of 3)':'')+'</span> '+(hide?'The weak spot is hidden in the fog':'Watch for: <b>'+esc(w[2])+'</b>. Pick the skill that answers it')+(d.noNum||d.gentle?'.':'. If missed, the next hit takes '+hit+' hope.');
+ var co=comboOf(d),marks=co.map(function(q,qi){return '<i class="w-cm'+(qi<cn?' on':'')+'" aria-hidden="true">'+esc(d.sk[q][1])+'</i>'}).join('');
+ document.getElementById("b-warn").innerHTML=(wn?'<span class="w-wn">'+wn+'</span>':'')+'<span class="w-combo"><span class="w-sr">Combo: '+esc(comboName(d))+(cn?' ('+cn+' of 3)':'')+' </span><span class="w-cml" aria-hidden="true">Combo</span>'+marks+'</span> <span class="w-watch">'+(hide?'The weak spot is hidden in the fog':'Watch for: <b>'+esc(w[2])+'</b>.<span class="w-pick"> Pick the skill that answers it.</span>')+(d.noNum||d.gentle?(hide?'.':''):(hide?'.':'')+' <span class="w-miss">If missed, the next hit takes '+hit+' hope.</span>')+'</span>';
+ var hb=document.getElementById("b-hh");if(hb){if(B._hp0!=null&&B.hope<B._hp0&&!RM){var bb=hb.closest(".w-bar");bb.classList.remove("shk");void bb.offsetWidth;bb.classList.add("shk")}B._hp0=B.hope}
 }
 function drain(weakHit){var d=B.d;if(B.fogHide>0)weakHit=1;var n=weakHit?1:2;if(d.twist==="gust")n+=weakHit?0:B.gust;if(d.twist==="echo"&&(B.turn+1)%3===0&&!weakHit)n*=2;if(!weakHit&&B.worries)n+=B.worries;return n}
 function act(k){
@@ -535,7 +544,7 @@ function resolve(k,bonus){
   else if(B.id==="anx"&&B.popped&&(weakHit||s[0]==="ground")&&B.lastPop!==B.popped){B.lastPop=B.popped;txt+=' A small worry pops.'}
   if(lvUp)txt+=' Skill journal: '+esc(s[1])+' reached level '+lvUp+'. A new real-life tip is unlocked.'}
  if(bonus)txt+=' Your breath gave it extra strength.';
- B.hp=Math.max(0,B.hp-dmg);B.hit=1;B.crack=weakHit;hitFX(weakHit||k==='sig',typeof cmb!=='undefined'&&cmb);
+ B.hp=Math.max(0,B.hp-dmg);B.hit=1;B.crack=weakHit;spellFX(k==="sig"?"sig":d.sk[k][0],k==="sig"?SIG.name:d.sk[k][1],k==="sig"||B.fogHide>0?2:weakHit?1:0);hitFX(weakHit||k==='sig',typeof cmb!=='undefined'&&cmb);
  if(B.e.boss&&!B.phase&&B.hp>0&&B.hp<=B.max/2&&PHASE[B.id]){B.phase=1;if(B.id==='ocd')B.locks=Math.min(3,B.locks+1);if(B.id==='fog'){B.fogHide=3;B.fogSet=B.turn}txt+=' '+PHASE[B.id][0]}
  if(B.hp<=0){ui();return win()}
  castSay();var lost=boss(weakHit);B.turn++;B.weak=B.d.practice?B.d.fixWeak:(B.weak+1+Math.floor(Math.random()*3))%4;
@@ -550,16 +559,24 @@ function boss(weakHit){if(B.d.practice){drain(weakHit);return 0}var n=drain(weak
 function breathCast(cb){
  var el=document.getElementById("b-br"),done=0,t0=performance.now(),D=1600,id;
  el.hidden=false;
- el.innerHTML=RM?'<p>Take one slow breath out.</p><button class="w-btn pri" id="b-bo">Breathe out and cast</button>':'<div class="w-ring" id="b-ring"></div><p>Press when the ring glows</p><button class="w-btn pri" id="b-bo">Breathe out now</button><small>Esc to skip</small>';
+ el.innerHTML=(RM?'':'<div class="w-ring" id="b-ring"></div>')+'<div class="w-brc">'+(RM?'<p>Take one slow breath out.</p><button class="w-btn pri" id="b-bo">Breathe out and cast</button>':'<p>Press when the ring glows</p><button class="w-btn pri" id="b-bo">Breathe out now</button><small>Esc to skip</small>')+'</div>';
+ breathPlace(el);
  var bt=document.getElementById("b-bo");bt.focus();
- function fin(b){if(done)return;done=1;cancelAnimationFrame(id);el.hidden=true;el.innerHTML="";document.removeEventListener("keydown",kd,true);cb(b);var f=app.querySelector("[data-s]");if(f&&!B.over)f.focus()}
+ function fin(b){if(done)return;done=1;cancelAnimationFrame(id);el.hidden=true;el.innerHTML="";document.removeEventListener("keydown",kd,true);cb(b);var f=B&&B.lastBtn!=null&&app.querySelector('[data-s="'+B.lastBtn+'"]')||app.querySelector("[data-s]");if(f&&B&&!B.over)f.focus()}
  function kd(e){if(e.key==="Escape"){e.preventDefault();fin(0)}}
  document.addEventListener("keydown",kd,true);
  bt.onclick=function(){if(RM)return fin(1);var p=(performance.now()-t0)/D;fin(p>=.55&&p<=1.05?1:0)};
  if(!RM)(function lp(){var p=(performance.now()-t0)/D,r=document.getElementById("b-ring");if(!r)return;
-  r.style.background='conic-gradient('+(p>=.55?'#ffd98a':'#8fa3c9')+' '+Math.min(1,p)*360+'deg,#2c3956 0)';
+  r.style.setProperty("--p",(Math.min(1,p)*360).toFixed(1)+"deg");r.classList.toggle("go",p>=.55&&p<=1.05);
   if(p>1.25)return fin(0);id=requestAnimationFrame(lp)})();
 }
+/* the breath ring sits around the hero; its small card goes beside them, away from the boss bubble and the panels */
+function breathPlace(el){var cv=stage.querySelector("canvas"),ov=document.querySelector(".w-bov");if(!cv||!ov)return;var R=cv.getBoundingClientRect(),O=ov.getBoundingClientRect(),k=R.width/W;
+ var vs=VIEW.s||k,vx=VIEW.s?VIEW.ox:0,vy=VIEW.s?VIEW.oy:0,hx=vx+P.x*vs+(R.left-O.left),hy=vy+(P.y-34)*vs+(R.top-O.top),d=Math.max(76,Math.min(130,96*vs)),ring=el.querySelector(".w-ring"),card=el.querySelector(".w-brc");
+ if(ring){ring.style.width=ring.style.height=d+"px";ring.style.left=(hx-d/2)+"px";ring.style.top=(hy-d/2)+"px"}
+ if(card){var cw=card.offsetWidth,ch=card.offsetHeight,gap=ring?d/2+10:20,lx=hx+gap;var ex=B&&B.e?vx+B.e.x*vs+(R.left-O.left):O.width;if(lx+cw>O.width-8||(ex>hx&&ex<lx+cw+40))lx=hx-gap-cw;if(lx<8)lx=Math.min(O.width-cw-8,hx+gap);
+  var hud=document.querySelector(".w-bhud"),bot=document.querySelector(".w-bbot"),tmin=hud?hud.getBoundingClientRect().bottom-O.top+8:8,tmax=bot?bot.getBoundingClientRect().top-O.top-ch-8:O.height-ch-8;
+  card.style.left=Math.max(8,lx)+"px";card.style.top=Math.max(tmin,Math.min(tmax,hy-ch/2))+"px"}}
 /* ---------- guide photocard, shield, method skills, skill animations ---------- */
 var MX={EMDR:"EMDR: I'll follow a light side to side while I hold the memory in mind, so my brain can file it away.",
 ART:"Accelerated Resolution Therapy: I'll follow eye movements and picture the hard scene changing, so it feels less raw.",
@@ -663,7 +680,7 @@ function drawFX(c,t){var now=performance.now();FXL=FXL.filter(function(f){return
   default:glowDot(c,X,Y,60,col,.6*a)}
   if(m&&!RM){c.globalCompositeOperation="source-over";c.font="700 14px Georgia,serif";c.textAlign="center";c.fillStyle="rgba(40,24,10,"+(.8*a)+")";c.fillText(modLabel(f.k.slice(2)),ex,ey-(e.boss?84:40));c.textAlign="left"}
   c.restore()});
- castBubble(c,now);
+ drawSpell(c,now,hx,hy,ex,ey,e);castBubble(c,now);
  if(B.say)bubble(c,hx,P.y-66,B.say.text,Math.min(1,(now-B.say.t0)/(RM?1:250)))}
 /* boss cast bubbles: attack name + the plain thought it pushes */
 var CASTL={"Racing heart":"Your heart speeds up. Something must be wrong.","Spinning room":"Everything feels too fast to keep up with.","What-if storm":"What if it all goes wrong?","Urge to avoid":"Just skip it. Staying away feels safer.",
@@ -674,20 +691,52 @@ var CASTL={"Racing heart":"Your heart speeds up. Something must be wrong.","Spin
 "Harsh inner voice":"You're not good enough.","Lost in the mist":"Forget what you care about. Follow the rules.","Hiding":"Don't tell anyone how you're really doing.","Rule whispers":"Follow the rules or else.",
 "A wave of missing":"A wave of missing them rolls in.","Silence":"It's easier not to talk about them.","Carrying it alone":"You should carry this by yourself.","Worn out":"Grief makes everything heavy and tiring.",
 "Heavy morning":"Stay in bed. Why bother today?","Pull to hide":"Cancel the plans. Stay inside.","Inner critic":"You're lazy. You'll never change.","Isolation":"Nobody wants to hear from you."};
+
+/* ---- spell stroke (visual only, drawn after the pick): an original ink brush line travels from the hero to the boss ---- */
+var SPL=null,CALM=null,CALMD=1500;
+function spellFX(kind,name,res){SPL={k:kind,n:name,r:res,t0:performance.now()}}
+function spPath(k,u,hx,hy,ex,ey){var dx=ex-hx,dy=ey-hy,L=Math.sqrt(dx*dx+dy*dy)||1,nx=-dy/L,ny=dx/L,arc=-Math.sin(Math.PI*u)*Math.min(90,L*.3),w=0;
+ if(k==="reframe")w=Math.sin(u*Math.PI*2)*26;else if(k==="breath"||k==="ground")w=Math.sin(u*Math.PI*3)*10;else if(k!=="step")w=Math.sin(u*Math.PI*4)*7;
+ return [hx+dx*u+nx*w,hy+dy*u+ny*w+arc]}
+function drawSpell(c,now,hx,hy,ex,ey,e){if(!SPL)return;var a=now-SPL.t0,T=RM?0:420,TOT=RM?1100:1500;if(a>TOT){SPL=null;return}
+ var k=SPL.k,col=(FXK[k]||["","#6a5a8a"])[1],hit=SPL.r>0,miss=SPL.r===0,p=T?Math.min(1,a/T):1,end=miss?.82:1,i,q;
+ c.save();c.lineCap="round";c.lineJoin="round";
+ if(T&&a<T+260){var fade=a<T?1:1-(a-T)/260,h0=Math.max(0,p-.4)*end,h1=p*end,N=14;
+  if(k==="step"||k==="ground"){for(i=0;i<=N;i++){q=h0+(h1-h0)*i/N;var pt=spPath(k,q,hx,hy,ex,ey);c.fillStyle=rgba(i%2?INKK:col,.85*fade*(.4+.6*i/N));c.beginPath();if(k==="step")c.ellipse(pt[0]+(i%2?5:-5),pt[1],5,3,.4,0,6.283);else c.arc(pt[0],pt[1],2+3*i/N,0,6.283);c.fill()}}
+  else{c.strokeStyle=rgba("#1a1410",.8*fade);for(var ly=0;ly<2;ly++){c.beginPath();for(i=0;i<=N;i++){q=h0+(h1-h0)*i/N;var pp=spPath(k,q,hx,hy,ex,ey);i?c.lineTo(pp[0],pp[1]):c.moveTo(pp[0],pp[1])}c.lineWidth=ly?3:8;c.strokeStyle=ly?rgba(col,.95*fade):rgba("#1a1410",.7*fade);c.stroke()}}
+  var hd=spPath(k,h1,hx,hy,ex,ey);c.fillStyle=rgba("#1a1410",.85*fade);c.beginPath();c.arc(hd[0],hd[1],k==="breath"?7:5,0,6.283);c.fill();if(k==="breath"){c.strokeStyle=rgba(col,fade);c.lineWidth=2;c.strokeRect(hd[0]-9,hd[1]-9,18,18)}}
+ var b=Math.max(0,a-T),bu=Math.min(1,b/(TOT-T)),fo=bu<.7?1:1-(bu-.7)/.3;
+ if(a>=T){if(!miss){if(!RM)for(i=0;i<7;i++){var an=i*.9+SPL.t0%7,rr=20+bu*70;c.fillStyle=rgba(i%3?"#3a3028":col,.35*(1-bu));c.beginPath();c.arc(ex+Math.cos(an)*rr,ey+Math.sin(an)*rr*.6,8+bu*14,0,6.283);c.fill()}}
+  else{var sp=spPath(k,end,hx,hy,ex,ey);for(i=0;i<9;i++){var an2=i*.7+1,r2=4+i*3.2*(RM?1:Math.min(1,b/160));c.fillStyle=rgba("#1a1410",.7*fo);c.beginPath();c.arc(sp[0]+Math.cos(an2)*r2*1.3,sp[1]+Math.sin(an2)*r2+(RM?0:bu*10),Math.max(1.5,5-i*.4),0,6.283);c.fill()}}
+  var txt=miss?"Not this one, watch what it cast":SPL.n,mx=(hx+ex)/2,my=Math.min(hy,ey)+Math.abs(hy-ey)*.5+(miss?18:0),inA=RM?1:Math.min(1,b/180);
+  c.globalAlpha=Math.max(0,inA*fo);c.font=(miss?"italic 700 19px":"italic 700 24px")+" Georgia,'Times New Roman',serif";c.textAlign="center";c.textBaseline="middle";
+  var tw=c.measureText(txt).width,br=e.boss?96:44;if(!miss){mx=ex+br+tw/2;my=ey-10;if(mx+tw/2>W-12)mx=ex-br-tw/2;if(mx-tw/2<12)mx=ex,my=ey-(e.boss?110:56)}mx=Math.max(tw/2+12,Math.min(W-tw/2-12,mx));
+  if(!miss){c.strokeStyle=rgba(col,.55);c.lineWidth=7;c.beginPath();c.moveTo(mx-tw/2,my+14);c.lineTo(mx-tw/2+tw*(RM?1:Math.min(1,b/260)),my+12);c.stroke()}
+  c.lineWidth=5;c.strokeStyle="rgba(251,244,228,.92)";c.strokeText(txt,mx,my);c.fillStyle="#1a1410";c.fillText(txt,mx,my);c.textAlign="left";c.textBaseline="alphabetic"}
+ c.restore()}
+/* how the boss reacts: shrink and wobble on a hit, swell a little on a miss, then the calm-down drift on victory */
+function bossK(now){var o={s:1,r:0,dy:0,a:1,hap:null};if(SPL&&!RM){var a=now-SPL.t0-420;if(a>0&&a<600){var u=a/600,w=Math.sin(Math.PI*u);if(SPL.r>0){o.s=1-.08*w;o.r=Math.sin(u*Math.PI*4)*.05*(1-u)}else if(SPL.r===0)o.s=1+.04*w}}
+ if(CALM){var v=RM?1:Math.min(1,(now-CALM.t0)/CALMD),ee=v*v*(3-2*v);o.hap=v>.3;o.s*=1-.12*ee;o.dy=-38*ee;o.a=1-.35*Math.max(0,(v-.5)/.5)}return o}
+/* calm-down before the victory card: swirls ease, the face softens, the boss drifts back. Skippable; instant under reduced motion */
+function calmThen(fn){var ran=0;function go(){if(ran)return;ran=1;document.removeEventListener("keydown",kd,true);clearTimeout(tm);var sb=document.getElementById("b-skip");if(sb)sb.remove();CALM&&(CALM.t0=performance.now()-CALMD);fn()}
+ function kd(ev){if(ev.key==="Escape"||ev.key==="Enter"||ev.key===" "){ev.preventDefault();go()}}
+ CALM={t0:performance.now()};if(RM)return go();if(B&&B.d){var mm=document.getElementById("b-msg");if(mm)mm.innerHTML="<p>"+esc(B.d.name)+(B.d.gentle?" glows softly.":" loosens, softens, and drifts back.")+"</p>";var rc=document.getElementById("b-rl");if(rc)rc.hidden=true}
+ var bb=document.querySelector(".w-bbot");if(bb){bb.querySelectorAll("button,input").forEach(function(x){x.disabled=true});var lv=document.getElementById("b-leave");if(lv)lv.disabled=true;var sk=document.createElement("button");sk.className="w-btn";sk.id="b-skip";sk.textContent="Skip \u203A";sk.onclick=go;bb.appendChild(sk);sk.focus()}
+ document.addEventListener("keydown",kd,true);var tm=setTimeout(go,CALMD)}
 function castSay(){if(!B||!B.d)return;var a=B.d.sk[B.weak][2];B.cast={name:a,line:CASTL[a]||"",t0:performance.now()};(B.castLog=B.castLog||[]).push(a)}
 function castBubble(c,now){var el=document.getElementById("b-cast"),cb=B&&B.cast;var age=cb?now-cb.t0:0;
  /* the bubble stays up until the player casts their response (act clears B.cast) */
- if(!cb||B.over){if(el)el.hidden=true;return}
+ if(!cb||B.over){if(el&&!el.hidden){if(RM||B.over&&!CALM){el.hidden=true}else if(!el.classList.contains("out")){el.classList.add("out");el.classList.remove("in");setTimeout(function(){if(el.classList.contains("out")){el.hidden=true;el.classList.remove("out")}},420)}}return}
  var ov=document.querySelector(".w-bov"),cv=c.canvas;if(!ov||!cv)return;
  if(!el){el=document.createElement("div");el.id="b-cast";el.className="w-cast";el.setAttribute("aria-hidden","true");ov.appendChild(el)}
- if(el.dataset.k!==cb.name+cb.t0){el.dataset.k=cb.name+cb.t0;el.innerHTML='<b></b><i></i>';el.firstChild.textContent=(B.d.gentle?"The Keeper\u2019s lantern flickers: ":"Casts: ")+cb.name+(S.clues&&S.clues.indexOf(B.id)>=0&&!B.d.practice?" \u00b7 from your clue page":"");el.lastChild.textContent=cb.line?"\u201C"+cb.line+"\u201D":"";el.classList.toggle("rm",!!RM)}
+ if(el.dataset.k!==cb.name+cb.t0){el.dataset.k=cb.name+cb.t0;el.innerHTML='<b></b><i></i>';el.firstChild.textContent=(B.d.gentle?"The Keeper\u2019s lantern flickers: ":"Casts: ")+cb.name+(S.clues&&S.clues.indexOf(B.id)>=0&&!B.d.practice?" \u00b7 from your clue page":"");if(cb.line){var wq=("\u201C"+cb.line+"\u201D").split(" ");wq.forEach(function(w,wi){var sp=document.createElement("span");sp.textContent=w+(wi<wq.length-1?" ":"");sp.style.animationDelay=(180+wi*55)+"ms";el.lastChild.appendChild(sp)})}el.classList.toggle("rm",!!RM);el.classList.remove("out");el.classList.remove("in");void el.offsetWidth;if(!RM)el.classList.add("in")}
  el.hidden=false;var R=cv.getBoundingClientRect(),O=ov.getBoundingClientRect(),k=R.width/W,e=B.e;
  var hud=document.querySelector(".w-bhud"),hb=hud?hud.getBoundingClientRect().bottom-O.top:0;
  var sk=document.querySelector(".w-bpan,.w-bact,[data-s]"),pan=sk&&sk.closest(".w-bov>*")||sk,pt=pan?pan.getBoundingClientRect().top-O.top:R.height;
- var bw=el.offsetWidth,bh=el.offsetHeight,ex=(e.x)*k+(R.left-O.left),top=(e.y-(B.d.big?200:e.boss?160:80))*k+(R.top-O.top);
+ var bw=el.offsetWidth,bh=el.offsetHeight,vs=VIEW.s||k,ex=(VIEW.s?VIEW.ox:0)+e.x*vs+(R.left-O.left),top=(VIEW.s?VIEW.oy:0)+(e.y-(B.d.big?200:e.boss?160:80))*vs+(R.top-O.top);
  var lx=Math.max(8,Math.min(R.width-bw-8,ex-bw/2)),ly=Math.max(hb+10,Math.min(pt-bh-10,top-bh-14));
  el.style.left=lx+"px";el.style.top=ly+"px";el.style.setProperty("--tx",Math.max(16,Math.min(bw-24,ex-lx))+"px");
- el.style.opacity=RM?1:Math.max(0,Math.min(1,age/220));
+ 
  B.castRect={l:lx+O.left,t:ly+O.top,r:lx+O.left+bw,b:ly+O.top+bh}}
 function wrapL(c,t,mw){var ws=t.split(" "),out=[],ln="";ws.forEach(function(w){var tt=ln?ln+" "+w:w;if(c.measureText(tt).width>mw&&ln){out.push(ln);ln=w}else ln=tt});out.push(ln);return out}
 function bubble(c,x,y,txt,a){c.save();c.globalAlpha=a;c.font="600 13px system-ui,sans-serif";var words=txt.split(" "),lines=[],ln="",mw=Math.min(280,W-30);words.forEach(function(w){var tt=ln?ln+" "+w:w;if(c.measureText(tt).width>mw-20&&ln){lines.push(ln);ln=w}else ln=tt});lines.push(ln);
@@ -1260,7 +1309,7 @@ function bondLv(){var b=S.bond[S.hero.pet|0]||0;return b>=BL[3]?4:b>=BL[2]?3:b>=
 function bondAdd(n){var i=S.hero.pet|0,before=bondLv();S.bond[i]=(S.bond[i]||0)+n;save();var a=bondLv();if(a>before)toast(petName()+" feels closer to you. Bond level "+a+": "+bondPerk(a)+".");return a}
 function bondPerk(l){return l===2?"learned "+TRICK[S.hero.pet|0][0]+" and can sniff out treasures":l===3?"will comfort you when hope runs low":l===4?"learned "+TRICK[S.hero.pet|0][1]:"follows you everywhere"}
 var PETW={d:0,last:0};
-function toast(t){live(t);if(!stage)return;var o=stage.querySelector(".w-toast");if(o)o.remove();o=document.createElement("div");o.className="w-toast w-par";o.setAttribute("role","status");o.textContent=t;stage.appendChild(o);var bh=stage.querySelector(".w-bhud");if(bh){var sr=stage.getBoundingClientRect(),hb=bh.getBoundingClientRect().bottom-sr.top;if(hb>0)o.style.top=(hb+6)+"px"}setTimeout(function(){if(o.parentNode)o.remove()},3800)}
+function toast(t){if(B&&!B.over&&hudHint(t)){live(t);return}live(t);if(!stage)return;var o=stage.querySelector(".w-toast");if(o)o.remove();o=document.createElement("div");o.className="w-toast w-par";o.setAttribute("role","status");o.textContent=t;stage.appendChild(o);var bh=stage.querySelector(".w-bhud");if(bh){var sr=stage.getBoundingClientRect(),hb=bh.getBoundingClientRect().bottom-sr.top;if(hb>0)o.style.top=(hb+6)+"px"}setTimeout(function(){if(o.parentNode)o.remove()},3800)}
 function petTrick(n){var l=bondLv();if(n===0&&l<2||n===1&&l<4)return false;PT.trick={k:n,t0:performance.now()};live(petName()+" does "+TRICK[S.hero.pet|0][n]+"!");return true}
 function petPet(){var now=performance.now();if(now-PETW.last<8000){toast(petName()+" leans into you, happy.");return 0}PETW.last=now;bondAdd(1);toast("You give "+petName()+" some attention. Bond grows.");return 1}
 function sniff(s){if(bondLv()<2||S.sniffed.indexOf(s.id)>=0||s.id==="safe")return;S.sniffed.push(s.id);if(S.sniffed.length%3!==1)return save();var k=["stone","shell","flowers"][S.sniffed.length%3];give(k);setTimeout(function(){toast(petName()+" sniffed out "+decName(k)+"! It's in your satchel.")},600)}
