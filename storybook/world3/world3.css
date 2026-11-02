@@ -217,3 +217,60 @@ details.w-rl{font-size:11.5px;margin:0 0 2px}
  .w-brc{max-width:140px;font-size:12px;padding:5px 8px}
 }
 @media (prefers-reduced-motion:reduce){.w-cast.in,.w-cast.in i span,.w-bhint.in,.w-rlc.in,.w-bar.shk i{animation:none!important;opacity:1}.w-bar b{transition:none}.w-cast.out{transition:none}}
+/* ===== cozy art modes (?art=storybook | diorama | pixel): library meets mountain cabin. Same sizes and borders as ink, only the finish changes ===== */
+html.cozy body{background:#24180f}
+html.cozy .w-foot{background:#1a120b;color:#f4e6cc}
+html.cozy .w-foot a{color:#ffd98a}
+/* A: Lamplit Storybook - watercolor paper, walnut and brass, book-cloth buttons with stitching */
+html.cozy-storybook body{background:#2a1c12 radial-gradient(ellipse at 50% 0,rgba(255,190,110,.16),transparent 60%)}
+html.cozy-storybook.art-ink .w-top{background:linear-gradient(#5a3a22,#3e2616)!important;border-bottom:3px solid #c9a24a!important;box-shadow:0 2px 0 #2a1a0e,0 6px 14px rgba(0,0,0,.35)}
+html.cozy-storybook.art-ink .w-top h1{font-family:'Cormorant Garamond',Georgia,serif;letter-spacing:.02em}
+html.cozy-storybook .w-par{background:#f6ecd6 radial-gradient(circle at 15% 10%,rgba(255,255,255,.6),transparent 45%),repeating-linear-gradient(93deg,rgba(120,90,50,.04) 0 2px,transparent 2px 8px);border-color:#7a5434;box-shadow:0 8px 24px rgba(20,10,0,.45),inset 0 0 0 4px rgba(201,162,74,.25)}
+html.cozy-storybook.art-ink .w-btn:not(.w-sw),html.cozy-storybook.art-ink .w-sk,html.cozy-storybook.art-ink .w-sk2,html.cozy-storybook.art-ink .w-act,html.cozy-storybook.art-ink .w-pet{background:linear-gradient(#f8eedb,#ead9b8)!important;color:#3d2a1c!important;border:2px solid #6a4428!important;border-radius:6px!important;box-shadow:inset 0 0 0 2px #f8eedb,inset 0 0 0 3px rgba(138,90,52,.45),0 2px 0 #5a3a22,0 4px 8px rgba(40,20,5,.25)!important;font-family:Georgia,serif}
+html.cozy-storybook.art-ink .w-btn.pri:not(.w-sw),html.cozy-storybook.art-ink .w-btn:not(.w-sw)[aria-pressed="true"],html.cozy-storybook.art-ink .w-pet[aria-pressed="true"],html.cozy-storybook.art-ink .w-btn.on{background:linear-gradient(#a8402e,#862e22)!important;color:#fff6e4!important;border-color:#5a1e14!important;box-shadow:inset 0 0 0 2px #a8402e,inset 0 0 0 3px rgba(255,214,140,.55),0 2px 0 #4a1a10,0 4px 8px rgba(40,20,5,.3)!important}
+html.cozy-storybook.art-ink .w-bhud,html.cozy-storybook.art-ink .w-open{background:#f6ecd6!important;border-color:#6a4428!important;box-shadow:0 6px 18px rgba(20,10,0,.4),inset 0 0 0 2px #c9a24a!important;border-radius:8px!important}
+html.cozy-storybook.art-ink .w-open-stage{background:#2a1c12;border-color:#6a4428;border-radius:6px}
+html.cozy-storybook.art-ink .w-bar i{border-color:#6a4428;background:#efe2c4;border-radius:6px}
+html.cozy-storybook.art-ink .w-bar b{background:linear-gradient(#c8553f,#9a3424)}
+html.cozy-storybook.art-ink .w-bar.hope b{background:linear-gradient(#e8c06a,#c99a3a)}
+html.cozy-storybook .w-cast{border-color:#6a4428;background:linear-gradient(#fbf3e2f7,#efdfc0f7);box-shadow:0 4px 14px rgba(40,20,5,.35),inset 0 0 0 3px rgba(201,162,74,.3)}
+html.cozy-storybook .w-cast::after{background:#efdfc0;border-color:#6a4428}
+html.cozy-storybook.art-ink .w-brc{background:#fbf3e2;border-color:#6a4428;border-radius:8px;box-shadow:0 3px 8px rgba(40,20,5,.3)}
+html.cozy-storybook .w-breath .w-ring{background:conic-gradient(#8a3a24 var(--p),rgba(106,68,40,.2) 0)}
+html.cozy-storybook .w-gcard{background:#fbf3e2;border-color:#b8996a;box-shadow:inset 0 0 0 3px rgba(201,162,74,.18)}
+/* B: Cabin Diorama - soft clay and felt, rounded pill buttons with real depth */
+html.cozy-diorama body{background:#3a2a1e linear-gradient(#4a3424,#2a1c12)}
+html.cozy-diorama.art-ink .w-top{background:linear-gradient(#7a5236,#5a3a24)!important;border-bottom:3px solid #e8b878!important;box-shadow:0 6px 16px rgba(0,0,0,.35)}
+html.cozy-diorama .w-par{background:linear-gradient(#fbf4ea,#f0e4d2);border-color:#c8a888;border-radius:18px;box-shadow:0 12px 30px rgba(30,15,5,.45),inset 0 2px 0 #fff,inset 0 -3px 0 rgba(160,120,90,.25)}
+html.cozy-diorama.art-ink .w-btn:not(.w-sw),html.cozy-diorama.art-ink .w-sk,html.cozy-diorama.art-ink .w-sk2,html.cozy-diorama.art-ink .w-act,html.cozy-diorama.art-ink .w-pet{background:linear-gradient(#fffaf2,#eadccb)!important;color:#3a2a22!important;border:2px solid #c8a888!important;border-radius:999px!important;box-shadow:0 4px 0 #b8987a,0 7px 12px rgba(40,20,10,.3),inset 0 2px 0 #fff!important}
+html.cozy-diorama.art-ink .w-btn.pri:not(.w-sw),html.cozy-diorama.art-ink .w-btn:not(.w-sw)[aria-pressed="true"],html.cozy-diorama.art-ink .w-pet[aria-pressed="true"],html.cozy-diorama.art-ink .w-btn.on{background:linear-gradient(#e0785a,#c0543a)!important;color:#fffaf2!important;border-color:#9a3e2a!important;box-shadow:0 4px 0 #8a3422,0 7px 12px rgba(40,20,10,.35),inset 0 2px 0 rgba(255,220,190,.6)!important}
+html.cozy-diorama.art-ink .w-btn:not(.w-sw):active{transform:translateY(2px)}
+html.cozy-diorama.art-ink .w-bhud,html.cozy-diorama.art-ink .w-open{background:linear-gradient(#fbf4ea,#f0e4d2)!important;border-color:#c8a888!important;border-radius:18px!important;box-shadow:0 10px 24px rgba(30,15,5,.4),inset 0 2px 0 #fff!important}
+html.cozy-diorama.art-ink .w-open-stage{background:#3a2a1e;border-color:#c8a888;border-radius:14px;box-shadow:inset 0 4px 12px rgba(0,0,0,.4)}
+html.cozy-diorama.art-ink .w-bar i{border-color:#c8a888;background:#e8dccb;border-radius:999px;box-shadow:inset 0 2px 3px rgba(80,50,30,.25)}
+html.cozy-diorama.art-ink .w-bar b{background:linear-gradient(#f08a6a,#c0543a);border-radius:999px}
+html.cozy-diorama.art-ink .w-bar.hope b{background:linear-gradient(#ffd890,#e0a848)}
+html.cozy-diorama .w-cast{border-color:#c8a888;border-radius:20px;background:linear-gradient(#fffaf2f7,#efe2d0f7);box-shadow:0 6px 0 rgba(184,152,122,.6),0 10px 18px rgba(40,20,10,.35)}
+html.cozy-diorama .w-cast::after{background:#efe2d0;border-color:#c8a888}
+html.cozy-diorama.art-ink .w-brc{background:#fffaf2;border-color:#c8a888;border-radius:16px;box-shadow:0 4px 0 #b8987a,0 6px 12px rgba(40,20,10,.3)}
+html.cozy-diorama .w-breath .w-ring{background:conic-gradient(#c0543a var(--p),rgba(160,120,90,.22) 0)}
+html.cozy-diorama .w-gcard{background:#fffaf2;border-color:#d8c0a8;border-radius:16px;box-shadow:0 3px 0 #d8c0a8}
+/* C: Cozy Pixel Lodge - square stepped frames, offset shadows, crisp edges */
+html.cozy-pixel body{background:#22161c}
+html.cozy-pixel canvas{image-rendering:pixelated}
+html.cozy-pixel.art-ink .w-top{background:#3a2430!important;border-bottom:3px solid #e8c06a!important;box-shadow:0 3px 0 #1a0e14}
+html.cozy-pixel .w-par{background:#f4e6cc;border-color:#2a1a22;border-radius:0;box-shadow:4px 4px 0 #2a1a22,inset 0 0 0 3px #e8c06a,inset 0 0 0 5px #f4e6cc,inset 0 0 0 6px rgba(42,26,34,.35)}
+html.cozy-pixel.art-ink .w-btn:not(.w-sw),html.cozy-pixel.art-ink .w-sk,html.cozy-pixel.art-ink .w-sk2,html.cozy-pixel.art-ink .w-act,html.cozy-pixel.art-ink .w-pet{background:#f4e6cc!important;color:#2a1a22!important;border:2px solid #2a1a22!important;border-radius:0!important;box-shadow:inset -2px -2px 0 #d8c09a,inset 2px 2px 0 #fff8e8,3px 3px 0 #2a1a22!important;font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.01em}
+html.cozy-pixel.art-ink .w-btn.pri:not(.w-sw),html.cozy-pixel.art-ink .w-btn:not(.w-sw)[aria-pressed="true"],html.cozy-pixel.art-ink .w-pet[aria-pressed="true"],html.cozy-pixel.art-ink .w-btn.on{background:#b8463a!important;color:#fff4dc!important;box-shadow:inset -2px -2px 0 #8a2a24,inset 2px 2px 0 #e86a5a,3px 3px 0 #2a1a22!important}
+html.cozy-pixel.art-ink .w-btn:not(.w-sw):active{transform:translate(2px,2px)}
+html.cozy-pixel.art-ink .w-bhud,html.cozy-pixel.art-ink .w-open{background:#f4e6cc!important;border-color:#2a1a22!important;border-radius:0!important;box-shadow:4px 4px 0 #2a1a22,inset 0 0 0 2px #e8c06a!important}
+html.cozy-pixel.art-ink .w-open-stage{background:#22161c;border-color:#2a1a22;border-radius:0}
+html.cozy-pixel.art-ink .w-bar i{border-color:#2a1a22;background:#e8dcc0;border-radius:0}
+html.cozy-pixel.art-ink .w-bar b{background:repeating-linear-gradient(90deg,#b8463a 0 6px,#a03a30 6px 8px)}
+html.cozy-pixel.art-ink .w-bar.hope b{background:repeating-linear-gradient(90deg,#e8c06a 0 6px,#c89a3a 6px 8px)}
+html.cozy-pixel .w-cast{border-color:#2a1a22;border-radius:0;background:#fff4dc;box-shadow:4px 4px 0 #2a1a22,inset 0 0 0 2px #e8c06a}
+html.cozy-pixel .w-cast::after{border-radius:0;background:#fff4dc;border-color:#2a1a22}
+html.cozy-pixel.art-ink .w-brc{background:#fff4dc;border-color:#2a1a22;border-radius:0;box-shadow:3px 3px 0 #2a1a22}
+html.cozy-pixel .w-breath .w-ring{background:conic-gradient(#3a5a8a var(--p),rgba(42,26,34,.2) 0)}
+html.cozy-pixel .w-gcard{background:#fff4dc;border-color:#2a1a22;border-radius:0;box-shadow:3px 3px 0 #2a1a22}
+html.cozy-pixel.art-ink .w-gj-card img,html.cozy-pixel.art-ink .w-pch img{border-radius:0!important}
