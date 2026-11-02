@@ -374,13 +374,14 @@ var OV={};function overlay(id){if(OV[id])return OV[id];var A=mk(W*2,H*2),a=A.get
  else if(DI){var v2=a.createRadialGradient(W*.42,H*.36,H*.3,W/2,H/2,W*.75);v2.addColorStop(0,"rgba(255,255,255,0)");v2.addColorStop(1,"rgba(60,40,30,.5)");a.fillStyle=v2;a.fillRect(0,0,W,H)}
  else{for(var k=0;k<5;k++){a.strokeStyle="rgba(42,26,34,"+(.12+k*.05)+")";a.lineWidth=4;a.strokeRect(2+k*0,2,W-4,H-4);a.strokeStyle="rgba(42,26,34,"+(.3-k*.05)+")";a.strokeRect(k*4+2,k*4+2,W-k*8-4,H-k*8-4)}}
  var ks=Object.keys(OV);if(ks.length>3)delete OV[ks[0]];return OV[id]=A}
-var TS=null;
+var TS=null,TG=null,DIGR="saturate(1.35) contrast(1.12) brightness(.96)";
 function fx(c,m,cur){var id=cur?cur.id:"x";c.save();
  if(m<1){var g=c.createRadialGradient(W/2,H*.55,Math.max(0,m*W*.9-80),W/2,H*.55,m*W*.9+1);g.addColorStop(0,"rgba(128,128,128,0)");g.addColorStop(1,"rgba(128,128,128,1)");c.globalCompositeOperation="saturation";c.globalAlpha=.85;c.fillStyle=g;c.fillRect(0,0,W,H);
   c.globalAlpha=.3*(1-m);c.globalCompositeOperation="multiply";c.fillStyle=SB?"#d8c8ac":DI?"#c8c0c8":"#b8a8b8";c.fillRect(0,0,W,H);c.globalAlpha=1}
  if(DI&&c.canvas){/* tilt-shift: a blurred copy masked to the top and bottom gives the miniature-model depth of field */if(!TS)TS=mk(W,H);var tx=TS.getContext("2d");tx.setTransform(1,0,0,1,0,0);tx.globalCompositeOperation="source-over";tx.clearRect(0,0,W,H);try{tx.filter="blur(4.5px)"}catch(e){}tx.drawImage(c.canvas,0,0,W,H);tx.filter="none";
   var mg=tx.createLinearGradient(0,0,0,H);mg.addColorStop(0,"rgba(0,0,0,1)");mg.addColorStop(.27,"rgba(0,0,0,0)");mg.addColorStop(.72,"rgba(0,0,0,0)");mg.addColorStop(1,"rgba(0,0,0,.9)");tx.globalCompositeOperation="destination-in";tx.fillStyle=mg;tx.fillRect(0,0,W,H);c.drawImage(TS,0,0,W,H);
-  var kl=c.createRadialGradient(W*.2,-H*.1,10,W*.3,H*.2,W*.8);kl.addColorStop(0,"rgba(255,226,170,.5)");kl.addColorStop(1,"rgba(255,226,170,0)");c.globalCompositeOperation="overlay";c.globalAlpha=.35;c.fillStyle=kl;c.fillRect(0,0,W,H);c.globalAlpha=1}
+  var kl=c.createRadialGradient(W*.2,-H*.1,10,W*.3,H*.2,W*.8);kl.addColorStop(0,"rgba(255,226,170,.5)");kl.addColorStop(1,"rgba(255,226,170,0)");c.globalCompositeOperation="overlay";c.globalAlpha=.35;c.fillStyle=kl;c.fillRect(0,0,W,H);c.globalAlpha=1;
+  /* diorama grade: richer clay colour and contrast so the miniature reads lit, not hazy (cached base only) */try{var cw=c.canvas.width,chh=c.canvas.height;if(!TG||TG.width!==cw||TG.height!==chh)TG=mk(cw,chh);var gx=TG.getContext("2d");gx.setTransform(1,0,0,1,0,0);gx.clearRect(0,0,cw,chh);gx.filter=DIGR;gx.drawImage(c.canvas,0,0);gx.filter="none";c.save();c.setTransform(1,0,0,1,0,0);c.globalCompositeOperation="copy";c.globalAlpha=1;c.drawImage(TG,0,0);c.restore()}catch(e){}}
  else if(SB&&cur){/* storybook: an early-evening wash, then warm painted pools of lamplight at every lantern, window, hearth and reading lamp */
   c.globalCompositeOperation="multiply";c.globalAlpha=.55;c.fillStyle="#9a8aa8";c.fillRect(0,0,W,H);c.globalAlpha=1;c.globalCompositeOperation="lighter";
   var pools=[];(cur.items||[]).forEach(function(o){var u=(o.sc||1);if(o.t==="lantern")pools.push([o.x+9*u,o.y-36*u,70]);if(o.t==="house"){pools.push([o.x-20*u,o.y-24*u,64]);pools.push([o.x+24*u,o.y-24*u,64])}});
