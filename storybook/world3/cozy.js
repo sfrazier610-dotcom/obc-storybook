@@ -478,7 +478,13 @@ function ground(w,h,top,night){var A=mk(w,h),a=A.getContext("2d"),r=seeded(w*7+h
  if(SB){a.globalCompositeOperation="multiply";a.globalAlpha=.35;a.fillStyle=grain(a);a.fillRect(0,0,w,h);a.globalAlpha=1;a.globalCompositeOperation="source-over"}
  if(PX){var D=mk(w/2,h/2),dx=D.getContext("2d");dx.drawImage(A,0,0,w/2,h/2);a.imageSmoothingEnabled=false;a.clearRect(0,0,w,h);a.drawImage(D,0,0,w,h)}
  return A}
-function frame(c,w,h){c.save();if(SB){c.strokeStyle="#5a3a22";c.lineWidth=6;c.strokeRect(3,3,w-6,h-6);c.strokeStyle="#c9a24a";c.lineWidth=1.2;c.strokeRect(8,8,w-16,h-16)}
+/* opening-card look per style (render only): storybook = lamplit evening wash, diorama = tilt-shift miniature, pixel = low-res pass */
+var FG=null;function cardGrade(c,w,h){var cv=c.canvas,k=cv.width/w;try{c.save();c.setTransform(1,0,0,1,0,0);var W2=cv.width,H2=cv.height;
+ if(SB){c.globalCompositeOperation="soft-light";c.fillStyle="rgba(240,176,90,.55)";c.fillRect(0,0,W2,H2);c.globalCompositeOperation="source-over";var g=c.createRadialGradient(W2*.5,H2*.55,H2*.25,W2*.5,H2*.55,W2*.62);g.addColorStop(0,"rgba(255,214,140,.10)");g.addColorStop(1,"rgba(48,24,8,.55)");c.fillStyle=g;c.fillRect(0,0,W2,H2)}
+ else if(DI){if(!FG||FG.width!==W2||FG.height!==H2)FG=mk(W2,H2);var f=FG.getContext("2d");f.setTransform(1,0,0,1,0,0);f.clearRect(0,0,W2,H2);f.filter="saturate(1.3) contrast(1.08)";f.drawImage(cv,0,0);f.filter="none";c.globalCompositeOperation="copy";c.drawImage(FG,0,0);c.globalCompositeOperation="source-over";
+  f.clearRect(0,0,W2,H2);f.filter="blur("+(2.4*k)+"px)";f.drawImage(cv,0,0);f.filter="none";c.save();c.beginPath();c.rect(0,0,W2,H2*.3);c.rect(0,H2*.86,W2,H2*.14);c.clip();c.drawImage(FG,0,0);c.restore();c.globalAlpha=.6;c.save();c.beginPath();c.rect(0,H2*.3,W2,H2*.08);c.rect(0,H2*.8,W2,H2*.06);c.clip();c.drawImage(FG,0,0);c.restore();c.globalAlpha=1}
+ c.restore()}catch(e){c.restore()}if(PX)pixelate(c,k)}
+function frame(c,w,h){cardGrade(c,w,h);c.save();if(SB){c.strokeStyle="#5a3a22";c.lineWidth=6;c.strokeRect(3,3,w-6,h-6);c.strokeStyle="#c9a24a";c.lineWidth=1.2;c.strokeRect(8,8,w-16,h-16)}
  else if(DI){var g=c.createLinearGradient(0,0,0,h);g.addColorStop(0,"#8a6040");g.addColorStop(1,"#5a3a24");c.strokeStyle=g;c.lineWidth=8;c.beginPath();c.roundRect?c.roundRect(4,4,w-8,h-8,14):c.rect(4,4,w-8,h-8);c.stroke();c.strokeStyle="rgba(255,230,190,.4)";c.lineWidth=1.5;c.beginPath();c.roundRect?c.roundRect(8,8,w-16,h-16,10):c.rect(8,8,w-16,h-16);c.stroke()}
  else{c.fillStyle="#2a1a22";c.fillRect(0,0,w,4);c.fillRect(0,h-4,w,4);c.fillRect(0,0,4,h);c.fillRect(w-4,0,4,h);c.fillStyle="#e8c06a";c.fillRect(6,6,w-12,2);c.fillRect(6,h-8,w-12,2);c.fillRect(6,6,2,h-12);c.fillRect(w-8,6,2,h-12)}c.restore()}
 /* ---------- victory: inside a warm cabin library, fire crackling, snowy peaks through the window ---------- */
