@@ -2,7 +2,7 @@
    ?art=storybook | ?art=diorama | ?art=pixel (or localStorage obc_art). Original art drawn in code. */
 (function(){"use strict";
 var MODES={storybook:1,diorama:1,pixel:1},qm=location.search.match(/[?&]art=([a-z]+)/),M=null;
-if(qm){if(MODES[qm[1]])M=qm[1]}else{try{var ls=localStorage.getItem("obc_art");if(MODES[ls])M=ls}catch(e){}if(!M&&MODES[window.OBC_COZY_FORCE])M=window.OBC_COZY_FORCE}
+if(qm){if(MODES[qm[1]])M=qm[1]}else{var ls=null;try{ls=localStorage.getItem("obc_art");if(MODES[ls])M=ls}catch(e){}if(!M&&!ls&&MODES[window.OBC_COZY_FORCE])M=window.OBC_COZY_FORCE}
 if(!M)return;
 document.documentElement.classList.add("cozy","cozy-"+M);
 var RM=matchMedia("(prefers-reduced-motion: reduce)").matches,SB=M==="storybook",DI=M==="diorama",PX=M==="pixel";
