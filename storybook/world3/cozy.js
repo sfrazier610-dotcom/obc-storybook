@@ -381,6 +381,12 @@ function fx(c,m,cur){var id=cur?cur.id:"x";c.save();
  if(DI&&c.canvas){/* tilt-shift: a blurred copy masked to the top and bottom gives the miniature-model depth of field */if(!TS)TS=mk(W,H);var tx=TS.getContext("2d");tx.setTransform(1,0,0,1,0,0);tx.globalCompositeOperation="source-over";tx.clearRect(0,0,W,H);try{tx.filter="blur(4.5px)"}catch(e){}tx.drawImage(c.canvas,0,0,W,H);tx.filter="none";
   var mg=tx.createLinearGradient(0,0,0,H);mg.addColorStop(0,"rgba(0,0,0,1)");mg.addColorStop(.27,"rgba(0,0,0,0)");mg.addColorStop(.72,"rgba(0,0,0,0)");mg.addColorStop(1,"rgba(0,0,0,.9)");tx.globalCompositeOperation="destination-in";tx.fillStyle=mg;tx.fillRect(0,0,W,H);c.drawImage(TS,0,0,W,H);
   var kl=c.createRadialGradient(W*.2,-H*.1,10,W*.3,H*.2,W*.8);kl.addColorStop(0,"rgba(255,226,170,.5)");kl.addColorStop(1,"rgba(255,226,170,0)");c.globalCompositeOperation="overlay";c.globalAlpha=.35;c.fillStyle=kl;c.fillRect(0,0,W,H);c.globalAlpha=1}
+ else if(SB&&cur){/* storybook: an early-evening wash, then warm painted pools of lamplight at every lantern, window, hearth and reading lamp */
+  c.globalCompositeOperation="multiply";c.globalAlpha=.55;c.fillStyle="#9a8aa8";c.fillRect(0,0,W,H);c.globalAlpha=1;c.globalCompositeOperation="lighter";
+  var pools=[];(cur.items||[]).forEach(function(o){var u=(o.sc||1);if(o.t==="lantern")pools.push([o.x+9*u,o.y-36*u,70]);if(o.t==="house"){pools.push([o.x-20*u,o.y-24*u,64]);pools.push([o.x+24*u,o.y-24*u,64])}});
+  (DECO[cur.id]||[]).forEach(function(o){if(o.t==="hearth")pools.push([o.x,o.y-8,90]);if(o.t==="nook")pools.push([o.x+48,o.y-40,70]);if(o.t==="stack")pools.push([o.x,o.y-40,46])});
+  pools.forEach(function(p){var g=c.createRadialGradient(p[0],p[1],0,p[0],p[1]+10,p[2]);g.addColorStop(0,"rgba(255,186,96,.5)");g.addColorStop(.5,"rgba(230,140,60,.18)");g.addColorStop(1,"rgba(200,110,40,0)");c.fillStyle=g;c.beginPath();c.ellipse(p[0],p[1]+10,p[2],p[2]*.7,0,0,6.283);c.fill()});
+  c.globalCompositeOperation="soft-light";c.globalAlpha=.25;c.fillStyle="#ffcf8a";c.fillRect(0,0,W,H);c.globalAlpha=1}
  else{c.globalCompositeOperation="soft-light";c.globalAlpha=SB?.22+.14*m:.18+.1*m;c.fillStyle=SB?"#ffcf8a":"#ffb880";c.fillRect(0,0,W,H);c.globalAlpha=1}
  c.globalCompositeOperation=SB?"multiply":"source-over";c.drawImage(overlay(id),0,0,W,H);c.restore()}
 /* diorama: every prop casts a projected silhouette shadow away from the key light */
@@ -424,7 +430,7 @@ function deco(s){if(DECO[s.id])return DECO[s.id];var out=[];if(!s.items||s.id===
  for(var x=50;x<W-40;x+=66){if(pathD(L,x,58)<50||!ok(x,58,30))continue;if(r()<.55){(function(x){var sd=r()*1e6|0;out.push({y:58,t:"shelf",x:x,f:function(a){a.save();a.translate(x,58);a.scale(.78,.78);DK.shelf(a,seeded(sd),snow);a.restore()}})})(x);taken.push([x,58,34]);x+=20}}
  var n=0;for(var tries=0;tries<220&&n<5;tries++){var px=40+r()*(W-80),py=96+r()*(H-140),t=DSETS[n%DSETS.length];if(t==="shelf")t=DSETS[(n+1)%DSETS.length];var rad=t==="nook"?66:t==="hearth"||t==="giant"||t==="picnic"?50:30;
   if(pathD(L,px,py)<rad*.55+18||Math.hypot(px-L.c[0],py-L.c[1])<110||!ok(px,py,rad))continue;taken.push([px,py,rad]);n++;
-  (function(px,py,t,sd){out.push({y:py,t:t,x:px,f:function(a){a.save();a.translate(px,py);a.scale(.9,.9);DK[t](a,seeded(sd),snow);a.restore()}})})(px,py,t,r()*1e6|0)}
+  (function(px,py,t,sd){var fn=DI?castWrap("dk"+t+sd,function(a,L){DK[t](a,seeded(sd),snow)}):function(a){DK[t](a,seeded(sd),snow)};out.push({y:py,t:t,x:px,f:function(a){a.save();a.translate(px,py);a.scale(.9,.9);fn(a,0,0);a.restore()}})})(px,py,t,r()*1e6|0)}
  return DECO[s.id]=out}
 /* warm animated light on the decor: hearth fire, nook lamps and candles */
 function decoLive(c,s,T){var d=DECO[s.id];if(!d)return;d.forEach(function(o,i){var lx=o.x,ly=o.y,rad=0;if(o.t==="hearth"){ly-=8;rad=60}else if(o.t==="nook"){lx+=48;ly-=42;rad=46}else if(o.t==="stack"&&!DI){ly-=44;rad=30}else return;
