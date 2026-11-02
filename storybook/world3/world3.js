@@ -315,7 +315,7 @@ function render(t){var r=stage.getBoundingClientRect(),dpr=Math.min(2,devicePixe
  (s.ens||[]).forEach(function(e){if(!gone(e))L.push({y:e.y,x:e.x,f:function(){drawEnemy(c,e,t)}})});
  if(s.id==="safe")S.safe.items.forEach(function(it,i){L.push({y:it.y,x:it.x,s:1,d:function(k){var d=DEC[it.k];if(d)d.d(k,it.x,it.y,t)},f:function(){var d=DEC[it.k];if(d)d.d(c,it.x,it.y,t);if(DM&&DM.sel===i){c.strokeStyle="#ffd98a";c.lineWidth=2;c.setLineDash([4,3]);c.beginPath();c.ellipse(it.x,it.y-6,30,14,0,0,7);c.stroke();c.setLineDash([])}}})});
  var pt=P.trail.length>12?P.trail[P.trail.length-12]:[P.x-26,P.y+4];
- var ptx=pt[0],pty=pt[1];if(window.OBC_CHARS&&Math.abs(ptx-P.x)<44&&Math.abs(pty-P.y)<16)ptx=P.x+(ptx<=P.x?-44:44);/* keep the drawn pet beside the hero, not hidden behind */
+ var ptx=pt[0],pty=pt[1];if(window.OBC_CHARS&&Math.abs(ptx-P.x)<44&&Math.abs(pty-P.y)<16)ptx=P.x+(ptx<=P.x?-44:44);if(CZ&&B&&Math.abs(ptx-P.x)<44&&Math.abs(pty-P.y)<44){/* cozy fights: companion stands at the hero's side, not under the hero */ptx=P.x+(B.e.x>P.x?-38:38);pty=P.y+2}/* keep the drawn pet beside the hero, not hidden behind */
  L.push({y:pty-.1,x:ptx,f:function(){drawPet(c,ptx,pty,t)}});
  L.push({y:P.y,x:P.x,f:function(){drawHero(c,S.hero,P.x,P.y,1,B?(B.e.x<P.x?3:2):P.dir,RM?0:P.ph);if(B&&B.shield){c.strokeStyle="rgba(255,214,120,.8)";c.lineWidth=3;c.beginPath();c.arc(P.x,P.y-30,34,0,7);c.stroke()}}});
  L.sort(function(a,b){return a.y-b.y});WT=c.getTransform();OCC=ART?L.filter(function(d){return d.s}):[];L.forEach(function(d){DQY=d.y;DQX=d.x;d.f()});
