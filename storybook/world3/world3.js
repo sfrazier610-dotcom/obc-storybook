@@ -911,7 +911,7 @@ function inkPlate(c,s,t,part){var gi=img("map-"+s.g);if(!gi||(s.id==="safe"&&S.s
    if(m>48){var al=Math.min(1,(m-48)/90);e[j*4]=26;e[j*4+1]=20;e[j*4+2]=16;e[j*4+3]=al*240}}
   var Ec=mk(w2,h2);Ec.getContext("2d").putImageData(E,0,0);a.drawImage(Ec,0,0);}
   /* props: procedural ink sprites drawn crisp over the inked ground (no edge filter on them) */
-  a.setTransform(Z,0,0,Z,0,0);var F0=FLUSH;FLUSH=2;s.items.slice().sort(function(u,v){return u.y-v.y}).forEach(function(o){if(INKST[o.t])try{drawItem(a,o,0)}catch(e){}});if(s.id==="office")try{drawPen(a,0,1)}catch(e){}
+  a.setTransform(Z,0,0,Z,0,0);var F0=FLUSH;FLUSH=2;var DL=s.items.filter(function(o){return INKST[o.t]}).map(function(o){return{y:o.y,f:function(){drawItem(a,o,0)}}});if(CZ&&CZ.deco)CZ.deco(s).forEach(function(d){DL.push({y:d.y,f:function(){d.f(a)}})});DL.sort(function(u,v){return u.y-v.y}).forEach(function(d){try{d.f()}catch(e){}});if(s.id==="office")try{drawPen(a,0,1)}catch(e){}
   if(s.id==="safe")S.safe.items.forEach(function(it){var d=DEC[it.k];if(d)try{d.d(a,it.x,it.y,0)}catch(e){}});FLUSH=F0;a.setTransform(1,0,0,1,0,0);if(CZ&&CZ.post)CZ.post(A,s);
   delete INKP[s.id];P2=INKP[s.id]={k:k,c:A};var ik=Object.keys(INKP);while(ik.length>INKCAP){var dk=ik.shift();INKP[dk].c.width=0;delete INKP[dk]}}
  else if(Object.keys(INKP).pop()!==s.id){delete INKP[s.id];INKP[s.id]=P2}
