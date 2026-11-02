@@ -290,7 +290,7 @@ function edges(s){var d=null;if(P.x<6)d="w";else if(P.x>W-6)d="e";else if(P.y<62
 function gone(e){if(B&&B.e===e)return false;if(S.bloom)return true;return e.boss?S.beaten.indexOf(e.reg)>=0:S.cleared.indexOf(e.id)>=0}
 /* ---------- drawing ---------- */
 var PAT={},WXK="";
-function render(t){var r=stage.getBoundingClientRect(),dpr=Math.min(2,devicePixelRatio||1);if(r.width<2||r.height<2)return;/* perf: cap the backing store near 2.2 megapixels so big high-DPI screens are not filling 3.5M pixels a frame */dpr=Math.max(1,Math.min(dpr,Math.sqrt(2.2e6/(r.width*r.height))));window.OBC_DPR=dpr;/* figures pick fine or bold line weights from zoom; keep the same thresholds as before the cap */var rd=devicePixelRatio||1;window.OBC_DPRK=dpr*rd/Math.min(2,rd);
+function render(t){window.OBC_STAGE=CZ?(B?2:1):0;var r=stage.getBoundingClientRect(),dpr=Math.min(2,devicePixelRatio||1);if(r.width<2||r.height<2)return;/* perf: cap the backing store near 2.2 megapixels so big high-DPI screens are not filling 3.5M pixels a frame */dpr=Math.max(1,Math.min(dpr,Math.sqrt(2.2e6/(r.width*r.height))));window.OBC_DPR=dpr;/* figures pick fine or bold line weights from zoom; keep the same thresholds as before the cap */var rd=devicePixelRatio||1;window.OBC_DPRK=dpr*rd/Math.min(2,rd);
  var w=Math.round(r.width*dpr),h=Math.round(r.height*dpr);if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h}
  var c=cx,s=cur,sc=Math.min(r.width/W,r.height/H),ox=(r.width-W*sc)/2,oy=(r.height-H*sc)/2;
  if(B){var tz=stage.querySelector(".w-toast"),hz=stage.querySelector(".w-bhud");if(tz&&hz){var tq=(hz.getBoundingClientRect().bottom-stage.getBoundingClientRect().top+6)+"px";if(tz.style.top!==tq)tz.style.top=tq}var hud=stage.querySelector(".w-bhud"),bot=stage.querySelector(".w-bbot"),t0=hud?hud.getBoundingClientRect().bottom-r.top:0,b0=bot?bot.getBoundingClientRect().top-r.top:r.height;
@@ -331,7 +331,7 @@ function render(t){var r=stage.getBoundingClientRect(),dpr=Math.min(2,devicePixe
  if(fade>0){c.fillStyle="rgba(20,12,4,"+fade+")";c.fillRect(0,0,W,H)}
  c.restore();
  if(ART){if(INK)inkFX(c,t);else wcFX(c,t);wcMargins(c,r,dpr,sc,ox,oy)}}
- if(ART)flushDQ(c);
+ if(ART)flushDQ(c);window.OBC_STAGE=0;if(CZ&&CZ.pixelate)CZ.pixelate(c,dpr);
  drawFX(c,t);drawSparks(c);if(S.bloom&&!B)bloomFX(c,t);LBL=null;var n=busy()?null:near();if(n)label(c,n);actBtn(n)
  if(DM&&DM.pick){c.fillStyle="rgba(255,214,120,.5)";c.beginPath();c.ellipse(P.x,P.y-34,6,6,0,0,7);c.fill()}}
 var LBL=null,ACTK="";document.addEventListener("click",function(e){if(e.target&&e.target.closest&&e.target.closest("#w-act")){doAct();if(stage&&!OV)stage.focus()}});
