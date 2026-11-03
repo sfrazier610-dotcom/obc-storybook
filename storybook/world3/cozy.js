@@ -326,7 +326,7 @@ function aFig(c,d,r){var back=r.back,y=ADB.hy+r.br*.6;
  if(back){aHairBack(c,d,y,1);aHairFront(c,d,y,1)}else{aFace(c,d,y,r.blink);aHairFront(c,d,y,0)}}
 function afig(c,x,y,h,p,t,flip){h*=zs([1.42,1.5]);var d=aspec(spec(p),p),T=RM?0:t||0,sd=hsh(p.who||"")%100/16+(p.seed||0),wk=p.walk||0,wq=Math.round(wk*3)/3,br=RM?0:Math.round((Math.sin(T/900+sd)*.5+.5)*3)/3*-.6,
  blink=!RM&&((T/1000+sd*.73)%4.3)<.12,back=!!p.back;
- var s=h/61,k=zb(ts(c)*s);
+ var s=h/54,k=zb(ts(c)*s);
  var key=M+"|af|"+(p.who||"")+"|"+d.coat+d.hair+d.skin+d.hs+d.cut+d.acc+d.pants+d.b+(d.stub?1:0)+d.boot+"|"+(back?1:0)+"|"+wq+"|"+br+"|"+(blink?1:0)+"|"+k;
  var cv=cached(key,64,96,k,function(x){x.translate(32,86);aFig(x,d,{wk:wq,br:br,blink:blink,back:back,T:T})});cv.k=k;
  var bob=RM?0:(wk?-Math.abs(wk)*.9:0);
