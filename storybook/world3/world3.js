@@ -309,19 +309,21 @@ function render(t){window.OBC_STAGE=CZ?(B?2:1):0;var r=stage.getBoundingClientRe
  (s.w||[]).forEach(function(a){water(c,a[0],a[1],a[2],a[3],t)});
  if(s.id==="safe"&&S.safe.kind==="forest")water(c,520,110,70,26,t);
  c.restore()}
- var L=[];s.items.forEach(function(o){if(o.t!=="look")L.push({y:o.y,x:o.x,t:o.t,s:1,d:function(k){drawItem(k,o,t)},f:function(){drawItem(c,o,t)}})});
- if(s.id==="office")L.push({y:228,x:530,s:1,d:function(k){drawPen(k,t,1)},f:function(){drawPen(c,t)}});
- if(DEF&&DEF.sc===s.id)L.push({y:DEF.y,x:DEF.x,f:function(){drawDef(c,t)}});
- (s.ens||[]).forEach(function(e){if(!gone(e))L.push({y:e.y,x:e.x,f:function(){drawEnemy(c,e,t)}})});
- if(s.id==="safe")S.safe.items.forEach(function(it,i){L.push({y:it.y,x:it.x,s:1,d:function(k){var d=DEC[it.k];if(d)d.d(k,it.x,it.y,t)},f:function(){var d=DEC[it.k];if(d)d.d(c,it.x,it.y,t);if(DM&&DM.sel===i){c.strokeStyle="#ffd98a";c.lineWidth=2;c.setLineDash([4,3]);c.beginPath();c.ellipse(it.x,it.y-6,30,14,0,0,7);c.stroke();c.setLineDash([])}}})});
+ var AR=!!(IC&&CZ&&CZ.arena&&B);/* storybook fights stand in their own painted room, so the region map props stay out of the draw list */
+ var L=[];if(!AR)s.items.forEach(function(o){if(o.t!=="look")L.push({y:o.y,x:o.x,t:o.t,s:1,d:function(k){drawItem(k,o,t)},f:function(){drawItem(c,o,t)}})});
+ if(!AR&&s.id==="office")L.push({y:228,x:530,s:1,d:function(k){drawPen(k,t,1)},f:function(){drawPen(c,t)}});
+ if(!AR&&DEF&&DEF.sc===s.id)L.push({y:DEF.y,x:DEF.x,f:function(){drawDef(c,t)}});
+ (s.ens||[]).forEach(function(e){if(!gone(e)&&(!AR||e===B.e))L.push({y:e.y,x:e.x,f:function(){drawEnemy(c,e,t)}})});
+ if(!AR&&s.id==="safe")S.safe.items.forEach(function(it,i){L.push({y:it.y,x:it.x,s:1,d:function(k){var d=DEC[it.k];if(d)d.d(k,it.x,it.y,t)},f:function(){var d=DEC[it.k];if(d)d.d(c,it.x,it.y,t);if(DM&&DM.sel===i){c.strokeStyle="#ffd98a";c.lineWidth=2;c.setLineDash([4,3]);c.beginPath();c.ellipse(it.x,it.y-6,30,14,0,0,7);c.stroke();c.setLineDash([])}}})});
  var pt=P.trail.length>12?P.trail[P.trail.length-12]:[P.x-26,P.y+4];
  var ptx=pt[0],pty=pt[1];if(window.OBC_CHARS&&Math.abs(ptx-P.x)<44&&Math.abs(pty-P.y)<16)ptx=P.x+(ptx<=P.x?-44:44);if(CZ&&B&&Math.abs(ptx-P.x)<44&&Math.abs(pty-P.y)<44){/* cozy fights: companion stands at the hero's side, not under the hero */ptx=P.x+(B.e.x>P.x?-38:38);pty=P.y+2}/* keep the drawn pet beside the hero, not hidden behind */
  L.push({y:pty-.1,x:ptx,f:function(){drawPet(c,ptx,pty,t)}});
  L.push({y:P.y,x:P.x,f:function(){drawHero(c,S.hero,P.x,P.y,1,B?(B.e.x<P.x?3:2):P.dir,RM?0:P.ph);if(B&&B.shield){c.strokeStyle="rgba(255,214,120,.8)";c.lineWidth=3;c.beginPath();c.arc(P.x,P.y-30,34,0,7);c.stroke()}}});
  L.sort(function(a,b){return a.y-b.y});WT=c.getTransform();OCC=ART?L.filter(function(d){return d.s}):[];L.forEach(function(d){DQY=d.y;DQX=d.x;d.f()});
  if(IC){if(CZ&&CZ.nn)c.imageSmoothingEnabled=false;c.drawImage(inkBase(s),0,0,W,H);c.imageSmoothingEnabled=true;var mm=PXMIX[s.id];GLA=mm<1?.45+.55*mm:1;inkPlate(c,s,t,2);GLA=1;
+  if(AR)CZ.arena(c,s,t,B,P);
   /* weather now sits above the cached ink wash, so it is faded while the region is still muted instead of being re-blended every frame */
-  c.save();c.beginPath();c.rect(0,0,W,H);c.clip();c.globalAlpha=mm<1?.45+.55*mm:1;WXK=weather(c,s,t);if(CZ&&CZ.live)CZ.live(c,s,t,B);c.globalAlpha=1;if(fade>0){c.fillStyle="rgba(20,12,4,"+fade+")";c.fillRect(0,0,W,H)}c.restore()}else{
+  c.save();c.beginPath();c.rect(0,0,W,H);c.clip();c.globalAlpha=mm<1?.45+.55*mm:1;if(!AR){WXK=weather(c,s,t);if(CZ&&CZ.live)CZ.live(c,s,t,B)}c.globalAlpha=1;if(fade>0){c.fillStyle="rgba(20,12,4,"+fade+")";c.fillRect(0,0,W,H)}c.restore()}else{
  if(INK)inkPlate(c,s,t);
  c.save();c.beginPath();c.rect(0,0,W,H);c.clip();
  if(s.tone&&!S.bloom){c.fillStyle=s.tone;c.fillRect(0,0,W,H)}
