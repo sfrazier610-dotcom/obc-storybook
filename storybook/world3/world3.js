@@ -705,6 +705,7 @@ function spPath(k,u,hx,hy,ex,ey){var dx=ex-hx,dy=ey-hy,L=Math.sqrt(dx*dx+dy*dy)|
  return [hx+dx*u+nx*w,hy+dy*u+ny*w+arc]}
 function drawSpell(c,now,hx,hy,ex,ey,e){if(!SPL)return;var a=now-SPL.t0,T=RM?0:420,TOT=RM?1100:1500;if(a>TOT){SPL=null;return}
  var k=SPL.k,col=(FXK[k]||["","#6a5a8a"])[1],hit=SPL.r>0,miss=SPL.r===0,p=T?Math.min(1,a/T):1,end=miss?.82:1,i,q;
+ if(CZ&&CZ.spell&&CZ.spell(c,{a:a,T:T,TOT:TOT,k:k,col:col,miss:miss,n:SPL.n,t0:SPL.t0},hx,hy,ex,ey,e,spPath,W))return;
  c.save();c.lineCap="round";c.lineJoin="round";
  if(T&&a<T+260){var fade=a<T?1:1-(a-T)/260,h0=Math.max(0,p-.4)*end,h1=p*end,N=14;
   if(k==="step"||k==="ground"){for(i=0;i<=N;i++){q=h0+(h1-h0)*i/N;var pt=spPath(k,q,hx,hy,ex,ey);c.fillStyle=rgba(i%2?INKK:col,.85*fade*(.4+.6*i/N));c.beginPath();if(k==="step")c.ellipse(pt[0]+(i%2?5:-5),pt[1],5,3,.4,0,6.283);else c.arc(pt[0],pt[1],2+3*i/N,0,6.283);c.fill()}}
