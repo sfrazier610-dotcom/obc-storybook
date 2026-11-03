@@ -625,7 +625,7 @@ function spell(c,S,hx,hy,ex,ey,e,spPath,W){if(!SB)return false;var a=S.a,T=S.T,T
   c.font=(miss?"italic 700 17px":"italic 700 22px")+" Georgia,'Times New Roman',serif";c.textAlign="center";c.textBaseline="middle";
   var tw=c.measureText(txt).width,br=e.boss?96:44,bh=miss?28:34,pad=miss?18:22,iv=c.getTransform().inverse(),v0=iv.transformPoint({x:0,y:0}).x,v1=iv.transformPoint({x:c.canvas.width,y:0}).x,L0=v0+10,L1=v1-10,hw=tw/2+pad+6;
   /* beside the boss when the stage is wide enough, otherwise across the cloud's lower edge; never over the cast bubble above it */
-  mx=ex+br+hw;my=ey+(miss?22:-10);if(mx+hw>L1)mx=ex-br-hw;if(mx-hw<L0){mx=ex;my=ey+(e.boss?48:30)}mx=Math.max(L0+hw,Math.min(L1-hw,mx));
+  mx=ex+br+hw;my=ey+(miss?22:-10);if(mx+hw>L1)mx=ex-br-hw;if(mx-hw<L0){mx=hx;my=hy+50}mx=Math.max(L0+hw,Math.min(L1-hw,mx));
   var pop=RM?1:Math.min(1,b/180),sc=.85+.15*(1-Math.pow(1-pop,3));c.globalAlpha=Math.max(0,inA*fo);c.translate(mx,my);c.scale(sc,sc);c.rotate(miss?.02:-.035);
   banner(c,0,0,tw+12,bh,miss?"#8a6a50":col,{wv:miss?1:2});
   if(!miss){c.strokeStyle=rgba(col,.6);c.lineWidth=4;c.beginPath();c.moveTo(-tw/2,9);c.quadraticCurveTo(0,12,-tw/2+tw*(RM?1:Math.min(1,b/260)),8);c.stroke()}
