@@ -275,3 +275,5 @@ html.cozy-pixel .w-breath .w-ring{background:conic-gradient(#3a5a8a var(--p),rgb
 html.cozy-pixel .w-gcard{background:#fff4dc;border-color:#2a1a22;border-radius:0;box-shadow:3px 3px 0 #2a1a22}
 html.cozy-pixel.art-ink .w-gj-card img,html.cozy-pixel.art-ink .w-pch img{border-radius:0!important}
 html.cozy-diorama.art-ink .w-pet{border-radius:22px!important}
+/* storybook desktop: the opening story card fills more of the screen */
+@media (min-width:900px) and (min-height:600px){html.cozy-storybook.art-ink .w-open{max-width:min(1040px,calc((100vh - 300px)*2.13 + 40px));margin-top:18px;padding:18px 22px}html.cozy-storybook.art-ink .w-open h2{font-size:1.7em}html.cozy-storybook.art-ink .w-open p{font-size:1.12em;line-height:1.5}}
