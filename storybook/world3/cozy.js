@@ -581,7 +581,7 @@ function arenaPaint(a,ext,reg,hx){var r=seeded(hsh(reg)+31),X0=ext[0],Y0=ext[1],
  for(i=0;i<260;i++){var bx2=X0+r()*(X1-X0),by2=Y0+r()*(Y1-Y0);a.strokeStyle=rgba(r()<.5?"#fff0d0":"#3a2010",.035);a.lineWidth=3+r()*5;a.beginPath();a.moveTo(bx2,by2);a.quadraticCurveTo(bx2+10,by2+(r()-.5)*8,bx2+22+r()*20,by2+(r()-.5)*10);a.stroke()}
  return{c:[C1,C2,C3,[258,mT-20],[340,mT-31],[352,mT-27]]}}
 function arena(c,s,t,B,P){if(!SB||!B)return false;var T=c.getTransform(),cv=c.canvas,iv=T.inverse();
- if(!B._ar)B._ar={x:B.e.x,y:P.y,hx:Math.max(-120,Math.min(120,P.x-B.e.x))};var A=B._ar,p0=iv.transformPoint({x:0,y:0}),p1=iv.transformPoint({x:cv.width,y:cv.height});
+ if(!B._ar)B._ar={x:B.e.x,y:P.y,hx:Math.max(-160,Math.min(160,P.x+(B._fo?B._fo.h:0)-B.e.x))};var A=B._ar,p0=iv.transformPoint({x:0,y:0}),p1=iv.transformPoint({x:cv.width,y:cv.height});
  var vx0=p0.x-A.x,vy0=p0.y-A.y,vx1=p1.x-A.x,vy1=p1.y-A.y,sc=Math.hypot(T.a,T.b),reg=B.e.reg||s.g||"1";
  if(!AB||AK!==reg+"|"+A.hx||vx0<AB.e[0]||vy0<AB.e[1]||vx1>AB.e[2]||vy1>AB.e[3]){var m=90,e=[Math.floor(Math.min(vx0,-260)-m),Math.floor(Math.min(vy0,-360)-m),Math.ceil(Math.max(vx1,260)+m),Math.ceil(Math.max(vy1,200)+m)],k=Math.max(1.2,Math.min(2.6,sc));
   while((e[2]-e[0])*(e[3]-e[1])*k*k>7e6&&k>1)k-=.1;var cvs=AB&&AB.cv||mk(1,1);cvs.width=Math.ceil((e[2]-e[0])*k);cvs.height=Math.ceil((e[3]-e[1])*k);var a=cvs.getContext("2d");a.setTransform(k,0,0,k,-e[0]*k,-e[1]*k);
@@ -599,7 +599,7 @@ function arena(c,s,t,B,P){if(!SB||!B)return false;var T=c.getTransform(),cv=c.ca
  /* dust motes in the warm light */
  if(!RM)for(i=0;i<14;i++){var u2=rn(i+90),ph=(t*.00004*(1+u2)+u2)%1;c.fillStyle="rgba(255,226,160,"+(.35*Math.sin(ph*3.14))+")";c.beginPath();c.arc(-200+u2*480+Math.sin(t*.0007+i)*14,-40-ph*240,1.3,0,6.283);c.fill()}
  /* soft contact shadows for the stage */
- c.fillStyle="rgba(30,14,4,.28)";c.beginPath();c.ellipse(P.x-A.x,P.y-A.y+2,30,7,0,0,6.283);c.fill();c.fillStyle="rgba(30,14,4,.16)";c.beginPath();c.ellipse(B.e.x-A.x,yF+40,70,12,0,0,6.283);c.fill();
+ c.fillStyle="rgba(30,14,4,.28)";c.beginPath();c.ellipse(P.x+(B._fo?B._fo.h:0)-A.x,P.y-A.y+2,30,7,0,0,6.283);c.fill();c.fillStyle="rgba(30,14,4,.16)";c.beginPath();c.ellipse(B.e.x+(B._fo?B._fo.b:0)-A.x,yF+40,70,12,0,0,6.283);c.fill();
  c.restore();ACT=t;return true}
 /* storybook spell: a gouache ribbon of the skill's colour with a cream highlight, paint drops behind it, a soft round splash on a hit,
    brown drips on a miss, and the skill name lettered on a parchment ribbon. Same texts and timing as ink. */
@@ -625,7 +625,7 @@ function spell(c,S,hx,hy,ex,ey,e,spPath,W){if(!SB)return false;var a=S.a,T=S.T,T
   c.font=(miss?"italic 700 17px":"italic 700 22px")+" Georgia,'Times New Roman',serif";c.textAlign="center";c.textBaseline="middle";
   var tw=c.measureText(txt).width,br=e.boss?96:44,bh=miss?28:34,pad=miss?18:22,iv=c.getTransform().inverse(),v0=iv.transformPoint({x:0,y:0}).x,v1=iv.transformPoint({x:c.canvas.width,y:0}).x,L0=v0+10,L1=v1-10,hw=tw/2+pad+6;
   /* beside the boss when the stage is wide enough, otherwise across the cloud's lower edge; never over the cast bubble above it */
-  mx=ex+br+hw;my=ey+(miss?22:-10);if(mx+hw>L1)mx=ex-br-hw;if(mx-hw<L0){mx=hx;my=hy+50}mx=Math.max(L0+hw,Math.min(L1-hw,mx));
+  mx=ex+br+hw;my=ey+(miss?22:-10);if(mx+hw>L1)mx=ex-br-hw;if(mx-hw<L0){mx=ex;my=ey+(e.boss?86:40)}mx=Math.max(L0+hw,Math.min(L1-hw,mx));
   var pop=RM?1:Math.min(1,b/180),sc=.85+.15*(1-Math.pow(1-pop,3));c.globalAlpha=Math.max(0,inA*fo);c.translate(mx,my);c.scale(sc,sc);c.rotate(miss?.02:-.035);
   banner(c,0,0,tw+12,bh,miss?"#8a6a50":col,{wv:miss?1:2});
   if(!miss){c.strokeStyle=rgba(col,.6);c.lineWidth=4;c.beginPath();c.moveTo(-tw/2,9);c.quadraticCurveTo(0,12,-tw/2+tw*(RM?1:Math.min(1,b/260)),8);c.stroke()}

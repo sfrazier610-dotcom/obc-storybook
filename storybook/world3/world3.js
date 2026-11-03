@@ -295,7 +295,7 @@ function render(t){window.OBC_STAGE=CZ?(B?2:1):0;var r=stage.getBoundingClientRe
  var c=cx,s=cur,sc=Math.min(r.width/W,r.height/H),ox=(r.width-W*sc)/2,oy=(r.height-H*sc)/2;
  if(B){var tz=stage.querySelector(".w-toast"),hz=stage.querySelector(".w-bhud");if(tz&&hz){var tq=(hz.getBoundingClientRect().bottom-stage.getBoundingClientRect().top+6)+"px";if(tz.style.top!==tq)tz.style.top=tq}var hud=stage.querySelector(".w-bhud"),bot=stage.querySelector(".w-bbot"),t0=hud?hud.getBoundingClientRect().bottom-r.top:0,b0=bot?bot.getBoundingClientRect().top-r.top:r.height;
   sc=Math.max(sc,Math.min(r.width/W,(b0-t0)/(H*.62)));var fx=(P.x+B.e.x)/2,fy=(P.y+B.e.y)/2-40;var tx=r.width/2-fx*sc,ty=(t0+b0)/2-fy*sc;
-  if(window.OBC_CHARS){/* frame the lifted boss and the hero between the toast and the action bar */var bb=B.e.boss,by0=B.e.y-(bb?50:20);if(Math.abs(P.x-B.e.x)<(bb?130:70))by0=Math.min(by0,P.y-(bb?158:108));var tp0=by0-(bb?84:34),bt0=P.y+36,tvh=tz&&tz.offsetParent&&tz.textContent.trim()?tz.getBoundingClientRect().height:0;if(VIEW.b!==B)VIEW.tr=r.width<600?58:56;if(tvh>VIEW.tr)VIEW.tr=tvh;var tb=t0+6+VIEW.tr+6,av=Math.max(60,b0-tb-6);/* fixed room for the hint toast so the camera does not re-zoom when it comes and goes */sc=Math.min(av/(bt0-tp0),r.width/(bb?340:260),2.2);if(r.width<600)sc=Math.max(sc,r.width/W,(b0-t0)/H);tx=r.width/2-fx*sc;ty=tb+av/2-(tp0+bt0)/2*sc;if(W*sc>=r.width)tx=Math.min(0,Math.max(r.width-W*sc,tx));if(H*sc>=b0-t0)ty=Math.min(r.width<600?tb:t0,Math.max(b0-H*sc,ty));ty=Math.max(ty,tb+4-tp0*sc)}
+  if(window.OBC_CHARS){/* frame the lifted boss and the hero between the toast and the action bar */var bb=B.e.boss,by0=B.e.y-(bb?50:20);if(FOf())by0+=FOf().by;else if(Math.abs(P.x-B.e.x)<(bb?130:70))by0=Math.min(by0,P.y-(bb?158:108));var tp0=by0-(bb?84:34),bt0=P.y+36,tvh=tz&&tz.offsetParent&&tz.textContent.trim()?tz.getBoundingClientRect().height:0;if(VIEW.b!==B)VIEW.tr=r.width<600?58:56;if(tvh>VIEW.tr)VIEW.tr=tvh;var tb=t0+6+VIEW.tr+6,av=Math.max(60,b0-tb-6);/* fixed room for the hint toast so the camera does not re-zoom when it comes and goes */sc=Math.min(av/(bt0-tp0),r.width/(bb?340:260),2.2);if(r.width<600)sc=Math.max(sc,r.width/W,(b0-t0)/H);tx=r.width/2-fx*sc;ty=tb+av/2-(tp0+bt0)/2*sc;if(W*sc>=r.width)tx=Math.min(0,Math.max(r.width-W*sc,tx));if(H*sc>=b0-t0)ty=Math.min(r.width<600?tb:t0,Math.max(b0-H*sc,ty));ty=Math.max(ty,tb+4-tp0*sc)}
   if(RM||VIEW.b!==B){ox=tx;oy=ty}else{var e1=ez(.15);ox=VIEW.ox+(tx-VIEW.ox)*e1;oy=VIEW.oy+(ty-VIEW.oy)*e1}VIEW.b=B}else{if(window.OBC_CHARS&&r.width<600&&r.height>H*sc*1.25){/* phone: zoom the camera so figures and faces read, following the hero */var hdE=document.querySelector(".w-top"),hd=hdE?Math.max(0,Math.min(r.height*.4,hdE.getBoundingClientRect().bottom-r.top)):0,s2=Math.max((r.height-hd)/H,r.width/W),zx=Math.min(0,Math.max(r.width-W*s2,r.width/2-P.x*s2)),zy=Math.min(hd,Math.max(r.height-H*s2,(r.height+hd)/2-(P.y-30)*s2));if(RM||VIEW.z!==s.id||VIEW.b){ox=zx;oy=zy}else{var e2=ez(.18);ox=VIEW.ox+(zx-VIEW.ox)*e2;oy=VIEW.oy+(zy-VIEW.oy)*e2}sc=s2;VIEW.z=s.id}else VIEW.z=null;VIEW.b=null}
  VIEW.s=sc;VIEW.ox=ox;VIEW.oy=oy;var so=shakeOff();ox+=so[0];oy+=so[1];
  var gi=img("map-"+s.g),IC=INK&&inkReady(s);
@@ -309,16 +309,16 @@ function render(t){window.OBC_STAGE=CZ?(B?2:1):0;var r=stage.getBoundingClientRe
  (s.w||[]).forEach(function(a){water(c,a[0],a[1],a[2],a[3],t)});
  if(s.id==="safe"&&S.safe.kind==="forest")water(c,520,110,70,26,t);
  c.restore()}
- var AR=!!(IC&&CZ&&CZ.arena&&B);/* storybook fights stand in their own painted room, so the region map props stay out of the draw list */
+ var AR=!!(IC&&CZ&&CZ.arena&&B);if(AR)FOf();/* storybook fights stand in their own painted room, so the region map props stay out of the draw list */
  var L=[];if(!AR)s.items.forEach(function(o){if(o.t!=="look")L.push({y:o.y,x:o.x,t:o.t,s:1,d:function(k){drawItem(k,o,t)},f:function(){drawItem(c,o,t)}})});
  if(!AR&&s.id==="office")L.push({y:228,x:530,s:1,d:function(k){drawPen(k,t,1)},f:function(){drawPen(c,t)}});
  if(!AR&&DEF&&DEF.sc===s.id)L.push({y:DEF.y,x:DEF.x,f:function(){drawDef(c,t)}});
- (s.ens||[]).forEach(function(e){if(!gone(e)&&(!AR||e===B.e))L.push({y:e.y,x:e.x,f:function(){drawEnemy(c,e,t)}})});
+ (s.ens||[]).forEach(function(e){if(!gone(e)&&(!AR||e===B.e))L.push({y:e.y,x:e.x,f:function(){var fo=B&&B.e===e&&FOf();if(fo){c.save();c.translate(fo.b,fo.by)}drawEnemy(c,e,t);if(fo)c.restore()}})});
  if(!AR&&s.id==="safe")S.safe.items.forEach(function(it,i){L.push({y:it.y,x:it.x,s:1,d:function(k){var d=DEC[it.k];if(d)d.d(k,it.x,it.y,t)},f:function(){var d=DEC[it.k];if(d)d.d(c,it.x,it.y,t);if(DM&&DM.sel===i){c.strokeStyle="#ffd98a";c.lineWidth=2;c.setLineDash([4,3]);c.beginPath();c.ellipse(it.x,it.y-6,30,14,0,0,7);c.stroke();c.setLineDash([])}}})});
  var pt=P.trail.length>12?P.trail[P.trail.length-12]:[P.x-26,P.y+4];
- var ptx=pt[0],pty=pt[1];if(window.OBC_CHARS&&Math.abs(ptx-P.x)<44&&Math.abs(pty-P.y)<16)ptx=P.x+(ptx<=P.x?-44:44);if(CZ&&B&&Math.abs(ptx-P.x)<44&&Math.abs(pty-P.y)<44){/* cozy fights: companion stands at the hero's side, not under the hero */ptx=P.x+(B.e.x>P.x?-1:1)*(S.hero.pet?60:38);pty=P.y+2}/* keep the drawn pet beside the hero, not hidden behind */
+ var ptx=pt[0],pty=pt[1];if(window.OBC_CHARS&&Math.abs(ptx-P.x)<44&&Math.abs(pty-P.y)<16)ptx=P.x+(ptx<=P.x?-44:44);if(CZ&&B&&Math.abs(ptx-P.x)<44&&Math.abs(pty-P.y)<44){/* cozy fights: companion stands at the hero's side, not under the hero */ptx=P.x+(B.e.x>P.x?-1:1)*(S.hero.pet?60:38);pty=P.y+2;var fp=FOf();if(fp)ptx+=fp.h}/* keep the drawn pet beside the hero, not hidden behind */
  L.push({y:pty-.1,x:ptx,f:function(){drawPet(c,ptx,pty,t)}});
- L.push({y:P.y,x:P.x,f:function(){drawHero(c,S.hero,P.x,P.y,1,B?(B.e.x<P.x?3:2):P.dir,RM?0:P.ph);if(B&&B.shield){c.strokeStyle="rgba(255,214,120,.8)";c.lineWidth=3;c.beginPath();c.arc(P.x,P.y-30,34,0,7);c.stroke()}}});
+ L.push({y:P.y,x:P.x,f:function(){var fo=FOf();if(fo){c.save();c.translate(fo.h,0)}drawHero(c,S.hero,P.x,P.y,1,B?(B.e.x<P.x?3:2):P.dir,RM?0:P.ph);if(B&&B.shield){c.strokeStyle="rgba(255,214,120,.8)";c.lineWidth=3;c.beginPath();c.arc(P.x,P.y-30,34,0,7);c.stroke()}if(fo)c.restore()}});
  L.sort(function(a,b){return a.y-b.y});WT=c.getTransform();OCC=ART?L.filter(function(d){return d.s}):[];L.forEach(function(d){DQY=d.y;DQX=d.x;d.f()});
  if(IC){if(CZ&&CZ.nn)c.imageSmoothingEnabled=false;c.drawImage(inkBase(s),0,0,W,H);c.imageSmoothingEnabled=true;var mm=PXMIX[s.id];GLA=mm<1?.45+.55*mm:1;inkPlate(c,s,t,2);GLA=1;
   if(AR)CZ.arena(c,s,t,B,P);
@@ -369,12 +369,14 @@ function drawItem(c,o,t){var f=FT[o.t];switch(o.t){
  case"qitem":if(S.q[o.qk]===1&&!S.q[o.qk+"_got"]){glowDot(c,o.x,o.y-6,22,"#ffd98a",RM?.5:.35+.2*Math.sin(t/400));if(o.qk==="q_wick"){c.strokeStyle="#f4efe4";c.lineWidth=2.5;c.beginPath();c.moveTo(o.x-8,o.y-2);c.quadraticCurveTo(o.x,o.y-12,o.x+8,o.y-4);c.stroke()}else{poly(c,[[o.x-7,o.y-12],[o.x+7,o.y-12],[o.x+7,o.y],[o.x-7,o.y]],"#c9a24a");blob(c,o.x,o.y-6,3,3,"#e86a8a",0)}}break;
  case"find":if(S.found.indexOf(o.key)<0){glow(c,o.x,o.y-8,26,t);DEC[o.item].d(c,o.x,o.y,t)}break;
  default:if(GJT[o.t])gjDraw(c,o,t)}}
+/* storybook fights: hero front-left, boss back-right, so neither covers the other (drawing only, game positions unchanged) */
+function FOf(){if(!(B&&INK&&CZ&&CZ.arena))return null;if(B._fo)return B._fo;var nr=stage&&stage.clientWidth<600,dx=B.e.x-P.x,sg=dx>=0?1:-1,need=B.e.boss?(nr?160:200):(nr?110:130),g=Math.max(0,(need-Math.abs(dx))/2);/* hero steps further than the boss moves, so the pair stays centred on the stage */return B._fo={h:-sg*g*1.3,b:sg*g*.7,by:B.e.boss?(nr?-30:-16):-6}}
 function drawEnemy(c,e,t){if(B&&B.e===e&&(SPL||CALM)){var K=bossK(performance.now());if(K.s!==1||K.r||K.dy||K.a!==1||K.hap!=null){var py=e.y-(e.boss?70:28);c.save();c.globalAlpha*=K.a;c.translate(e.x,py+K.dy);c.rotate(K.r);c.scale(K.s,K.s);c.translate(-e.x,-py);BHAP=K.hap;drawEnemy0(c,e,t);BHAP=null;c.restore();return}}drawEnemy0(c,e,t)}
 var BHAP=null;
 function drawEnemy0(c,e,t){var col=R(e.reg).col,bob=RM?0:Math.sin(t/400+e.ph)*3,inB=B&&B.e===e,x=e.x,y=e.y;
  if(inB){var pul=RM?.5:.5+.3*Math.sin(t/250);c.fillStyle="rgba(255,207,90,"+(.18*pul)+")";c.beginPath();c.ellipse(x,y,e.boss?70:36,e.boss?18:10,0,0,7);c.fill()}
  shadow(c,x,y,e.boss?44:18,e.boss?9:5);
- if(CHR){var hap=BHAP!=null?BHAP:e.boss?S.beaten.indexOf(e.reg)>=0:pxCalm(),cy=y-(e.boss?50:20),cl=0;if(window.OBC_CHARS){/* lift the cloud above the hero when they stand close (fight and calmed float), eased */var tl=0;if(Math.abs(P.x-x)<(e.boss?130:70)&&P.y>y-(e.boss?120:60)){var lim=P.y-(e.boss?158:108);if(cy>lim)tl=cy-lim}e._lf=inB||RM||e._lf==null?tl:e._lf+(tl-e._lf)*.15;cl=e._lf>.5?e._lf:0;cy-=cl}if(cl){c.strokeStyle="rgba(40,30,30,.25)";c.lineWidth=1.5;c.setLineDash([3,5]);c.beginPath();c.moveTo(x,y-4);c.lineTo(x,cy+(e.boss?60:22));c.stroke();c.setLineDash([])}pxCloud(c,x,cy+bob,e.boss?70:26,col,t,e.boss,hap);if(inB&&B.worries)for(var wq=0;wq<B.worries;wq++){var wv=(RM?wq*2:t/500)+wq*2.1;pxCloud(c,x+Math.cos(wv)*(e.boss?110:44),cy-(e.boss?10:0)+Math.sin(wv)*(e.boss?30:16),e.boss?20:12,col,t,0,hap)}return}
+ if(CHR){var hap=BHAP!=null?BHAP:e.boss?S.beaten.indexOf(e.reg)>=0:pxCalm(),cy=y-(e.boss?50:20),cl=0;if(window.OBC_CHARS){/* lift the cloud above the hero when they stand close (fight and calmed float), eased */var tl=0;if(!(inB&&FOf())&&Math.abs(P.x-x)<(e.boss?130:70)&&P.y>y-(e.boss?120:60)){var lim=P.y-(e.boss?158:108);if(cy>lim)tl=cy-lim}e._lf=inB||RM||e._lf==null?tl:e._lf+(tl-e._lf)*.15;cl=e._lf>.5?e._lf:0;cy-=cl}if(cl){c.strokeStyle="rgba(40,30,30,.25)";c.lineWidth=1.5;c.setLineDash([3,5]);c.beginPath();c.moveTo(x,y-4);c.lineTo(x,cy+(e.boss?60:22));c.stroke();c.setLineDash([])}pxCloud(c,x,cy+bob,e.boss?70:26,col,t,e.boss,hap);if(inB&&B.worries)for(var wq=0;wq<B.worries;wq++){var wv=(RM?wq*2:t/500)+wq*2.1;pxCloud(c,x+Math.cos(wv)*(e.boss?110:44),cy-(e.boss?10:0)+Math.sin(wv)*(e.boss?30:16),e.boss?20:12,col,t,0,hap)}return}
  if(!e.boss){drawC(c,tinted(e.reg==="fog"?"storm":"fog",col,.4),x,y-6+bob,50,.95);if(inB&&B.worries)for(var wj=0;wj<B.worries;wj++){var wb=(RM?wj*2:t/500)+wj*2.1;drawC(c,tinted("fog",col,.3),x+Math.cos(wb)*44,y-10+Math.sin(wb)*16,22,.9)}}
  else switch(e.reg){
   case"anx":drawC(c,tinted("storm",col,.35),x,y-10+bob,130);if(inB&&B.worries)for(var wi=0;wi<B.worries;wi++){var wa=(RM?wi*2:t/500)+wi*2.1;drawC(c,tinted("storm",col,.3),x+Math.cos(wa)*110,y-30+Math.sin(wa)*30,44,.9)}var n=3+(inB?B.gust:0);c.strokeStyle="rgba(230,245,255,.7)";c.lineWidth=2;for(var i=0;i<n;i++){var a=(RM?0:t/600)+i*6.28/n;c.beginPath();c.arc(x,y-70,70+i*3,a,a+.7);c.stroke()}break;
@@ -577,9 +579,9 @@ function breathCast(cb){
 }
 /* the breath ring sits around the hero; its small card goes beside them, away from the boss bubble and the panels */
 function breathPlace(el){var cv=stage.querySelector("canvas"),ov=document.querySelector(".w-bov");if(!cv||!ov)return;var R=cv.getBoundingClientRect(),O=ov.getBoundingClientRect(),k=R.width/W;
- var vs=VIEW.s||k,vx=VIEW.s?VIEW.ox:0,vy=VIEW.s?VIEW.oy:0,hx=vx+P.x*vs+(R.left-O.left),hy=vy+(P.y-34)*vs+(R.top-O.top),d=Math.max(76,Math.min(130,96*vs)),ring=el.querySelector(".w-ring"),card=el.querySelector(".w-brc");
+ var vs=VIEW.s||k,vx=VIEW.s?VIEW.ox:0,vy=VIEW.s?VIEW.oy:0,hx=vx+(P.x+(FOf()?FOf().h:0))*vs+(R.left-O.left),hy=vy+(P.y-34)*vs+(R.top-O.top),d=Math.max(76,Math.min(130,96*vs)),ring=el.querySelector(".w-ring"),card=el.querySelector(".w-brc");
  if(ring){ring.style.width=ring.style.height=d+"px";ring.style.left=(hx-d/2)+"px";ring.style.top=(hy-d/2)+"px"}
- if(card){var cw=card.offsetWidth,ch=card.offsetHeight,gap=ring?d/2+10:20,lx=hx+gap;var ex=B&&B.e?vx+B.e.x*vs+(R.left-O.left):O.width;if(lx+cw>O.width-8||(ex>hx&&ex<lx+cw+40))lx=hx-gap-cw;if(lx<8)lx=Math.min(O.width-cw-8,hx+gap);
+ if(card){var cw=card.offsetWidth,ch=card.offsetHeight,gap=ring?d/2+10:20,lx=hx+gap;var ex=B&&B.e?vx+(B.e.x+(FOf()?FOf().b:0))*vs+(R.left-O.left):O.width;if(lx+cw>O.width-8||(ex>hx&&ex<lx+cw+40))lx=hx-gap-cw;if(lx<8)lx=Math.min(O.width-cw-8,hx+gap);
   var hud=document.querySelector(".w-bhud"),bot=document.querySelector(".w-bbot"),tmin=hud?hud.getBoundingClientRect().bottom-O.top+8:8,tmax=bot?bot.getBoundingClientRect().top-O.top-ch-8:O.height-ch-8;
   card.style.left=Math.max(8,lx)+"px";card.style.top=Math.max(tmin,Math.min(tmax,hy-ch/2))+"px"}}
 /* ---------- guide photocard, shield, method skills, skill animations ---------- */
@@ -643,7 +645,7 @@ var MFX={EMDR:["sweep","#bde0ff"],ART:["sweep2","#d8c0f0"],CBT:["bend","#a8e0b8"
 function glowDot(c,x,y,r,col,a){var g=c.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,rgba(col,a));g.addColorStop(.5,rgba(col,a*.45));g.addColorStop(1,rgba(col,0));c.fillStyle=g;c.beginPath();c.arc(x,y,r,0,7);c.fill()}
 function rgba(h,a){var n=parseInt(h.slice(1),16);return "rgba("+(n>>16)+","+(n>>8&255)+","+(n&255)+","+Math.max(0,Math.min(1,a)).toFixed(3)+")"}
 function drawFX(c,t){var now=performance.now();FXL=FXL.filter(function(f){return now-f.t0<f.dur});if(!B){FXL=[];return}
- var hx=P.x,hy=P.y-32,e=B.e,ex=e.x,ey=e.y-(e.boss?70:28);
+ var fo=FOf(),hx=P.x+(fo?fo.h:0),hy=P.y-32,e=B.e,ex=e.x+(fo?fo.b:0),ey=e.y-(e.boss?70:28)+(fo?fo.by:0);
  FXL.forEach(function(f){var p=(now-f.t0)/f.dur,a=Math.sin(Math.PI*Math.min(1,p)),m=f.k.indexOf("m:")===0,spec=m?MFX[f.k.slice(2)]:FXK[f.k];if(!spec)spec=["ring","#ffffff"];var ty=spec[0],col=spec[1],self=ty==="dome"||ty==="dome2"&&!m,X=self?hx:ex,Y=self?hy:ey;
   c.save();c.globalCompositeOperation="lighter";
   if(RM){glowDot(c,X,Y,60,col,.55*a);c.restore();return}
@@ -739,7 +741,7 @@ function castBubble(c,now){var el=document.getElementById("b-cast"),cb=B&&B.cast
  el.hidden=false;var R=cv.getBoundingClientRect(),O=ov.getBoundingClientRect(),k=R.width/W,e=B.e;
  var hud=document.querySelector(".w-bhud"),hb=hud?hud.getBoundingClientRect().bottom-O.top:0;
  var sk=document.querySelector(".w-bpan,.w-bact,[data-s]"),pan=sk&&sk.closest(".w-bov>*")||sk,pt=pan?pan.getBoundingClientRect().top-O.top:R.height;
- var bw=el.offsetWidth,bh=el.offsetHeight,vs=VIEW.s||k,ex=(VIEW.s?VIEW.ox:0)+e.x*vs+(R.left-O.left),top=(VIEW.s?VIEW.oy:0)+(e.y-(B.d.big?200:e.boss?160:80))*vs+(R.top-O.top);
+ var bw=el.offsetWidth,bh=el.offsetHeight,vs=VIEW.s||k,ex=(VIEW.s?VIEW.ox:0)+(e.x+(FOf()?FOf().b:0))*vs+(R.left-O.left),top=(VIEW.s?VIEW.oy:0)+(e.y+(FOf()?FOf().by:0)-(B.d.big?200:e.boss?160:80))*vs+(R.top-O.top);
  var lx=Math.max(8,Math.min(R.width-bw-8,ex-bw/2)),ly=Math.max(hb+10,Math.min(pt-bh-10,top-bh-14));
  el.style.left=lx+"px";el.style.top=ly+"px";el.style.setProperty("--tx",Math.max(16,Math.min(bw-24,ex-lx))+"px");
  
