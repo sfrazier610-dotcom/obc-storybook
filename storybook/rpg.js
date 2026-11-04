@@ -12,9 +12,9 @@ function sheets(){if(!grid)return;grid.querySelectorAll('article.card:not(.sheet
 if(grid){sheets();new MutationObserver(sheets).observe(grid,{childList:true});}
 /* 2) Quiz as a quest: d20 roll before results */
 var quiz=$('#quiz'),res=$('#results');
-if(quiz&&res){var intro=document.createElement('p');intro.className='quest-intro';intro.textContent='Your quest: answer a few questions, then roll the die to gather your party of guides.';quiz.parentNode.insertBefore(intro,quiz);
+if(quiz&&res){var intro=document.createElement('p');intro.className='quest-intro';intro.textContent='Your quest: answer a few questions, then roll the die to gather your party of counselors.';quiz.parentNode.insertBefore(intro,quiz);
  var die='<svg viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,4 92,28 92,72 50,96 8,72 8,28" class="d-out"/><polygon points="50,22 76,66 24,66" class="d-in"/><path d="M50 4 L50 22 M92 28 L76 66 M8 28 L24 66 M92 72 L76 66 M8 72 L24 66 M50 96 L50 66 M50 22 L92 28 M50 22 L8 28" class="d-edge"/><text x="50" y="54" text-anchor="middle">\u2726</text></svg>';
- quiz.addEventListener('submit',function(){if(RM)return;var r=document.createElement('div');r.className='d20-roll';r.setAttribute('role','status');r.innerHTML=die+'<span>Rolling for your guide\u2026</span>';
+ quiz.addEventListener('submit',function(){if(RM)return;var r=document.createElement('div');r.className='d20-roll';r.setAttribute('role','status');r.innerHTML=die+'<span>Rolling for your counselor\u2026</span>';
   res.classList.add('rolling');res.parentNode.insertBefore(r,res);try{window.obcSound&&!obcSound.muted()&&obcSound.chime(3)}catch(e){}
   setTimeout(function(){r.remove();res.classList.remove('rolling')},1300)});}
 /* 3) Parchment quest map of the chapters, with both offices as landmarks */
