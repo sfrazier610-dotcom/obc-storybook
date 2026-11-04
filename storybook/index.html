@@ -803,6 +803,48 @@ img.sc-base{position:absolute;inset:0;width:100%!important;height:100%!important
 .book.turning .gutter{animation:gutterIn var(--d-page) var(--ease-page) both}
 @keyframes gutterIn{0%,100%{opacity:1}45%{opacity:.55}}
 .calm .gleaf,.calm .curl{display:none}
+
+/* ===== Rewrite your story: a struck line, rewritten in ink (both stay in the DOM) ===== */
+.rewrite{max-width:820px;margin:38px auto 30px;text-align:center}
+.rw-hint{margin:6px auto 0;max-width:46ch;color:var(--muted)}
+.rw-list{list-style:none;padding:0;margin:20px 0 0;display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+.rw{position:relative;width:100%;height:100%;display:grid;align-content:start;gap:6px;padding:18px 20px 20px;text-align:left;font:inherit;color:var(--ink);cursor:pointer;background:rgba(255,250,238,.72);border:1px solid rgba(127,85,23,.28);border-radius:14px;box-shadow:0 1px 0 rgba(255,255,255,.6) inset;transition:transform var(--d-base) var(--ease-lift),box-shadow var(--d-base) var(--ease-out),border-color var(--d-quick)}
+.rw:hover{transform:translateY(var(--lift));box-shadow:0 12px 26px rgba(60,40,15,.16);border-color:rgba(127,85,23,.5)}
+.rw:active{transform:translateY(0) scale(.99)}
+.rw:focus-visible{outline:2px solid var(--wine);outline-offset:3px}
+.rw-old{position:relative;justify-self:start;text-decoration:none;font:italic 400 18px/1.3 var(--serif);color:rgba(43,29,16,.72)}
+.rw-old::after{content:"";position:absolute;left:-3px;right:-3px;top:54%;height:2px;border-radius:2px;background:var(--wine);transform-origin:left center;transition:transform 560ms var(--ease-ink)}
+.rw-new{font:600 23px/1.25 var(--display);color:var(--teal)}
+.rw-new .w{display:inline-block}
+.js:not(.calm) .rw:not(.done) .rw-old::after,.js:not(.calm) .rw-line:not(.done) .rw-old::after{transform:scaleX(0)}
+.js:not(.calm) .rw:not(.done) .rw-new .w,.js:not(.calm) .rw-line:not(.done) .rw-new .w{opacity:0;transform:translateY(.32em) skewX(-9deg)}
+.js:not(.calm) .rw.done .rw-new .w,.js:not(.calm) .rw-line.done .rw-new .w{transition:opacity 420ms var(--ease-out),transform 560ms var(--ease-out);transition-delay:calc(520ms + var(--w,0) * 95ms)}
+.js:not(.calm) .rw.done .rw-new::after,.js:not(.calm) .rw-line.done .rw-new::after{content:"";position:absolute;width:6px;height:6px;margin:.62em 0 0 3px;border-radius:50%;background:var(--gold);animation:nibDot 900ms var(--ease-out) calc(520ms + var(--n,1) * 95ms) both}
+@keyframes nibDot{0%{opacity:0;transform:scale(.4)}30%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.6)}}
+/* the same motif, small, on the Prologue page (desktop, decorative) */
+.rw-line{display:none}
+@media (min-width:900px){
+ .rw-line{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin:4px 0 14px;transition:opacity 500ms var(--ease-out)}
+ .rw-line .rw-old{font-size:16px}
+ .rw-line .rw-new{font-size:clamp(17px,calc(var(--bw) * .019),22px);position:relative}
+ .rw-line.out{opacity:0}
+}
+@container (max-height:520px){.rw-line{display:none!important}}
+
+/* ===== Professional to fantasy: each painting opens as a crisp, modern plate and warms into the storybook ===== */
+.blend{position:absolute;inset:0;z-index:6;pointer-events:none;opacity:0;
+ background:repeating-linear-gradient(0deg,rgba(30,62,70,.09) 0 1px,transparent 1px 24px),repeating-linear-gradient(90deg,rgba(30,62,70,.09) 0 1px,transparent 1px 24px),linear-gradient(160deg,rgba(242,245,245,.74),rgba(224,231,232,.66))}
+.blend-g{position:absolute;inset:0;z-index:5;pointer-events:none;opacity:0;background:#808080;mix-blend-mode:saturation}
+.blend-tag{position:absolute;left:14px;top:12px;font:600 11px/1.2 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:#1f3d44}
+.blend-tag::before{content:"";display:inline-block;width:18px;height:1px;margin:0 8px 3px 0;background:currentColor;vertical-align:middle}
+.leaf.fwd .back .blend,.leaf.fwd .back .blend-g{opacity:1}
+.pl.warm .blend,.pl.warm .blend-g{animation:warmIn var(--d-warm) var(--ease-out) 140ms both}
+@keyframes warmIn{0%{opacity:1}30%{opacity:.86}100%{opacity:0}}
+@media (max-width:899px){
+ .js:not(.calm) .opener .blend,.js:not(.calm) .opener .blend-g{opacity:1}
+ .js:not(.calm) .opener.in .blend,.js:not(.calm) .opener.in .blend-g{animation:warmIn var(--d-warm) var(--ease-out) 700ms both}
+}
+.calm .blend,.calm .blend-g{display:none}
 </style>
 </head>
 <body>
@@ -864,12 +906,17 @@ img.sc-base{position:absolute;inset:0;width:100%!important;height:100%!important
    <a class="read-on" href="#story">Read on <span aria-hidden="true">↓</span></a>
   </div>
  </div>
- <div class="story" id="story" tabindex="-1"><section class="chap" id="home" data-short="Prologue" data-label="Prologue" aria-label="Prologue: Empowering your New Story!"><div class="opener"><div class="pg-l"><figure class="plate"><div class="plate-frame"><div class="scene sd-one" style="--ar:16/9;--f:0.62" data-scene="hero"><div class="sc-in"><div class="sc-mv"><img class="sc-base" src="img/hero.webp" alt="Painted illustration: golden light rises from a giant open book in a candlelit library full of floating books, a moonlit tower beyond the window" decoding="async"><div class="sc-glow" aria-hidden="true"><i class="glow g-gold m-breathe" style="left:40%;top:45%;--s:46"></i><i class="glow g-flame m-flicker" style="left:6%;top:42%;--s:10"></i><i class="glow g-flame m-flicker" style="left:95%;top:62%;--s:8"></i><i class="glow g-moon m-slow" style="left:83%;top:17%;--s:14"></i></div><i class="shoot" aria-hidden="true"></i><div class="sc-hot"><span class="hot" style="left:40%;top:42%"><button class="hot-btn" type="button" aria-expanded="false"><span class="sr">Look closer: The open book</span></button><span class="hot-note" role="note"><b>The open book</b>Every story here starts on a page that is still being written.</span></span><span class="hot n-left n-down" style="left:83%;top:16%"><button class="hot-btn" type="button" aria-expanded="false" data-egg="wish"><span class="sr">Look closer: The moon</span></button><span class="hot-note" role="note"><b>The moon</b>Make a wish. Small hopes count too.</span></span></div></div><div class="sc-fx fx-motes" aria-hidden="true"></div></div><div class="sc-mood" aria-hidden="true"></div></div><svg class="corner c0" aria-hidden="true" focusable="false"><use href="#orn-corner"/></svg><svg class="corner c1" aria-hidden="true" focusable="false"><use href="#orn-corner"/></svg><svg class="corner c2" aria-hidden="true" focusable="false"><use href="#orn-corner"/></svg><svg class="corner c3" aria-hidden="true" focusable="false"><use href="#orn-corner"/></svg></div><figcaption>Prologue</figcaption></figure></div><div class="pg-r"><div class="ptext"><svg class="headpiece" aria-hidden="true" focusable="false"><use href="#orn-head"/></svg><p class="clabel">Prologue</p><h1 class="ctitle">Empowering your New Story!</h1><svg class="flourish" aria-hidden="true" focusable="false"><use href="#orn-swash"/></svg><p class="eyebrow">Trauma &amp; mental health outpatient group practice · Draper &amp; Bountiful, Utah · Online</p><p class="intro">Therapy for children 8+, teens, adults, and couples in Draper, Bountiful, and online.</p><p class="intro more">Every story has hard chapters. You don’t have to read them alone, and you get to help write what comes next.</p><p class="ctas"><a class="btn ghost" href="#match" data-turn="1">Find my guide</a><a class="btn" href="/professional/intake.html">Book an appointment</a></p><img class="spot" src="img/spot-book.webp" alt="" width="160" height="320"></div></div></div><div class="cbody" id="home-body"><p class="reading-on" aria-hidden="true">Prologue · Empowering your New Story!</p>
+ <div class="story" id="story" tabindex="-1"><section class="chap" id="home" data-short="Prologue" data-label="Prologue" aria-label="Prologue: Empowering your New Story!"><div class="opener"><div class="pg-l"><figure class="plate"><div class="plate-frame"><div class="scene sd-one" style="--ar:16/9;--f:0.62" data-scene="hero"><div class="sc-in"><div class="sc-mv"><img class="sc-base" src="img/hero.webp" alt="Painted illustration: golden light rises from a giant open book in a candlelit library full of floating books, a moonlit tower beyond the window" decoding="async"><div class="sc-glow" aria-hidden="true"><i class="glow g-gold m-breathe" style="left:40%;top:45%;--s:46"></i><i class="glow g-flame m-flicker" style="left:6%;top:42%;--s:10"></i><i class="glow g-flame m-flicker" style="left:95%;top:62%;--s:8"></i><i class="glow g-moon m-slow" style="left:83%;top:17%;--s:14"></i></div><i class="shoot" aria-hidden="true"></i><div class="sc-hot"><span class="hot" style="left:40%;top:42%"><button class="hot-btn" type="button" aria-expanded="false"><span class="sr">Look closer: The open book</span></button><span class="hot-note" role="note"><b>The open book</b>Every story here starts on a page that is still being written.</span></span><span class="hot n-left n-down" style="left:83%;top:16%"><button class="hot-btn" type="button" aria-expanded="false" data-egg="wish"><span class="sr">Look closer: The moon</span></button><span class="hot-note" role="note"><b>The moon</b>Make a wish. Small hopes count too.</span></span></div></div><div class="sc-fx fx-motes" aria-hidden="true"></div></div><div class="sc-mood" aria-hidden="true"></div></div><svg class="corner c0" aria-hidden="true" focusable="false"><use href="#orn-corner"/></svg><svg class="corner c1" aria-hidden="true" focusable="false"><use href="#orn-corner"/></svg><svg class="corner c2" aria-hidden="true" focusable="false"><use href="#orn-corner"/></svg><svg class="corner c3" aria-hidden="true" focusable="false"><use href="#orn-corner"/></svg></div><figcaption>Prologue</figcaption></figure></div><div class="pg-r"><div class="ptext"><svg class="headpiece" aria-hidden="true" focusable="false"><use href="#orn-head"/></svg><p class="clabel">Prologue</p><h1 class="ctitle">Empowering your New Story!</h1><svg class="flourish" aria-hidden="true" focusable="false"><use href="#orn-swash"/></svg><p class="eyebrow">Trauma &amp; mental health outpatient group practice · Draper &amp; Bountiful, Utah · Online</p><p class="intro">Therapy for children 8+, teens, adults, and couples in Draper, Bountiful, and online.</p><p class="intro more">Every story has hard chapters. You don’t have to read them alone, and you get to help write what comes next.</p><p class="rw-line" aria-hidden="true"><span class="rw-old">I’m stuck.</span> <span class="rw-new">I’m finding my way.</span></p><p class="ctas"><a class="btn ghost" href="#match" data-turn="1">Find my guide</a><a class="btn" href="/professional/intake.html">Book an appointment</a></p><img class="spot" src="img/spot-book.webp" alt="" width="160" height="320"></div></div></div><div class="cbody" id="home-body"><p class="reading-on" aria-hidden="true">Prologue · Empowering your New Story!</p>
 <div class="egg-row"><button class="bookmark bm-ph" type="button" aria-label="A ribbon bookmark" aria-controls="kind-note"><span class="bm-tail" aria-hidden="true"></span></button><button class="hang hang-ph" type="button" aria-label="The reading lamp"><span class="chain" aria-hidden="true"></span><img src="img/lamp.webp" alt="" width="160" height="320"><span class="lamp-glow" aria-hidden="true"></span></button></div>
 <div class="prose" data-r>
  <p class="eyebrow">Trauma &amp; mental health outpatient group practice · Draper &amp; Bountiful, Utah · Online</p>
  <p class="dropcap">Open Book Counseling works with individuals, couples, and families, from children and teens through adults, including people in high-stress or high-visibility roles who want discreet, non-shame-based care.</p>
 </div>
+<section class="rewrite" data-r aria-labelledby="rw-h">
+ <h3 id="rw-h" class="sub-h">Rewrite a line</h3>
+ <p class="rw-hint">Some sentences feel like the last word. They don’t have to be. Tap one to rewrite it.</p>
+ <ul class="rw-list"><li><button class="rw" type="button"><s class="rw-old"><span class="sr">Old line: </span>I’m stuck.</s> <span class="rw-new"><span class="sr">Rewritten: </span>I’m finding my way.</span></button></li><li><button class="rw" type="button"><s class="rw-old"><span class="sr">Old line: </span>I have to do this alone.</s> <span class="rw-new"><span class="sr">Rewritten: </span>I can ask for help.</span></button></li><li><button class="rw" type="button"><s class="rw-old"><span class="sr">Old line: </span>This is the whole story.</s> <span class="rw-new"><span class="sr">Rewritten: </span>This is one chapter.</span></button></li><li><button class="rw" type="button"><s class="rw-old"><span class="sr">Old line: </span>It’s too late to start.</s> <span class="rw-new"><span class="sr">Rewritten: </span>I can start where I am.</span></button></li></ul>
+</section>
 <section class="awards" data-r aria-labelledby="aw-h">
  <h3 id="aw-h" class="sub-h">City Weekly Best of Utah 2026</h3>
  <ul class="aw-list">
@@ -1063,19 +1110,19 @@ function turnTo(to,opts){
  busy=true;var fwd=to>from;
  pr.classList.remove('fresh');
  if(fwd){pl.innerHTML=L(from);pr.innerHTML=R(to);lf.innerHTML=R(from);lb.innerHTML=L(to);fresh(pr)}
- else{pl.innerHTML=L(to);pr.innerHTML=R(from);lf.innerHTML=R(to);lb.innerHTML=L(from)}
+ else{pl.innerHTML=L(to);pr.innerHTML=R(from);lf.innerHTML=R(to);lb.innerHTML=L(from);warm(pl)}
  lf.insertAdjacentHTML('beforeend','<i class="curl"></i>');lb.insertAdjacentHTML('beforeend','<i class="curl"></i>');
  leaf.className='leaf on '+(fwd?'fwd':'bwd');cast.className='cast '+(fwd?'fwd':'bwd');ghosts.forEach(function(g,k){g.className='gleaf g'+(k+1)+' on '+(fwd?'fwd':'bwd')});book.classList.add('turning');
  void leaf.offsetWidth;
  requestAnimationFrame(function(){leaf.classList.add('go');cast.classList.add('go');ghosts.forEach(function(g){g.classList.add('go')})});
  setTimeout(function(){showBody(to,true)},420);
- setTimeout(function(){if(fwd){pl.innerHTML=L(to)}else{pr.innerHTML=R(to)}leaf.className='leaf';cast.className='cast';ghosts.forEach(function(g,k){g.className='gleaf g'+(k+1)});book.classList.remove('turning');lf.innerHTML='';lb.innerHTML='';busy=false;fitHots(pl);fitHots(pr)},860);
+ setTimeout(function(){if(fwd){pl.innerHTML=L(to);warm(pl)}else{pr.innerHTML=R(to)}leaf.className='leaf';cast.className='cast';ghosts.forEach(function(g,k){g.className='gleaf g'+(k+1)});book.classList.remove('turning');lf.innerHTML='';lb.innerHTML='';busy=false;fitHots(pl);fitHots(pr)},860);
 }
 
 function openBook(instant){
  if(opened)return;opened=true;
  try{sessionStorage.setItem('obcSbOpen','1')}catch(e){}
- paint(cur);fresh(pr);showBody(cur,false);updateUI();armOpeners();if(!desk.matches)chaps.forEach(arm);
+ paint(cur);fresh(pr);warm(pl);showBody(cur,false);updateUI();armOpeners();if(!desk.matches)chaps.forEach(arm);
  if(instant||isCalm()){H.classList.remove('closed');H.classList.add('opened');afterOpen(instant);return}
  H.classList.add('opening');H.classList.remove('closed');
  setTimeout(function(){cover.classList.add('gone')},1150);
@@ -1091,10 +1138,27 @@ function afterOpen(instant){
 function inkWords(el){if(!el||el.getAttribute('data-ink'))return;el.setAttribute('data-ink','1');var k=0;
  (function walk(n){Array.prototype.slice.call(n.childNodes).forEach(function(c){
   if(c.nodeType===3){var parts=c.nodeValue.split(/(\s+)/),f=document.createDocumentFragment();parts.forEach(function(p){if(!p)return;if(/^\s+$/.test(p)){f.appendChild(document.createTextNode(p))}else{var sp=document.createElement('span');sp.className='w';sp.style.setProperty('--w',k++);sp.textContent=p;f.appendChild(sp)}});n.replaceChild(f,c)}
-  else if(c.nodeType===1&&c.tagName!=='SVG')walk(c)})})(el);
+  else if(c.nodeType===1&&c.tagName!=='SVG'&&!(c.classList&&c.classList.contains('sr')))walk(c)})})(el);
  el.style.setProperty('--n',k)}
-$$('.opener .ctitle').forEach(inkWords);if(aw)$$('.ctitle',aw).forEach(inkWords);
+$$('.opener .ctitle').forEach(inkWords);$$('.rw-new').forEach(inkWords);
+/* professional-to-fantasy plate: a crisp label layer that fades as the painting warms in */
+$$('.opener .scene').forEach(function(sc){var ch=sc.closest('.chap'),i=document.createElement('i'),t=document.createElement('span');i.className='blend';i.setAttribute('aria-hidden','true');t.className='blend-tag';
+ if(ch){var a=ch.getAttribute('data-label'),b=ch.getAttribute('data-short');t.textContent=a===b?a:a+' \u00b7 '+b}i.appendChild(t);var g=document.createElement('i');g.className='blend-g';g.setAttribute('aria-hidden','true');sc.appendChild(g);sc.appendChild(i)});
+function warm(p){p.classList.remove('warm');void p.offsetWidth;p.classList.add('warm')}
+if(aw)$$('.ctitle',aw).forEach(inkWords);
 var ghosts=$$('.gleaf');
+/* rewrite band: tap to (re)write a line; the band writes itself once when it scrolls into view */
+function rwPlay(el){el.classList.remove('done');void el.offsetWidth;el.classList.add('done')}
+$$('.rw').forEach(function(b){b.addEventListener('click',function(){if(isCalm())return;rwPlay(b)})});
+var band=$('.rewrite');
+if(band){var rws=$$('.rw',band);if(!('IntersectionObserver' in window)){rws.forEach(function(b){b.classList.add('done')})}else{var bio=new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting)return;bio.disconnect();rws.forEach(function(b,k){setTimeout(function(){b.classList.add('done')},isCalm()?0:500+k*900)})})},{threshold:.35});bio.observe(band)}}
+/* the small rewrite line on the Prologue page cycles through the same pairs, only while that page is showing */
+var PAIRS=$$('.rw').map(function(b){var o=b.querySelector('.rw-old').cloneNode(true),n=b.querySelector('.rw-new').cloneNode(true);$$('.sr',o).concat($$('.sr',n)).forEach(function(x){x.remove()});return[o.textContent.trim(),n.innerHTML]}),rwK=0;
+function rwLine(){var l=$('.rw-line',pr);if(!l||!PAIRS.length)return null;return l}
+function rwShow(k,anim){var l=rwLine();if(!l)return;var p=PAIRS[k%PAIRS.length];$('.rw-old',l).textContent=p[0];var nw=$('.rw-new',l);nw.innerHTML=p[1];nw.style.setProperty('--n',$$('.w',nw).length);l.classList.remove('out');if(anim)rwPlay(l);else l.classList.add('done')}
+setInterval(function(){if(isCalm()||document.hidden||!desk.matches||!opened||busy||cur!==0)return;var l=rwLine();if(!l)return;if(!l.classList.contains('done')){rwShow(rwK,true);return}
+ l.classList.add('out');setTimeout(function(){rwK=(rwK+1)%PAIRS.length;rwShow(rwK,true)},520)},4800);
+setTimeout(function(){if(cur===0)rwShow(0,!isCalm())},1500);
 /* boot */
 var hashIdx=ids.indexOf((location.hash||'').replace('#','').replace('-body',''));
 if(hashIdx>=0)cur=hashIdx;
