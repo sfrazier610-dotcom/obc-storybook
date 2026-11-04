@@ -31,6 +31,16 @@ $('#quiz').addEventListener('submit',e=>{e.preventDefault();const f=new FormData
  <a class="btn sm" href="/professional/intake.html">${(window.THEME&&window.THEME.reqWord)||'Request'} ${esc(x.c.name.split(' ')[0])}</a></li>`).join('')+`</ol><p class="note">Scores reflect publicly listed specialties only, not quality. Feeling understood in the first sessions matters most. You can switch clinicians within the practice anytime.</p>`;
  $('#results').scrollIntoView({behavior:'smooth'});});
 })();
+(function(){if(!document.querySelector('#ins')||!window.OBC)return;
+const D=window.OBC,$=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+// --- verbatim from shared/app.js: insurance + fees ---
+// insurance
+const ins=$('#ins');ins.innerHTML+=`<optgroup label="Insurance">${D.insurance.map(i=>`<option>${esc(i)}</option>`).join('')}</optgroup><optgroup label="EAP">${D.eap.map(i=>`<option>${esc(i)}</option>`).join('')}</optgroup><option value="other">My plan isn't listed</option>`;
+ins.addEventListener('change',()=>{const v=ins.value;$('#ins-out').innerHTML=!v?'':v==='other'?`<p>We may still be able to help with self-pay, and we can provide superbills for out-of-network clients. Call <a href="tel:3855246665">385-524-6665</a>.</p>`:`<p class="ok">✓ ${esc(v)} is on the practice's accepted list.</p><p class="note">Credentialing varies by therapist. Please confirm your specific clinician and benefits with Makayla Jones (385-524-6665).</p>`;});
+function fee(){const t=$('#fee-type').value,n=Math.max(1,Math.min(52,parseInt($('#fee-n').value)||1));$('#fee-out').textContent=`${n} × $${D.fees[t]} = $${(n*D.fees[t]).toLocaleString()}${t==='group'?' per person':''}`;}
+$('#fee-type').addEventListener('input',fee);$('#fee-n').addEventListener('input',fee);fee();
+})();
 /* Charm covers (new, Quiet Library design): each charm card starts closed; "Turn a card over to open it". Content stays in the DOM for screen readers. */
 document.addEventListener('DOMContentLoaded',function(){var root=document.getElementById('coping');if(!root)return;
  root.querySelectorAll('.skill').forEach(function(c,i){var h=c.querySelector('h3'),cat=c.querySelector('.cat');if(!h)return;
