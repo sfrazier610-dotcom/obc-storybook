@@ -103,15 +103,15 @@ var W=640,H=416;
 var SC={
  hub:{n:"Hearthstead",sub:"Village",g:"town",at:[1,1],tone:"rgba(255,190,110,.10)",
   p:[["house",110,150],["house",530,150,1],["tree",60,330],["tree",590,345],["lantern",250,170],["lantern",390,170],
-   ["sign",250,345,"The signpost: West to Lantern Meadow. North to Whirligust Heights. East to the Crossroads and the Hall of Guides. South to Fog Marsh. Every road is open."],
+   ["sign",250,345,"The signpost: West to Lantern Meadow. North to Whirligust Heights. East to the Crossroads and the Hall of Counselors. South to Fog Marsh. Every road is open."],
    ["npc",160,300,"vil2","Mara the lamplighter",["Welcome, wanderer. Every road out of Hearthstead is open to you.","Symptoms wander out there. Bump into one and you'll cast your skills right where you stand.","When it gets heavy, follow the lantern trail east of the well to your safe place."]],
-   ["npc",470,300,"vil1","Tobin the baker",["Fresh bread and fresh starts here.","I hear the Crossroads east of here has a Hall where you can choose any guide you like."]],
+   ["npc",470,300,"vil1","Tobin the baker",["Fresh bread and fresh starts here.","I hear the Crossroads east of here has a Hall where you can choose any counselor you like."]],
    ["chest",450,375,"bench"],["door",560,330,"safe"],
    ["look",110,140,60,"Warm windows glow. Someone inside is humming."],["look",530,140,60,"A cottage with a garden of herbs by the door."]]},
- cross:{n:"The Crossroads",sub:"Hall of Guides",g:"town",at:[2,1],tone:"rgba(255,190,110,.08)",
+ cross:{n:"The Crossroads",sub:"Hall of Counselors",g:"town",at:[2,1],tone:"rgba(255,190,110,.08)",
   p:[["house",470,160,0,1.25,"hall"],["tree",120,140],["tree",160,340],["rock",560,340],["lantern",400,190],
-   ["sign",250,180,"The Hall of Guides: every guide can walk with you in any region. Step inside to choose."],
-   ["npc",300,300,"vil3","Wren the mapmaker",["The Hall is right there. The guides inside are the real Open Book team, shown as portraits.","Pick whoever feels right for each region. Nobody is locked to one place."]],
+   ["sign",250,180,"The Hall of Counselors: every counselor can walk with you in any region. Step inside to choose."],
+   ["npc",300,300,"vil3","Wren the mapmaker",["The Hall is right there. The counselors inside are the real Open Book team, shown as portraits.","Pick whoever feels right for each region. Nobody is locked to one place."]],
    ["chest",110,350,"books"]]},
  office:{n:"Open Book Office",sub:"Finale",g:"castle",at:[2,2],tone:"rgba(255,200,130,.12)",
   p:[["house",320,190,0,1.35,"office"],["lantern",230,200],["lantern",410,200],["tree",90,170],["tree",560,170],["tree",110,360],["tree",540,360],
@@ -156,7 +156,7 @@ var SC={
  adhd2:{n:"Flicker Glade",sub:"ADHD boss",reg:"adhd",g:"castle",at:[3,4],tone:"rgba(170,230,160,.18)",boss:[340,220],
   p:[["tree",120,150],["tree",540,150],["tree",130,350],["sign",470,330,"Switch skills for a novelty boost. Repeating one makes focus slip."]],m:[[220,260]]},
  ed1:{n:"Lakeshore",sub:"Eating disorder",reg:"ed",g:"town",at:[0,3],tone:"rgba(160,214,208,.14)",w:[[400,130,170,52]],
-  p:[["tree",110,160],["tree",560,330],["rock",130,330],["npc",300,300,"vil1","A kind lake guide",["The mist whispers rules. They are the disorder's voice, not yours.","Reaching out to someone you trust is brave. The Mirror Mist is south."]],["find",470,280,"shell"],["look",400,130,120,"The lake reflects the sky, not a verdict."]],m:[[240,230]]},
+  p:[["tree",110,160],["tree",560,330],["rock",130,330],["npc",300,300,"vil1","A kind lake keeper",["The mist whispers rules. They are the disorder's voice, not yours.","Reaching out to someone you trust is brave. The Mirror Mist is south."]],["find",470,280,"shell"],["look",400,130,120,"The lake reflects the sky, not a verdict."]],m:[[240,230]]},
  ed2:{n:"Mirror Mist Lake",sub:"Eating disorder boss",reg:"ed",g:"marsh",at:[0,4],tone:"rgba(160,214,208,.2)",boss:[330,230],w:[[140,330,100,40]],
   p:[["tree",110,150],["tree",540,150],["sign",500,330,"Reaching out raises a shield. Recovery is possible, and support helps."]],m:[[480,250]]}
 };
@@ -239,7 +239,7 @@ var cur=null,stage,cv,cx,raf=0,last=0,held={},tgt=null,P={x:320,y:250,dir:0,ph:0
 function scr(){return cur}
 function top(){return '<div class="w-top"><h1>Wanderer\'s Quest</h1><span class="w-where" id="w-where"></span>'+
  '<button class="w-btn" id="t-look" title="L">Look around</button><button class="w-btn" id="t-bag" title="I">Satchel</button><button class="w-btn" id="t-jr" title="J">Journal</button><button class="w-btn" id="t-map" title="M">Map</button>'+
- '<button class="w-btn" id="t-safe">Safe place</button><button class="w-btn" id="t-hall">Hall of Guides</button><button class="w-btn" id="t-hero">Hero</button></div>'}
+ '<button class="w-btn" id="t-safe">Safe place</button><button class="w-btn" id="t-hall">Hall of Counselors</button><button class="w-btn" id="t-hero">Hero</button></div>'}
 function play(){
  cancelAnimationFrame(raf);
  app.innerHTML=top()+'<div class="w-stage" id="w-stage" tabindex="0" role="application" aria-roledescription="game" aria-label="Play area. Arrow keys or WASD to walk, E or Enter to interact. Tap or click to walk."><canvas id="w-cv" aria-hidden="true"></canvas><div class="w-sr" id="w-live" aria-live="polite"></div><button type="button" class="w-btn w-act" id="w-act" hidden></button></div>';
@@ -342,11 +342,11 @@ function actBtn(n){var b=document.getElementById("w-act");if(!b)return;var k=n?v
 function doAct(){if(DM&&DM.pick){placeAt(P.x,P.y-28);return}if(!busy())interact(near())}
 /* visual-only spacing: nudge a standing guide sideways so the hero never stands inside them */
 function clr(x,y,sd){var dx=x-P.x,dy=Math.abs(P.y-y);if(dy>60)return x;var k=Math.min(1,1-Math.max(0,dy-40)/20);if(sd){if(sd*dx>=84)return x;return x+(P.x+sd*84-x)*k}var g=84-Math.abs(dx);if(g<=0)return x;return x+(dx>=0?1:-1)*g*k}
-function houseTag(c,o){c.font="600 12px Georgia,serif";c.textAlign="center";var lb=o.role==="hall"?"Hall of Guides":"Open Book Office";var lw=c.measureText(lb).width+12;c.fillStyle="rgba(250,240,215,.9)";var ly=window.OBC_CHARS?(CZ&&CZ.name==="storybook"?o.y-64*o.sc:o.y+24):o.y-124*o.sc+1;c.fillRect(o.x-lw/2,ly-13,lw,17);c.fillStyle="#5a2e0e";c.fillText(lb,o.x,ly);c.textAlign="left"}
+function houseTag(c,o){c.font="600 12px Georgia,serif";c.textAlign="center";var lb=o.role==="hall"?"Hall of Counselors":"Open Book Office";var lw=c.measureText(lb).width+12;c.fillStyle="rgba(250,240,215,.9)";var ly=window.OBC_CHARS?(CZ&&CZ.name==="storybook"?o.y-64*o.sc:o.y+24):o.y-124*o.sc+1;c.fillRect(o.x-lw/2,ly-13,lw,17);c.fillStyle="#5a2e0e";c.fillText(lb,o.x,ly);c.textAlign="left"}
 /* pixel mode: name tags are drawn after the low-res pass so their text stays readable */
 var PXT=[];function pxTags(c,s){if(!(CZ&&CZ.nn))return;c.save();if(WT)c.setTransform(WT);(s.items||[]).forEach(function(o){if(o.t==="house"&&o.role)houseTag(c,o)});PXT.forEach(function(f){try{f()}catch(e){}});PXT.length=0;c.restore()}
 var CAMV=null;function label(c,o){var t=verb(o)+(o.name?" "+o.name:"");var y=o.y-(FT[o.t]?FT[o.t][2]*(o.sc||1):30)-8;if(o.t==="look")y=o.y-20;if(window.OBC_CHARS){var tp={mentor:100,way:100,npc:94}[o.t];if(tp)y=Math.min(y,o.y-tp);if(Math.abs(P.x-o.x)<90&&Math.abs(P.y-o.y)<60)y=Math.min(y,P.y-94)}c.font="600 13px system-ui,sans-serif";var w=c.measureText(t).width+14,x=Math.max(w/2+2,Math.min(W-w/2-2,o.x));if(CAMV&&!B&&CZ&&CZ.name==="storybook")x=Math.max(CAMV.l+w/2+6,Math.min(CAMV.r-w/2-6,x));/* storybook phone: keep the prompt inside the camera view */y=Math.max(20,y);LBL={o:o,l:x-w/2,t:y-16,r:x+w/2,b:y+5};c.fillStyle="rgba(250,240,215,.92)";c.strokeStyle="#8a6a3e";c.lineWidth=1;c.beginPath();if(c.roundRect)c.roundRect(x-w/2,y-16,w,21,8);else c.rect(x-w/2,y-16,w,21);c.fill();c.stroke();c.fillStyle="#3b2a1a";c.textAlign="center";c.fillText(t,x,y-1);c.textAlign="left"}
-function verb(o){return "E: "+({mentor:"Talk to",way:"Rest at the waystation",clue:"Pick up a clue page",calm:"Sit at the calm spot",sign:"Read",npc:"Talk to",chest:"Open chest",find:"Pick up",look:"Look",door:"Lantern trail to your safe place",page:"Pick up a journal page",path:"Push through the ferns",fish:"Fish at the pond",qitem:"Pick up",house:o.role==="hall"?"Enter the Hall of Guides":o.role==="office"?"Knock on the office door":"Look"}[o.t]||"Look")}
+function verb(o){return "E: "+({mentor:"Talk to",way:"Rest at the waystation",clue:"Pick up a clue page",calm:"Sit at the calm spot",sign:"Read",npc:"Talk to",chest:"Open chest",find:"Pick up",look:"Look",door:"Lantern trail to your safe place",page:"Pick up a journal page",path:"Push through the ferns",fish:"Fish at the pond",qitem:"Pick up",house:o.role==="hall"?"Enter the Hall of Counselors":o.role==="office"?"Knock on the office door":"Look"}[o.t]||"Look")}
 function water(c,x,y,rx,ry,t){var g=c.createRadialGradient(x,y-ry*.3,4,x,y,rx);g.addColorStop(0,"rgba(120,180,190,.95)");g.addColorStop(1,"rgba(60,110,125,.9)");c.save();try{c.filter="blur(1.5px)"}catch(e){}c.fillStyle=g;c.beginPath();c.ellipse(x,y,rx,ry,0,0,7);c.fill();c.restore();
  c.strokeStyle="rgba(240,230,190,.45)";c.lineWidth=1.2;for(var i=0;i<4;i++){var ph=RM?0:(t/900+i)%1;c.beginPath();c.ellipse(x+(i-1.5)*rx*.35,y+(i%2?6:-6),10+ph*8,2,0,0,Math.PI);c.stroke()}}
 function beach(c,t){var g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,"#3f7f9a");g.addColorStop(.26,"#7fb6c2");g.addColorStop(.3,"#f0dfb0");g.addColorStop(1,"#d9b97c");c.fillStyle=g;c.fillRect(0,0,W,H);
@@ -417,7 +417,7 @@ function say(lines,who){if(typeof lines==="string")lines=[lines];if(gjFeel){if(g
   var n=d.querySelector("#s-next"),k=d.querySelector("#s-ok");if(n){n.onclick=function(){i++;show()};n.focus()}if(k){k.onclick=closeOV;k.focus()}live((who?who+": ":"")+lines[i])}
  show()}
 function panel(html,lbl){closeOV();OV="pan";held={};var d=document.createElement("div");d.className="w-pan w-par";d.setAttribute("role","dialog");d.setAttribute("aria-label",lbl);d.innerHTML=html+'<p><button class="w-btn pri" id="p-close">Back to exploring</button></p>';stage.appendChild(d);d.querySelector("#p-close").onclick=closeOV;var h=d.querySelector("h2");if(h){h.tabIndex=-1;h.focus()}return d}
-function lookAround(){if(B)return;var s=cur,seen=interactables().map(function(o){return o.name||({sign:"a signpost",look:"something worth a closer look",door:"the lantern trail to your safe place",chest:"a chest",find:"something glinting on the ground",page:"a loose journal page",path:"a gap in the ferns",fish:"a fishing spot",qitem:"something someone lost",house:o.role==="hall"?"the Hall of Guides":"the Open Book Office"}[o.t])});
+function lookAround(){if(B)return;var s=cur,seen=interactables().map(function(o){return o.name||({sign:"a signpost",look:"something worth a closer look",door:"the lantern trail to your safe place",chest:"a chest",find:"something glinting on the ground",page:"a loose journal page",path:"a gap in the ferns",fish:"a fishing spot",qitem:"something someone lost",house:o.role==="hall"?"the Hall of Counselors":"the Open Book Office"}[o.t])});
  var en=(s.ens||[]).filter(function(e){return !gone(e)}).map(function(e){return e.boss?BD[e.reg].name:"a "+MIN[e.reg]});
  var ex=["n","e","s","w"].filter(function(d){return nb(s,d)}).map(function(d){return {n:"north",e:"east",s:"south",w:"west"}[d]+" to "+SC[nb(s,d)].n});
  say([s.n+(s.sub?" ("+s.sub+")":"")+". You see: "+(seen.length?seen.join(", "):"open ground")+".",en.length?"Symptoms here: "+en.join(", ")+". Walk into one to begin casting.":"No symptoms are wandering here right now.","Paths lead "+(ex.join("; ")||"nowhere else")+"."])}
@@ -612,14 +612,14 @@ FamilyMarital:"Family therapy: We'll work on this together, so no one carries it
 TraumaFocused:"Trauma-focused care: We'll go at my pace, with safety first.",
 Psychodynamic:"Psychodynamic: I'll notice old patterns from my past that still show up today.",
 PositivePsych:"Positive Psychology: I'll name my strengths and what's going right, and build on them.",
-Integrative:"Integrative: My guide will blend a few approaches to fit what I need.",
+Integrative:"Integrative: My counselor will blend a few approaches to fit what I need.",
 Relational:"Relational: I'll notice how I feel in a safe connection, then practice that out in the world."};
 var MATCH={anx:["CBT","ACT","MBCT","Mindfulness","DBT"],ptsd:["EMDR","ART","TF-CBT","CPT","TraumaFocused","IFS"],rel:["Imago","EFT","Gottman","FamilyMarital","Attachment"],ocd:["ERP","ACT","CBT"],adhd:["CBT","DBT","MI","SFBT"],ed:["DBT","ACT","IFS","CBT"],grief:["Narrative","ACT","IFS","PersonCentered","ArtTherapy"],fog:["CBT","ACT","Interpersonal","MBCT","DBT","MI"]};
 function modLabel(m){var L=(window.OBC&&OBC.modLabels)||{};return L[m]||m}
 function guideMethods(g,id){var mt=MATCH[id]||[],l=(g.mods||[]).filter(function(m){return MX[m]});return l.filter(function(m){return mt.indexOf(m)>=0}).sort(function(a,b){return mt.indexOf(a)-mt.indexOf(b)}).concat(l.filter(function(m){return mt.indexOf(m)<0}))}
 function halfHP(hp){return Math.max(1,Math.ceil(hp/2))}
 function photoCard(){if(!B||B.busy||B.over)return;var o=stage.querySelector(".w-bov");if(!o||o.querySelector(".w-pc"))return;var g=B.g,ms=guideMethods(g,B.id),mt=MATCH[B.id]||[];
- var d=document.createElement("div");d.className="w-pc w-par";d.setAttribute("role","dialog");d.setAttribute("aria-modal","true");d.setAttribute("aria-label",g.name+" guide card");
+ var d=document.createElement("div");d.className="w-pc w-par";d.setAttribute("role","dialog");d.setAttribute("aria-modal","true");d.setAttribute("aria-label",g.name+" counselor card");
  d.innerHTML='<button class="w-btn w-pcx" id="pc-x" aria-label="Close card">Close</button><div class="w-pch"><img src="'+portrait(g.id)+'" alt="Filtered portrait of '+esc(g.name)+'"><div><h3>'+esc(g.name)+'</h3><p class="w-pcc">'+esc(g.cred)+'</p><p class="w-pcm"><b>Methods:</b> '+(g.mods||[]).map(function(m){return esc(modLabel(m))}).join(", ")+'</p></div></div>'+
  '<div class="w-pca"><button class="w-btn pri" id="pc-sh"'+(B.gShield?' disabled':'')+'>Cast a shield'+(B.gShield?' (used)':'')+'</button></div>'+
  '<p class="w-pcn">'+(B.gMod?'You used a method skill this battle.':'Pick one method skill, once per battle. It calms half of what is left.')+'</p><div class="w-pcs">'+ms.map(function(m){var good=mt.indexOf(m)>=0;return '<button class="w-btn'+(good?' good':'')+'" data-m="'+esc(m)+'"'+(B.gMod?' disabled':'')+'>'+esc(modLabel(m))+(good?' <small>good match</small>':'')+'</button>'}).join("")+'</div>';
@@ -627,7 +627,7 @@ function photoCard(){if(!B||B.busy||B.over)return;var o=stage.querySelector(".w-
  d.querySelector("#pc-x").onclick=closeCard;d.querySelector("#pc-sh").onclick=function(){closeCard();castShield()};
  d.querySelectorAll("[data-m]").forEach(function(b){b.onclick=function(){closeCard();castMethod(b.dataset.m)}});
  d.addEventListener("keydown",function(e){if(e.key==="Escape"){e.preventDefault();e.stopPropagation();closeCard()}else if(e.key==="Tab"){var f=[].slice.call(d.querySelectorAll("button:not([disabled])")),i=f.indexOf(document.activeElement);if(e.shiftKey&&i<=0){e.preventDefault();f[f.length-1].focus()}else if(!e.shiftKey&&i===f.length-1){e.preventDefault();f[0].focus()}}});
- (d.querySelector("#pc-sh:not([disabled])")||d.querySelector("[data-m]:not([disabled])")||d.querySelector("#pc-x")).focus();live(g.name+" guide card open.")}
+ (d.querySelector("#pc-sh:not([disabled])")||d.querySelector("[data-m]:not([disabled])")||d.querySelector("#pc-x")).focus();live(g.name+" counselor card open.")}
 function closeCard(){var d=stage.querySelector(".w-pc");if(d)d.remove();if(B){B.card=0;var gb=document.getElementById("b-guide");if(gb&&!gb.disabled)gb.focus();else{var f=app.querySelector("[data-s]");if(f)f.focus()}}}
 function castShield(){if(!B||B.gShield)return;B.gShield=1;B.shield=Math.max(B.shield,1);B.hope=Math.min(B.hmax,B.hope+2);fx("shield");
  msg(esc(B.g.name)+' casts a shield around you. It will block the next hit, and your hope rises.','Asking for help is a skill. A therapist can walk with you through hard seasons.');ui()}
@@ -777,11 +777,11 @@ function putAway(){if(!DM||DM.sel==null)return;var it=S.safe.items.splice(DM.sel
 function decPointer(p){if(DM.pick){placeAt(p.x,p.y);return}var b=-1,bd=30;S.safe.items.forEach(function(it,i){var d=Math.hypot(p.x-it.x,p.y-(it.y-10));if(d<bd){bd=d;b=i}});DM.sel=b<0?null:b;if(b>=0)drag=1;decUI()}
 /* ---------- Hall of Guides (inside the play area) ---------- */
 function hall(rid){if(B)return;rid=rid||(cur&&cur.reg)||"anx";var r=R(rid);
- var d=panel('<h2>Hall of Guides</h2><p>Choose any guide for any region. Region:</p><p>'+REG.map(function(x){return '<button class="w-btn" data-r="'+x.id+'" aria-pressed="'+(x.id===rid)+'">'+esc(x.sub)+'</button>'}).join(" ")+'</p>'+
+ var d=panel('<h2>Hall of Counselors</h2><p>Choose any counselor for any region. Region:</p><p>'+REG.map(function(x){return '<button class="w-btn" data-r="'+x.id+'" aria-pressed="'+(x.id===rid)+'">'+esc(x.sub)+'</button>'}).join(" ")+'</p>'+
  '<div class="w-hall">'+CL.map(function(c){var leads=REG.filter(function(x){return x.guide===c.id}).map(function(x){return x.sub}),f=focus(c),isCur=guideOf(rid).id===c.id;
-  return '<article class="w-gcard'+(isCur?' cur':'')+'"><img src="'+portrait(c.id)+'" alt="Illustrated portrait of '+esc(c.name)+'" width="72" height="72" loading="lazy"><div><h3>'+esc(c.name)+'</h3><p>'+esc(c.cred)+'</p><p><b>Focus areas:</b> '+f.slice(0,6).map(esc).join(", ")+(f.length>6?' and more':'')+'</p>'+(leads.length?'<p>Suggested guide for: '+leads.map(esc).join(", ")+'</p>':'')+
-  '<p><button class="w-btn'+(isCur?'':' pri')+'" data-g="'+c.id+'">'+(isCur?'Current guide for '+esc(r.sub):'Choose for '+esc(r.sub))+'</button> <a href="../#team" target="_blank" rel="noopener">Meet the real clinician</a></p></div></article>'}).join("")+'</div>'+
- '<p>Portraits are filtered photos of the real Open Book Counseling team. Guides in the game are characters; the real clinicians are linked above.</p>',"Hall of Guides");
+  return '<article class="w-gcard'+(isCur?' cur':'')+'"><img src="'+portrait(c.id)+'" alt="Illustrated portrait of '+esc(c.name)+'" width="72" height="72" loading="lazy"><div><h3>'+esc(c.name)+'</h3><p>'+esc(c.cred)+'</p><p><b>Focus areas:</b> '+f.slice(0,6).map(esc).join(", ")+(f.length>6?' and more':'')+'</p>'+(leads.length?'<p>Suggested counselor for: '+leads.map(esc).join(", ")+'</p>':'')+
+  '<p><button class="w-btn'+(isCur?'':' pri')+'" data-g="'+c.id+'">'+(isCur?'Current counselor for '+esc(r.sub):'Choose for '+esc(r.sub))+'</button> <a href="../#team" target="_blank" rel="noopener">Meet the real clinician</a></p></div></article>'}).join("")+'</div>'+
+ '<p>Portraits are filtered photos of the real Open Book Counseling team. Counselors in the game are characters; the real clinicians are linked above.</p>',"Hall of Counselors");
  d.querySelectorAll("[data-r]").forEach(function(b){b.onclick=function(){hall(b.dataset.r);var n=stage.querySelector('[data-r="'+b.dataset.r+'"]');if(n)n.focus()}});
  d.querySelectorAll("[data-g]").forEach(function(b){b.onclick=function(){S.pick[rid]=b.dataset.g;save();hall(rid);var n=stage.querySelector('[data-g="'+b.dataset.g+'"]');if(n)n.focus()}})}
 function portrait(id){return "../img/q-pt-"+id+".webp"}
@@ -1133,7 +1133,7 @@ function office(){if(B||!officeOpen())return;
  panel('<h2>Welcome to the Open Book Office</h2><p>'+esc(S.hero.name||"Wanderer")+', you and '+esc(petName())+' calmed '+nBeat()+' of 8 bosses. Your satchel holds: '+S.loot.map(esc).join(", ")+'.</p>'+
  '<p class="w-code">Your prize code: <b id="w-code">'+esc(S.code)+'</b></p>'+
  '<div class="w-rules"><h3>Prize rules</h3><ul><li>Anyone who beats the game can get one free fidget stress ring at an Open Book Counseling office.</li><li>One ring per person per year, while supplies last.</li><li>Show this code at the front desk.</li><li>The code is saved on this device. Write it down or take a screenshot.</li></ul></div>'+
- '<div class="w-gj-end"><h3>Want to keep going with a real person?</h3><p>Open Book Counseling offers a free 15-minute consultation. The guides you met are real clinicians on our team.</p><p><a class="w-btn pri" href="https://www.openbooktherapist.com/professional/intake.html" target="_blank" rel="noopener">Start the intake form</a></p></div>'+
+ '<div class="w-gj-end"><h3>Want to keep going with a real person?</h3><p>Open Book Counseling offers a free 15-minute consultation. The counselors you met are real clinicians on our team.</p><p><a class="w-btn pri" href="https://www.openbooktherapist.com/professional/intake.html" target="_blank" rel="noopener">Start the intake form</a></p></div>'+
  '<p><a class="w-btn" href="../#team">Meet the real team</a></p>',"Open Book Office");ENDP=1}
 /* ---------- hero creator ---------- */
 function creator(){cancelAnimationFrame(raf);stage=null;var h=S.hero,dirs=0;
@@ -1392,7 +1392,7 @@ function mentor(rid){if(B)return;var g=GJ[rid],c=C(g.g),s=BD[rid].sk[gskill(rid)
  var d=panel('<h2>'+esc(R(rid).name)+' gate</h2>'+card(g.g,null,'<p><b>Lists among their methods:</b> '+esc(modLabel(g.m))+'</p>')+
   '<p class="w-gj-sk"><b>Skill to carry in: '+esc(s[1])+'</b></p><p>'+esc(g.teach)+'</p><p class="w-gj-rl"><b>In real life:</b> '+esc(s[3])+'</p>'+
   (first?'<p class="w-gj-note">A page about '+esc(c.name.split(" ")[0])+' was added to your skill journal.</p>':'')+
-  '<p><button class="w-btn pri" id="gj-prac">Practice with an echo</button> '+(g.tough?'<button class="w-btn" id="gj-duo">Choose two guides for the boss</button> ':'')+'<a href="../#team" target="_blank" rel="noopener">Meet the real '+esc(c.name.split(" ")[0])+'</a></p>'+
+  '<p><button class="w-btn pri" id="gj-prac">Practice with an echo</button> '+(g.tough?'<button class="w-btn" id="gj-duo">Choose two counselors for the boss</button> ':'')+'<a href="../#team" target="_blank" rel="noopener">Meet the real '+esc(c.name.split(" ")[0])+'</a></p>'+
   '<p class="w-gj-small">The photo is the real '+esc(c.name)+'. In the game, the skill is a short practice, not therapy.</p>',c.name+" at the gate");
  d.querySelector("#gj-prac").onclick=function(){practice(rid)};var du=d.querySelector("#gj-duo");if(du)du.onclick=function(){duo(rid)};
  live(c.name+" waits at the gate and shares a skill: "+s[1])}
@@ -1411,11 +1411,11 @@ function gjWin(e,id){var bd=stage.querySelector(".w-bend");if(!bd||!GJ[id])retur
  if(e.boss)h+='<div class="w-gj-refl"><label for="gj-rt"><b>When might you try '+esc(s[1])+' this week?</b></label><textarea id="gj-rt" rows="2" maxlength="300" placeholder="For example: before a hard conversation">'+esc(S.refl[id]||"")+'</textarea><p class="w-gj-small">Kept only on this device, in your journal. Nothing is sent anywhere.</p><button class="w-btn" id="gj-rs">Save to my journal</button> <span id="gj-rok" role="status"></span></div>';
  p.insertAdjacentHTML("beforebegin",h);var rs=document.getElementById("gj-rs");if(rs)rs.onclick=function(){var v=document.getElementById("gj-rt").value.trim().slice(0,300);if(v)S.refl[id]=v;else delete S.refl[id];save();document.getElementById("gj-rok").textContent=v?"Saved on this device.":"Cleared."}}
 function fitOf(c,rid){var g=GJ[rid],mt=(c.mods||[]).filter(function(m){return (MATCH[rid]||[]).indexOf(m)>=0}),f=(c.concerns||[]).indexOf(g.tag)>=0;
- return{score:(f?2:0)+mt.length,text:(f?'Lists '+(TAG[g.tag]||g.tag)+' as a focus area. ':'')+(mt.length?'Methods that fit this fight: '+mt.map(modLabel).join(", ")+'.':'No listed methods match this fight closely, but any guide can walk with you.')}}
+ return{score:(f?2:0)+mt.length,text:(f?'Lists '+(TAG[g.tag]||g.tag)+' as a focus area. ':'')+(mt.length?'Methods that fit this fight: '+mt.map(modLabel).join(", ")+'.':'No listed methods match this fight closely, but any counselor can walk with you.')}}
 function duo(rid){var pick=(S.duo[rid]||[]).slice(),r=R(rid);
- function draw(){var d=panel('<h2>Two guides for '+esc(BD[rid].name)+'</h2><p>This is a tougher boss. Pick two guides. The first leads; the second raises a shield for the first hit. The fit notes come from each person\'s listed focus areas and methods.</p>'+
+ function draw(){var d=panel('<h2>Two counselors for '+esc(BD[rid].name)+'</h2><p>This is a tougher boss. Pick two counselors. The first leads; the second raises a shield for the first hit. The fit notes come from each person\'s listed focus areas and methods.</p>'+
   '<div class="w-hall">'+CL.slice().sort(function(a,b){return fitOf(b,rid).score-fitOf(a,rid).score}).map(function(c){var on=pick.indexOf(c.id);return '<article class="w-gcard'+(on>=0?' cur':'')+'">'+'<img src="'+photo(c.id)+'" alt="Photo of '+esc(c.name)+'" width="72" height="72"><div><h3>'+esc(c.name)+'</h3><p>'+esc(c.cred)+'</p><p class="w-gj-fit">'+esc(fitOf(c,rid).text)+'</p><p><button class="w-btn'+(on>=0?' pri':'')+'" data-duo="'+c.id+'" aria-pressed="'+(on>=0)+'">'+(on===0?'Leads':on===1?'Shields':'Choose')+'</button></p></div></article>'}).join("")+'</div>'+
-  '<p id="gj-duos" role="status">'+(pick.length===2?'Ready: '+esc(C(pick[0]).name)+' leads, '+esc(C(pick[1]).name)+' shields.':'Chosen: '+pick.length+' of 2.')+'</p>',"Choose two guides");
+  '<p id="gj-duos" role="status">'+(pick.length===2?'Ready: '+esc(C(pick[0]).name)+' leads, '+esc(C(pick[1]).name)+' shields.':'Chosen: '+pick.length+' of 2.')+'</p>',"Choose two counselors");
   d.querySelectorAll("[data-duo]").forEach(function(b){b.onclick=function(){var id=b.dataset.duo,i=pick.indexOf(id);if(i>=0)pick.splice(i,1);else{pick.push(id);if(pick.length>2)pick.shift()}if(pick.length===2)S.duo[rid]=pick.slice();else delete S.duo[rid];save();draw();var n=stage.querySelector('[data-duo="'+id+'"]');if(n)n.focus()}})}
  draw()}
 function clue(rid){if(S.clues.indexOf(rid)<0){S.clues.push(rid);save()}var d=BD[rid];
@@ -1434,16 +1434,16 @@ function calmSpot(rid){if(B)return;var edr=rid==="ed",D=30000/GJF.fast;
  d.querySelector("#gj-cb").onclick=function(){run("b")};var g=d.querySelector("#gj-cg");if(g)g.onclick=function(){run("g")}}
 function nextReg(){for(var i=0;i<REG.length;i++)if(S.beaten.indexOf(REG[i].id)<0)return REG[i];return null}
 function waystation(){if(B)return;var m=staff();
- var d=panel('<h2>Waystation</h2><p class="w-gate">'+esc(gateMsg())+'</p>'+card("makayla",m.role,'<p>In real life, '+esc(m.name.split(" ")[0])+' helps people get scheduled and answers their questions. She is not a therapist, so the skills come from the guides.</p>')+
+ var d=panel('<h2>Waystation</h2><p class="w-gate">'+esc(gateMsg())+'</p>'+card("makayla",m.role,'<p>In real life, '+esc(m.name.split(" ")[0])+' helps people get scheduled and answers their questions. She is not a therapist, so the skills come from the counselors.</p>')+
   '<p><button class="w-btn pri" id="gj-kit">Pack a prep kit</button> <button class="w-btn" id="gj-sv">Save my progress</button> <button class="w-btn" id="gj-pv">What\'s ahead?</button></p><div id="gj-wo" aria-live="polite"></div>'+
   '<p class="w-gj-small">Questions about real appointments: <a href="mailto:'+esc(m.email)+'">'+esc(m.email)+'</a></p>',"Waystation with "+m.name);
  var o=d.querySelector("#gj-wo");
  d.querySelector("#gj-kit").onclick=function(){S.kit=1;CFG.breath=true;save();o.innerHTML='<div class="w-gj-kit"><h3>Your coping card</h3><ul><li>Breathe out a little longer than you breathe in.</li><li>Name a few things you can see around you.</li><li>Text one safe person.</li><li>Crisis: call or text 988 \u00b7 SafeUT \u00b7 911.</li></ul><p><b>Breathe reminder:</b> breath timing is on for your next fight. Press when the ring glows.</p><p class="w-gj-small">The coping card is in your journal.</p></div>'};
- d.querySelector("#gj-sv").onclick=function(){save();o.innerHTML='<p>Progress saved on this device. Bosses calmed: '+S.beaten.length+' of 8. Guides met: '+S.met.length+' of 8.</p>'};
+ d.querySelector("#gj-sv").onclick=function(){save();o.innerHTML='<p>Progress saved on this device. Bosses calmed: '+S.beaten.length+' of 8. Counselors met: '+S.met.length+' of 8.</p>'};
  d.querySelector("#gj-pv").onclick=function(){var r=nextReg();if(!r){o.innerHTML='<p>Every boss is calm. The Open Book Office is waiting for you, south of the Crossroads.</p>';return}var g=GJ[r.id],c=C(g.g);
-  o.innerHTML='<p><b>Ahead: '+esc(r.name)+'</b> ('+esc(r.sub)+'). '+esc(c.name)+' waits at the gate'+(S.met.indexOf(r.id)>=0?' (met)':'')+'. '+(S.clues.indexOf(r.id)>=0?'You have the clue page.':'A clue page is hidden nearby.')+' '+(S.calmUsed.indexOf(r.id)>=0?'You visited its calm spot.':'There is a calm spot there too.')+(g.tough?' This boss is tougher, so you can pick two guides.':'')+'</p>'}}
+  o.innerHTML='<p><b>Ahead: '+esc(r.name)+'</b> ('+esc(r.sub)+'). '+esc(c.name)+' waits at the gate'+(S.met.indexOf(r.id)>=0?' (met)':'')+'. '+(S.clues.indexOf(r.id)>=0?'You have the clue page.':'A clue page is hidden nearby.')+' '+(S.calmUsed.indexOf(r.id)>=0?'You visited its calm spot.':'There is a calm spot there too.')+(g.tough?' This boss is tougher, so you can pick two counselors.':'')+'</p>'}}
 function gjJournal(){var h='';
- if(S.met.length)h+='<h3>Guides you\'ve met: '+S.met.length+' of 8</h3><div class="w-gj-pages">'+S.met.map(function(rid){var g=GJ[rid],c=C(g.g),s=BD[rid].sk[gskill(rid)];return '<article class="w-gj-pg">'+card(g.g,null,'<p><b>'+esc(R(rid).sub)+':</b> '+esc(s[1])+' ('+esc(modLabel(g.m))+')</p>')+'<p>'+esc(g.teach)+'</p><p><b>In real life:</b> '+esc(s[3])+'</p>'+(S.refl[rid]?'<p><b>My plan this week:</b> '+esc(S.refl[rid])+'</p>':'')+'</article>'}).join("")+'</div>';
+ if(S.met.length)h+='<h3>Counselors you\'ve met: '+S.met.length+' of 8</h3><div class="w-gj-pages">'+S.met.map(function(rid){var g=GJ[rid],c=C(g.g),s=BD[rid].sk[gskill(rid)];return '<article class="w-gj-pg">'+card(g.g,null,'<p><b>'+esc(R(rid).sub)+':</b> '+esc(s[1])+' ('+esc(modLabel(g.m))+')</p>')+'<p>'+esc(g.teach)+'</p><p><b>In real life:</b> '+esc(s[3])+'</p>'+(S.refl[rid]?'<p><b>My plan this week:</b> '+esc(S.refl[rid])+'</p>':'')+'</article>'}).join("")+'</div>';
  if(S.clues.length)h+='<h3>Clue pages: '+S.clues.length+' of 8</h3><ul>'+S.clues.map(function(rid){return '<li><b>'+esc(BD[rid].name)+':</b> '+BD[rid].sk.map(function(s){return esc(s[2])}).join(", ")+'</li>'}).join("")+'</ul>';
  if(S.kit)h+='<h3>Coping card</h3><p>Breathe out longer than in. Name a few things you can see. Text one safe person. Crisis: 988 \u00b7 SafeUT \u00b7 911.</p>';
  var rf=Object.keys(S.refl).filter(function(k){return S.met.indexOf(k)<0});if(rf.length)h+='<h3>My plans this week</h3><ul>'+rf.map(function(k){return '<li>'+esc(R(k).sub)+': '+esc(S.refl[k])+'</li>'}).join("")+'</ul>';
@@ -1455,11 +1455,11 @@ window.obcWorld3={gj:{GJ:GJ,FEEL:FEEL,feel:feelOf,F:GJF,mentor:mentor,practice:p
 function title(){cancelAnimationFrame(raf);stage=null;
  var bt=(S.beaten||[]).length,mt=(S.met||[]).length,where=(SC[S.at]&&SC[S.at].n)||"the village";
  app.innerHTML='<div class="w-top"><h1>Wanderer\'s Quest</h1><span class="w-where">Welcome back</span></div><div class="w-title w-par"><h2>Welcome back, '+esc(S.hero.name||"Wanderer")+'</h2>'+
-  '<p>Your story is saved on this device: '+esc(where)+', '+bt+' of 8 bosses calmed'+(mt?', '+mt+' guide'+(mt>1?'s':'')+' met':'')+'.</p>'+
+  '<p>Your story is saved on this device: '+esc(where)+', '+bt+' of 8 bosses calmed'+(mt?', '+mt+' counselor'+(mt>1?'s':'')+' met':'')+'.</p>'+
   '<p class="w-title-btns"><button class="w-btn pri" id="t-cont">Continue the story</button> <button class="w-btn" id="t-new">Start over</button></p><div id="t-conf" hidden></div></div>';
  var cf=document.getElementById("t-conf");
  document.getElementById("t-cont").onclick=function(){play()};
- document.getElementById("t-new").onclick=function(){cf.hidden=false;cf.innerHTML='<p role="alert"><b>Start a brand new story?</b> This erases your hero, progress, guides met, clue pages, reflections, calm spots and prize code on this device. It cannot be undone.</p><p><button class="w-btn pri" id="t-yes">Yes, erase and start over</button> <button class="w-btn" id="t-no">Keep my story</button></p>';
+ document.getElementById("t-new").onclick=function(){cf.hidden=false;cf.innerHTML='<p role="alert"><b>Start a brand new story?</b> This erases your hero, progress, counselors met, clue pages, reflections, calm spots and prize code on this device. It cannot be undone.</p><p><button class="w-btn pri" id="t-yes">Yes, erase and start over</button> <button class="w-btn" id="t-no">Keep my story</button></p>';
   document.getElementById("t-no").onclick=function(){cf.hidden=true;cf.innerHTML="";document.getElementById("t-new").focus()};
   document.getElementById("t-yes").onclick=function(){try{localStorage.removeItem(KEY);localStorage.removeItem("obc_world_v2")}catch(e){}location.reload()};
   document.getElementById("t-no").focus()};
