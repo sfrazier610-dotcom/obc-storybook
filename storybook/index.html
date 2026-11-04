@@ -67,11 +67,13 @@ p{margin:0 0 .9em}
 @media (max-width:899px){
  .top{gap:8px;padding:8px 12px}
  .brand{font-size:18px}.brand .b2{display:none}.brand img{width:34px}
- .top-calm{display:none}.toc-calm{display:block}
+ /* fix6: Calm mode stays in the header on phones and tablets */
+ .top-calm{min-height:44px;min-width:44px;padding:6px 12px;font-size:15px;line-height:1.15;white-space:nowrap}
  .toc{position:fixed;left:12px;right:12px;top:auto;min-width:0}
  .toc-btn{padding:9px 13px;font-size:15px}
  .book-btn .long{display:none}.book-btn .short{display:inline}
 }
+@media (max-width:560px){.top-calm{white-space:normal;max-width:6.4em;padding:4px 10px;font-size:14px;text-align:center}.top{gap:6px}}
 
 /* stage and book */
 main{position:relative}
