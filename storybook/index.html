@@ -728,6 +728,14 @@ img.sc-base{position:absolute;inset:0;width:100%!important;height:100%!important
 @keyframes accIn{from{opacity:0;transform:translateY(-6px)}}
 .calm .acc [role=region]{animation:none}
 .faq-foot{text-align:center;margin-top:14px}.faq-foot a{white-space:nowrap}
+
+/* Reading Room link (restored to the top nav) */
+.rr-link{display:inline-flex;align-items:center;gap:8px;font:400 16px/1 var(--sc);letter-spacing:.04em;color:#f3e6c6;text-decoration:none;padding:9px 14px;border-radius:999px;border:1px solid transparent;transition:background var(--d-quick),border-color var(--d-quick)}
+.rr-link .ico{width:18px;height:18px;color:var(--gilt)}
+.rr-link:hover,.rr-link:focus-visible{background:rgba(200,155,60,.14);border-color:rgba(200,155,60,.45)}
+.toc-rr{border-top:1px solid rgba(200,155,60,.35);margin-top:6px;padding-top:6px}
+@media (min-width:900px){.toc-rr{display:none}}
+@media (max-width:899px){.rr-link{display:none}}
 </style>
 </head>
 <body>
@@ -750,9 +758,10 @@ img.sc-base{position:absolute;inset:0;width:100%!important;height:100%!important
 <div class="crisis" role="region" aria-label="Crisis resources"><span class="c-long">In crisis? Call or text <a href="tel:988">988</a> (Suicide &amp; Crisis Lifeline, 24/7) · Utah: <a href="https://safeut.org" target="_blank" rel="noopener">SafeUT</a> · Emergency: <a href="tel:911">911</a> · This site is not monitored for emergencies.</span><span class="c-short">In crisis? Call or text <a href="tel:988">988</a> · Utah: <a href="https://safeut.org" target="_blank" rel="noopener">SafeUT</a> · Emergency <a href="tel:911">911</a> · Not monitored for emergencies.</span></div>
 <header class="top">
  <a class="brand" href="#home" data-turn="1"><img src="img/logo-mark-gilt.webp" alt="" width="40" height="25"><span>Open Book <span class="b2">Counseling</span></span></a>
+ <a class="rr-link" href="resources/"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-book"/></svg>The Reading Room</a>
  <nav class="toc-wrap" aria-label="Chapters">
   <button class="toc-btn" type="button" aria-expanded="false" aria-controls="toc">Contents</button>
-  <ol class="toc" id="toc" hidden><li><a href="#home" data-turn="1"><span class="toc-l">Prologue</span> Empowering your New Story!</a></li><li><a href="#team" data-turn="1"><span class="toc-l">Chapter II</span> The Hall of Guides</a></li><li><a href="#services" data-turn="1"><span class="toc-l">Chapter III</span> The Spellbook of Approaches</a></li><li><a href="#quest" data-turn="1"><span class="toc-l">A Side Quest</span> The Fogstorm: Play the game</a></li><li><a href="#locations" data-turn="1"><span class="toc-l">Chapter VI</span> The Two Libraries</a></li><li><a href="#careers" data-turn="1"><span class="toc-l">Chapter VIII</span> The Guild Hall: Careers</a></li><li class="toc-calm"><button class="calm-btn" type="button" aria-pressed="false">Calm mode: off</button></li></ol>
+  <ol class="toc" id="toc" hidden><li><a href="#home" data-turn="1"><span class="toc-l">Prologue</span> Empowering your New Story!</a></li><li><a href="#team" data-turn="1"><span class="toc-l">Chapter II</span> The Hall of Guides</a></li><li><a href="#services" data-turn="1"><span class="toc-l">Chapter III</span> The Spellbook of Approaches</a></li><li><a href="#quest" data-turn="1"><span class="toc-l">A Side Quest</span> The Fogstorm: Play the game</a></li><li><a href="#locations" data-turn="1"><span class="toc-l">Chapter VI</span> The Two Libraries</a></li><li><a href="#careers" data-turn="1"><span class="toc-l">Chapter VIII</span> The Guild Hall: Careers</a></li><li class="toc-rr"><a href="resources/"><span class="toc-l">Articles</span> The Reading Room</a></li><li class="toc-calm"><button class="calm-btn" type="button" aria-pressed="false">Calm mode: off</button></li></ol>
  </nav>
  <button class="calm-btn top-calm" type="button" aria-pressed="false">Calm mode: off</button>
  <a class="btn book-btn" href="/professional/intake.html"><span class="long">Book an appointment</span><span class="short">Book</span></a>
