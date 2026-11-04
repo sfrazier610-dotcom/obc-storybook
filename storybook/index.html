@@ -293,6 +293,31 @@ main{position:relative}
  .js.opened .story{max-width:700px;margin:22px auto 10px;border-radius:6px 14px 14px 6px;overflow:hidden;box-shadow:-10px 0 0 -4px #e9dcc0,-16px 0 0 -8px #d9c9a6,0 18px 40px rgba(0,0,0,.45);border-left:10px solid #5b3a1e}
 }
 @media (min-width:900px){.mnav{display:none!important}}
+/* fix4: page turns with the View Transitions API (motion only; calm/reduced motion never start one) */
+.crisis{view-transition-name:crisis}.top{view-transition-name:topbar}.mnav{view-transition-name:mnav}
+@media (min-width:900px){#pl{view-transition-name:pgl}#pr{view-transition-name:pgr}}
+@media (max-width:899px){.js.opened .story{view-transition-name:page}}
+::view-transition-old(root),::view-transition-new(root),::view-transition-group(crisis),::view-transition-old(crisis),::view-transition-new(crisis),::view-transition-group(topbar),::view-transition-old(topbar),::view-transition-new(topbar),::view-transition-group(mnav),::view-transition-old(mnav),::view-transition-new(mnav){animation:none}
+::view-transition-group(crisis){z-index:300}::view-transition-group(topbar),::view-transition-group(mnav){z-index:250}
+::view-transition-group(pgl),::view-transition-group(pgr),::view-transition-group(page){animation-duration:0s}
+::view-transition-image-pair(pgl),::view-transition-image-pair(pgr),::view-transition-image-pair(page){isolation:isolate;perspective:1800px}
+::view-transition-old(pgl),::view-transition-new(pgl),::view-transition-old(pgr),::view-transition-new(pgr),::view-transition-old(page),::view-transition-new(page){animation:none;mix-blend-mode:normal;backface-visibility:hidden}
+html[data-vt=f]::view-transition-old(pgr){transform-origin:left center;animation:vtOutL 230ms cubic-bezier(.45,0,.75,.4) both;z-index:2}
+html[data-vt=f]::view-transition-new(pgl){transform-origin:right center;animation:vtInR 230ms cubic-bezier(.25,.6,.55,1) 230ms both;z-index:2}
+html[data-vt=f]::view-transition-old(pgl){animation:vtHold 460ms both}
+html[data-vt=b]::view-transition-old(pgl){transform-origin:right center;animation:vtOutR 230ms cubic-bezier(.45,0,.75,.4) both;z-index:2}
+html[data-vt=b]::view-transition-new(pgr){transform-origin:left center;animation:vtInL 230ms cubic-bezier(.25,.6,.55,1) 230ms both;z-index:2}
+html[data-vt=b]::view-transition-old(pgr){animation:vtHold 460ms both}
+html[data-vt=f]::view-transition-old(page){transform-origin:left center;animation:vtTurn 400ms cubic-bezier(.4,0,.2,1) both;z-index:2}
+html[data-vt=b]::view-transition-new(page){transform-origin:left center;animation:vtTurn 400ms cubic-bezier(.4,0,.2,1) reverse both;z-index:2}
+@keyframes vtOutL{to{transform:rotateY(-90deg);filter:brightness(.8)}}
+@keyframes vtOutR{to{transform:rotateY(90deg);filter:brightness(.8)}}
+@keyframes vtInR{from{transform:rotateY(90deg);filter:brightness(.8)}}
+@keyframes vtInL{from{transform:rotateY(-90deg);filter:brightness(.8)}}
+@keyframes vtHold{from,to{opacity:1}}
+@keyframes vtTurn{0%{transform:rotateY(0);box-shadow:0 0 0 rgba(0,0,0,0)}60%{opacity:1}100%{transform:rotateY(-100deg);opacity:0;box-shadow:-30px 0 40px rgba(0,0,0,.5)}}
+@media (prefers-reduced-motion:reduce){::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}}
+
 @keyframes mtF{from{opacity:0;transform:translateX(36px)}}
 @keyframes mtB{from{opacity:0;transform:translateX(-36px)}}
 @media (prefers-reduced-motion:reduce){.chap.mt-f,.chap.mt-b{animation:none!important}}
@@ -1112,6 +1137,13 @@ var book=$('#book'),pl=$('#pl'),pr=$('#pr'),leaf=$('#leaf'),lf=$('.front',leaf),
 var cur=0,busy=false,opened=H.classList.contains('opened');
 var calmBtns=$$('.calm-btn');
 function isCalm(){return H.classList.contains('calm')}
+window.__vtRuns=0;function canVT(){return !!document.startViewTransition&&!isCalm()&&!rm.matches}
+var vtCur=null;
+function vt(dir,fn,done){H.setAttribute('data-vt',dir);window.__vtRuns++;var t;try{t=document.startViewTransition(fn)}catch(e){H.removeAttribute('data-vt');fn();if(done)done();return}
+ vtCur=t;var end=function(){if(vtCur===t){vtCur=null;H.removeAttribute('data-vt')}if(done)done()};t.finished.then(end,end)}
+/* a tap that lands while a page is still turning: finish the turn at once, then hand the tap to what is under it */
+document.addEventListener('click',function(e){if(!vtCur||e.target!==H)return;var t=vtCur,x=e.clientX,y=e.clientY;e.stopPropagation();t.skipTransition();
+ t.finished.then(null,function(){}).then(function(){var el=document.elementFromPoint(x,y),c=el&&el.closest('button,a');if(c)c.click()})},true);
 function setCalm(v,save){H.classList.toggle('calm',v);calmBtns.forEach(function(b){b.setAttribute('aria-pressed',String(v));b.textContent='Calm mode: '+(v?'on':'off')});if(save){try{localStorage.setItem('obcSbCalm',v?'1':'0')}catch(e){}}if(v)$$('[data-r]').forEach(function(el){el.classList.add('in')})}
 setCalm(isCalm(),false);
 calmBtns.forEach(function(b){b.addEventListener('click',function(){setCalm(!isCalm(),true)})});
@@ -1151,9 +1183,10 @@ function turnTo(to,opts){
  opts=opts||{};
  if(typeof to==='string')to=ids.indexOf(to);
  if(to<0||to>N||(to===N&&!opts.secret))return;
- if(!desk.matches){if(to===N){if(!opened)openBook(true);return}if(!opened){cur=to;openBook(true);return}if(to===cur)return;var mf=to>cur;cur=to;
-  chaps.forEach(function(c,k){c.classList.toggle('active',k===to);c.classList.remove('mt-f','mt-b')});arm(chaps[to]);if(!isCalm()&&!rm.matches){void chaps[to].offsetWidth;chaps[to].classList.add(mf?'mt-f':'mt-b')}
-  updateUI();try{history.replaceState(null,'','#'+ids[to])}catch(e){}window.scrollTo(0,0);var hd=$('.ctitle',chaps[to])||chaps[to];if(!hd.hasAttribute('tabindex'))hd.setAttribute('tabindex','-1');hd.focus({preventScroll:true});return}
+ if(!desk.matches){if(to===N){if(!opened)openBook(true);return}if(!opened){cur=to;openBook(true);return}if(to===cur)return;var mf=to>cur,useVT=canVT();cur=to;
+  var mswap=function(){chaps.forEach(function(c,k){c.classList.toggle('active',k===to);c.classList.remove('mt-f','mt-b')});arm(chaps[to]);if(!isCalm()&&!rm.matches&&!useVT){void chaps[to].offsetWidth;chaps[to].classList.add(mf?'mt-f':'mt-b')}
+  updateUI();try{history.replaceState(null,'','#'+ids[to])}catch(e){}window.scrollTo(0,0);var hd=$('.ctitle',chaps[to])||chaps[to];if(!hd.hasAttribute('tabindex'))hd.setAttribute('tabindex','-1');hd.focus({preventScroll:true})};
+  if(useVT){vt(mf?'f':'b',mswap)}else mswap();return}
  if(!opened){cur=to;openBook(false);return}
  if(busy||to===cur)return;
  var from=cur;cur=to;updateUI();
@@ -1163,6 +1196,7 @@ function turnTo(to,opts){
   showBody(to,false);return;
  }
  busy=true;var fwd=to>from;
+ if(canVT()){busy=false;vt(fwd?'f':'b',function(){paint(to);fresh(pr);warm(pl);showBody(to,false)},function(){fitHots(pl);fitHots(pr)});return}
  pr.classList.remove('fresh');
  if(fwd){pl.classList.remove('warm');pl.innerHTML=L(from);pr.innerHTML=R(to);lf.innerHTML=R(from);lb.innerHTML=L(to);fresh(pr)}
  else{pl.innerHTML=L(to);pr.innerHTML=R(from);lf.innerHTML=R(to);lb.innerHTML=L(from);warm(pl)}
