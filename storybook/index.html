@@ -868,6 +868,25 @@ img.sc-base{position:absolute;inset:0;width:100%!important;height:100%!important
 .js:not(.calm) .rw:not(.done) .rw-new .w,.js:not(.calm) .rw-line:not(.done) .rw-new .w{opacity:0;transform:translateY(.32em) skewX(-9deg)}
 .js:not(.calm) .rw.done .rw-new .w,.js:not(.calm) .rw-line.done .rw-new .w{transition:opacity 420ms var(--ease-out),transform 560ms var(--ease-out);transition-delay:calc(520ms + var(--w,0) * 95ms)}
 .js:not(.calm) .rw.done .rw-new::after,.js:not(.calm) .rw-line.done .rw-new::after{content:"";position:absolute;width:6px;height:6px;margin:.62em 0 0 3px;border-radius:50%;background:var(--gold);animation:nibDot 900ms var(--ease-out) calc(520ms + var(--n,1) * 95ms) both}
+/* fix5: the visitor's own line, kept only in this page (no storage, no network) */
+.rw-own{margin:26px auto 0;max-width:620px;text-align:left;padding:18px 20px 16px;background:rgba(255,250,238,.72);border:1px solid rgba(127,85,23,.28);border-radius:14px}
+.rw-own-h{margin:0 0 10px;font:600 21px/1.25 var(--display);color:var(--ink);text-align:center}
+.rw-own-f{display:grid;gap:6px}
+.rw-own-f label{font-weight:600;color:var(--ink);margin-top:6px}
+.rw-in{box-sizing:border-box;width:100%;min-height:44px;padding:10px 12px;font:16px/1.3 var(--serif,serif);color:var(--ink);background:#fffdf6;border:1px solid rgba(127,85,23,.45);border-radius:10px}
+.rw-in:focus-visible{outline:2px solid var(--wine);outline-offset:2px}
+.rw-own-btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.rw-own-btns .btn{min-height:44px;min-width:44px}
+.rw-own-msg{margin:8px 0 0;color:var(--wine);min-height:1px}
+.rw-own-msg:empty{display:none}
+.rw-own-card{display:grid;gap:6px;margin-top:14px;padding:16px 18px;border:1px solid rgba(127,85,23,.28);border-radius:12px;background:#fffaf0;overflow-wrap:anywhere}
+.rw-own-card[hidden]{display:none}
+.rw-own-note{margin:12px 0 0;font-size:15px;color:var(--muted)}
+.js:not(.calm) .rw-own-card:not(.done) .rw-old::after{transform:scaleX(0)}
+.js:not(.calm) .rw-own-card:not(.done) .rw-new .w{opacity:0;transform:translateY(.32em) skewX(-9deg)}
+.js:not(.calm) .rw-own-card.done .rw-new .w{transition:opacity 420ms var(--ease-out),transform 560ms var(--ease-out);transition-delay:calc(520ms + var(--w,0) * 95ms)}
+.rw-own-card .rw-new{position:relative}
+@media (prefers-reduced-motion:reduce){.rw-own-card .rw-old::after,.rw-own-card .rw-new .w{transition:none!important;animation:none!important;transform:none!important;opacity:1!important}}
 @keyframes nibDot{0%{opacity:0;transform:scale(.4)}30%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.6)}}
 /* the same motif, small, on the Prologue page (desktop, decorative) */
 .rw-line{display:none}
@@ -993,7 +1012,7 @@ img.sc-base{position:absolute;inset:0;width:100%!important;height:100%!important
 <section class="rewrite" data-r aria-labelledby="rw-h">
  <h3 id="rw-h" class="sub-h">Rewrite a line</h3>
  <p class="rw-hint">Some sentences feel like the last word. They don’t have to be. Tap one to rewrite it.</p>
- <ul class="rw-list"><li><button class="rw" type="button"><s class="rw-old"><span class="sr">Old line: </span>I’m stuck.</s> <span class="rw-new"><span class="sr">Rewritten: </span>I’m finding my way.</span></button></li><li><button class="rw" type="button"><s class="rw-old"><span class="sr">Old line: </span>I have to do this alone.</s> <span class="rw-new"><span class="sr">Rewritten: </span>I can ask for help.</span></button></li><li><button class="rw" type="button"><s class="rw-old"><span class="sr">Old line: </span>This is the whole story.</s> <span class="rw-new"><span class="sr">Rewritten: </span>This is one chapter.</span></button></li><li><button class="rw" type="button"><s class="rw-old"><span class="sr">Old line: </span>It’s too late to start.</s> <span class="rw-new"><span class="sr">Rewritten: </span>I can start where I am.</span></button></li></ul>
+ <ul class="rw-list"><li><button class="rw" type="button"><s class="rw-old"><span class="sr">Old line: </span>I’m stuck.</s> <span class="rw-new"><span class="sr">Rewritten: </span>I’m finding my way.</span></button></li><li><button class="rw" type="button"><s class="rw-old"><span class="sr">Old line: </span>I have to do this alone.</s> <span class="rw-new"><span class="sr">Rewritten: </span>I can ask for help.</span></button></li><li><button class="rw" type="button"><s class="rw-old"><span class="sr">Old line: </span>This is the whole story.</s> <span class="rw-new"><span class="sr">Rewritten: </span>This is one chapter.</span></button></li><li><button class="rw" type="button"><s class="rw-old"><span class="sr">Old line: </span>It’s too late to start.</s> <span class="rw-new"><span class="sr">Rewritten: </span>I can start where I am.</span></button></li></ul><div class="rw-own" role="group" aria-labelledby="rw-own-h"><h4 class="rw-own-h" id="rw-own-h">Rewrite a line of your own</h4><div class="rw-own-f"><label for="rw-in-old">An old line you tell yourself</label><input id="rw-in-old" class="rw-in" type="text" maxlength="120" autocomplete="off" autocapitalize="sentences" placeholder="For example: I always get it wrong."><label for="rw-in-new">A new line you’d like to write</label><input id="rw-in-new" class="rw-in" type="text" maxlength="120" autocomplete="off" autocapitalize="sentences" placeholder="For example: I’m still learning."><div class="rw-own-btns"><button class="btn rw-go" type="button">Rewrite it</button><button class="btn ghost rw-erase" type="button">Erase</button></div></div><p class="rw-own-msg" aria-live="polite"></p><div class="rw-own-card" hidden></div><p class="rw-own-note">What you type stays in this browser on your device. It isn’t saved or sent to anyone, and it’s gone when you leave this page or tap Erase.</p></div>
 </section>
 <section class="awards" data-r aria-labelledby="aw-h">
  <h3 id="aw-h" class="sub-h">City Weekly Best of Utah 2026</h3>
@@ -1270,6 +1289,16 @@ document.addEventListener('pointerdown',function(e){if(isCalm())return;var sc=e.
  var b=sc.getBoundingClientRect(),x=e.clientX-b.left,y=e.clientY-b.top;for(var k=0;k<7;k++){var m=document.createElement('i'),a=Math.random()*6.283,d=24+Math.random()*46;m.className='tapmote';m.setAttribute('aria-hidden','true');
   m.style.left=x+'px';m.style.top=y+'px';m.style.setProperty('--dx',(Math.cos(a)*d).toFixed(1)+'px');m.style.setProperty('--dy',(Math.sin(a)*d-18).toFixed(1)+'px');m.style.animationDelay=(k*25)+'ms';
   m.addEventListener('animationend',function(){this.remove()});sc.appendChild(m)}},{passive:true});
+/* fix5: rewrite your own line. Text lives only in these inputs and this card: no storage, no network */
+(function(){var o=$('#rw-in-old'),n=$('#rw-in-new'),card=$('.rw-own-card'),msg=$('.rw-own-msg');if(!o||!n||!card)return;
+ function build(a,b){while(card.firstChild)card.removeChild(card.firstChild);var s=document.createElement('s');s.className='rw-old';var s1=document.createElement('span');s1.className='sr';s1.textContent='Old line: ';s.appendChild(s1);s.appendChild(document.createTextNode(a));
+  var w=document.createElement('span');w.className='rw-new';var s2=document.createElement('span');s2.className='sr';s2.textContent='Rewritten: ';w.appendChild(s2);w.appendChild(document.createTextNode(b));card.appendChild(s);card.appendChild(w);inkWords(w)}
+ function go(){var a=o.value.trim(),b=n.value.trim();msg.textContent='';if(!a){msg.textContent='Write an old line first.';o.focus();return}if(!b){msg.textContent='Now write a new line.';n.focus();return}
+  build(a,b);card.hidden=false;card.classList.remove('done');if(isCalm()||rm.matches){card.classList.add('done')}else{void card.offsetWidth;requestAnimationFrame(function(){card.classList.add('done')})}}
+ $('.rw-go').addEventListener('click',go);
+ [o,n].forEach(function(el){el.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();if(el===o&&!n.value.trim())n.focus();else go()}})});
+ $('.rw-erase').addEventListener('click',function(){o.value='';n.value='';msg.textContent='';while(card.firstChild)card.removeChild(card.firstChild);card.hidden=true;card.classList.remove('done');o.focus()});
+ window.addEventListener('pagehide',function(){o.value='';n.value='';while(card.firstChild)card.removeChild(card.firstChild)})})();
 /* phones and tablets: a page-turn bar and swipe */
 var mnav=document.createElement('div'),mnP,mnN,mnNo;mnav.className='mnav';mnav.setAttribute('role','group');mnav.setAttribute('aria-label',$('#pgno').getAttribute('aria-label')||'Pages');
 mnP=document.createElement('button');mnP.type='button';mnP.className='tbtn';mnP.innerHTML=$('#prev').innerHTML;
