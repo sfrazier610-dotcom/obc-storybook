@@ -3,15 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="robots" content="noindex, nofollow">
-<link rel="icon" href="data:,">
-<title>Open Book Counseling · Storybook trial: The Quiet Library</title>
-<meta name="description" content="Trial design preview of the Open Book Counseling storybook. Therapy for children 8+, teens, adults, and couples in Draper, Bountiful, and online.">
+<link rel="icon" type="image/png" sizes="32x32" href="../shared/img/favicon-32.png"><link rel="icon" type="image/png" sizes="192x192" href="../shared/img/favicon-192.png"><link rel="apple-touch-icon" href="../shared/img/apple-touch-icon.png">
+<title>Open Book Counseling, PLLC | An Interactive Storybook · Draper & Bountiful, UT</title>
+<meta name="description" content="Open Book Counseling: trauma-focused, non-shame-based therapy for individuals, couples, families, children and teens. Draper and Bountiful, Utah, and online.">
 <meta name="theme-color" content="#0f1f24">
 <link rel="preload" href="img/cover.webp" as="image">
 <link rel="stylesheet" href="fonts/fonts.css">
-<script>(function(){var h=document.documentElement;h.classList.add('js');var o=false;try{o=sessionStorage.getItem('obcTrialOpen')==='1'}catch(e){}if(o||/[?&]open\b/.test(location.search)||(location.hash&&location.hash.length>1))h.classList.add('opened');else h.classList.add('closed');try{if(localStorage.getItem('obcTrialCalm')==='1')h.classList.add('calm')}catch(e){}if(matchMedia('(prefers-reduced-motion: reduce)').matches)h.classList.add('calm');})();</script>
-<style>/* ===== Storybook trial: shared base ===== */
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"MedicalBusiness","name":"Open Book Counseling, PLLC","telephone":"+1-385-524-6665","email":"makayla@openbooktherapist.com","location":[{"@type":"Place","address":{"@type":"PostalAddress","streetAddress":"12401 S. 450 E, Suite F2","addressLocality":"Draper","addressRegion":"UT","postalCode":"84020"}},{"@type":"Place","address":{"@type":"PostalAddress","streetAddress":"420 W 1500 S, Suite 100","addressLocality":"Bountiful","addressRegion":"UT","postalCode":"84010"}}],"openingHours":["Mo-Fr 08:00-20:00","Sa 08:00-18:00"],"sameAs":["https://www.facebook.com/profile.php?id=61556481668334"]}</script>
+<script>(function(){var h=document.documentElement;h.classList.add('js');var o=false;try{o=sessionStorage.getItem('obcSbOpen')==='1'}catch(e){}if(o||/[?&]open\b/.test(location.search)||(location.hash&&location.hash.length>1))h.classList.add('opened');else h.classList.add('closed');try{if(localStorage.getItem('obcSbCalm')==='1')h.classList.add('calm')}catch(e){}if(matchMedia('(prefers-reduced-motion: reduce)').matches)h.classList.add('calm');})();</script>
+<style>/* ===== Storybook: shared base ===== */
 :root{
  --teal:#123a40;--brand:#1f5a5e;--gold:#c89b3c;--gilt:#f0d79a;--gold-ink:#7f5517;--wine:#6e1f24;--accent:#8a2d2b;
  --card:#fbf3e1;--parch2:#f3e6c6;--ink:#2b1d10;--muted:#5c4630;--bg:#0f1f24;
@@ -227,7 +227,6 @@ main{position:relative}
 .epilogue .ctas{justify-content:center}
 .foot{text-align:center;padding:30px 18px 44px;font-size:16px}
 .foot a{text-underline-offset:3px}
-.trial-note{font-style:italic}
 
 /* chapter reveal (only when JS is on and calm is off) */
 .js:not(.calm) [data-r]{opacity:0;transform:translateY(18px);transition:opacity 700ms var(--ease-out),transform 700ms var(--ease-out);transition-delay:calc(var(--i,0) * 90ms)}
@@ -583,18 +582,18 @@ img.sc-base{position:absolute;inset:0;width:100%!important;height:100%!important
 <symbol id="orn-head" viewBox="0 0 240 28"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.3"><path d="M10 14h66M164 14h66"/><path d="M76 14c8 0 10-8 18-8 6 0 8 5 4 8-3 2-7 0-6-3M164 14c-8 0-10-8-18-8-6 0-8 5-4 8 3 2 7 0 6-3M76 14c8 0 10 8 18 8 6 0 8-5 4-8M164 14c-8 0-10 8-18 8-6 0-8-5-4-8"/><path d="M106 18c5-4 10-4 14-1 4-3 9-3 14 1V9c-5-4-10-4-14-1-4-3-9-3-14 1z" fill="currentColor" fill-opacity=".2"/><path d="M120 8v9"/></g><circle cx="5" cy="14" r="2.2" fill="currentColor"/><circle cx="235" cy="14" r="2.2" fill="currentColor"/><path d="M120 1l1.4 3.2L124.6 5l-3.2 1.4L120 9.6l-1.4-3.2L115.4 5l3.2-.8z" fill="currentColor"/></symbol>
 <symbol id="orn-swash" viewBox="0 0 220 22"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.6"><path d="M4 14c30-10 60 6 92 0s50-12 72-4c10 4 18 6 28 0"/><path d="M196 10c6-6 15-2 11 4s-12 2-8-2"/><path d="M30 17c20 4 40 2 56-2" stroke-width=".9"/></g></symbol>
 <symbol id="orn-fleuron" viewBox="0 0 60 40"><path d="M30 37C18 31 8 23 8 14 8 7 14 4 19 6c5 2 8 7 11 13 3-6 6-11 11-13 5-2 11 1 11 8 0 9-10 17-22 23z" fill="currentColor" fill-opacity=".9"/><path d="M30 33c0-7-2-12-5-15M30 33c0-7 2-12 5-15M4 20h6M50 20h6" fill="none" stroke="#fbf3e1" stroke-opacity=".6" stroke-width="1.2" stroke-linecap="round"/></symbol>
-<symbol id="i-star" viewBox="0 0 20 20"><path d="M10 0l2.2 7.8L20 10l-7.8 2.2L10 20l-2.2-7.8L0 10l7.8-2.2z" fill="currentColor"/></symbol>
+<symbol id="i-glint" viewBox="0 0 20 20"><circle cx="10" cy="10" r="5" fill="currentColor"/></symbol>
 <symbol id="i-pin" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 22s7-7.2 7-12.5A7 7 0 0 0 5 9.5C5 14.8 12 22 12 22z"/><circle cx="12" cy="9.5" r="2.6"/></g></symbol>
 <symbol id="i-clock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/></g></symbol>
 <symbol id="i-letter" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="1.5"/><path d="M3.5 6.5l8.5 7 8.5-7"/><circle cx="17.5" cy="16.5" r="2.4" fill="currentColor" fill-opacity=".35"/></g></symbol>
 <symbol id="i-lamp" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M12 1.5v2M9 3.5h6l1.5 3h-9z"/><path d="M8 6.5h8l-.8 11H8.8z"/><path d="M6.5 17.5h11M10 21h4M12 17.5V21"/><path d="M12 9.5c1.4 1.4 1.4 3.2 0 4.5-1.4-1.3-1.4-3.1 0-4.5z" fill="currentColor" fill-opacity=".45"/></g></symbol>
 <symbol id="i-quill" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 3C12.5 4 7.5 10 5.5 19l1 1c3-2 6-3 9-6-2 0-3 0-4-1 3-1 6-3 7-6-1 0-2 0-3-.5 1.8-1 3.3-2 4.5-3.5z"/><path d="M3.5 21.5l4-4"/></g></symbol>
 <symbol id="i-book" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M3 5.5c3-1.2 6-1 9 1v13c-3-2-6-2.2-9-1zM21 5.5c-3-1.2-6-1-9 1v13c3-2 6-2.2 9-1z"/><path d="M15 8.5c1.5-.6 3-.7 4-.4M15 11.5c1.5-.6 3-.7 4-.4" stroke-width="1"/></g></symbol>
-<symbol id="i-seal" viewBox="0 0 40 40"><path d="M20 2c3 0 4 2 6.5 2.6S31.7 4 33.6 6s1 4.6 2 7S40 17 40 20s-3.4 4.6-4.4 7-.1 5-2 7-4.6 1.4-7.1 2.4S23 40 20 40s-4-2.6-6.5-3.6-5.2-.4-7.1-2.4-1-4.6-2-7S0 23 0 20s3.4-4.6 4.4-7 .1-5 2-7 4.6-1.4 7.1-2.4S17 2 20 2z" fill="currentColor"/><path d="M20 9l2.6 7.4L30 19l-7.4 2.6L20 29l-2.6-7.4L10 19l7.4-2.6z" fill="#f0d79a" fill-opacity=".85"/></symbol>
+<symbol id="i-seal" viewBox="0 0 40 40"><path d="M20 2c3 0 4 2 6.5 2.6S31.7 4 33.6 6s1 4.6 2 7S40 17 40 20s-3.4 4.6-4.4 7-.1 5-2 7-4.6 1.4-7.1 2.4S23 40 20 40s-4-2.6-6.5-3.6-5.2-.4-7.1-2.4-1-4.6-2-7S0 23 0 20s3.4-4.6 4.4-7 .1-5 2-7 4.6-1.4 7.1-2.4S17 2 20 2z" fill="currentColor"/><circle cx="20" cy="20" r="8" fill="none" stroke="#f0d79a" stroke-opacity=".85" stroke-width="2.2"/><circle cx="20" cy="20" r="3" fill="#f0d79a" fill-opacity=".85"/></symbol>
 <symbol id="i-paw" viewBox="0 0 24 24"><g fill="currentColor"><ellipse cx="12" cy="16" rx="5" ry="4"/><circle cx="6" cy="10" r="2.2"/><circle cx="10" cy="6.5" r="2.2"/><circle cx="14" cy="6.5" r="2.2"/><circle cx="18" cy="10" r="2.2"/></g></symbol>
 </defs></svg>
 <a class="skip" href="#story">Skip to content</a>
-<div class="crisis" role="region" aria-label="Crisis resources"><span class="c-long">In crisis? Call or text <a href="tel:988">988</a> (Suicide &amp; Crisis Lifeline, 24/7) · Emergency: <a href="tel:911">911</a> · This site is not monitored for emergencies.</span><span class="c-short">In crisis? Call or text <a href="tel:988">988</a> · Emergency <a href="tel:911">911</a> · Not monitored for emergencies.</span></div>
+<div class="crisis" role="region" aria-label="Crisis resources"><span class="c-long">In crisis? Call or text <a href="tel:988">988</a> (Suicide &amp; Crisis Lifeline, 24/7) · Utah: <a href="https://safeut.org" target="_blank" rel="noopener">SafeUT</a> · Emergency: <a href="tel:911">911</a> · This site is not monitored for emergencies.</span><span class="c-short">In crisis? Call or text <a href="tel:988">988</a> · Utah: <a href="https://safeut.org" target="_blank" rel="noopener">SafeUT</a> · Emergency <a href="tel:911">911</a> · Not monitored for emergencies.</span></div>
 <header class="top">
  <a class="brand" href="#home" data-turn="1"><img src="img/logo-mark-gilt.webp" alt="" width="40" height="25"><span>Open Book <span class="b2">Counseling</span></span></a>
  <nav class="toc-wrap" aria-label="Chapters">
@@ -618,7 +617,7 @@ img.sc-base{position:absolute;inset:0;width:100%!important;height:100%!important
    <div class="light" aria-hidden="true"></div>
    <div class="sheet" aria-hidden="true"><div class="cast" id="cast"></div><div class="leaf" id="leaf"><div class="face front"></div><div class="face back"></div></div></div>
    <div class="cover" id="cover">
-    <div class="face front"><img src="img/cover.webp" alt="" width="864" height="1152"><div class="cover-title"><span class="ct1">Open Book</span><span class="ct2">Counseling</span><em>Empowering your New Story!</em></div><span class="cv-halo" aria-hidden="true"></span><span class="cv-rays" aria-hidden="true"></span><svg class="cv-star" style="left:31%;top:33%;--d:0s;--z:12" aria-hidden="true"><use href="#i-star"/></svg><svg class="cv-star" style="left:69%;top:31%;--d:1.1s;--z:10" aria-hidden="true"><use href="#i-star"/></svg><svg class="cv-star" style="left:50%;top:21%;--d:2.2s;--z:14" aria-hidden="true"><use href="#i-star"/></svg><svg class="cv-star" style="left:22%;top:49%;--d:0.6s;--z:9" aria-hidden="true"><use href="#i-star"/></svg><svg class="cv-star" style="left:78%;top:51%;--d:1.7s;--z:11" aria-hidden="true"><use href="#i-star"/></svg><svg class="cv-star" style="left:36%;top:66%;--d:2.8s;--z:8" aria-hidden="true"><use href="#i-star"/></svg><svg class="cv-star" style="left:64%;top:67%;--d:3.3s;--z:9" aria-hidden="true"><use href="#i-star"/></svg><span class="cv-sheen" aria-hidden="true"></span><span class="cover-glint" aria-hidden="true"></span></div>
+    <div class="face front"><img src="img/cover.webp" alt="" width="864" height="1152"><div class="cover-title"><span class="ct1">Open Book</span><span class="ct2">Counseling</span><em>Empowering your New Story!</em></div><span class="cv-halo" aria-hidden="true"></span><span class="cv-rays" aria-hidden="true"></span><svg class="cv-star" style="left:31%;top:33%;--d:0s;--z:12" aria-hidden="true"><use href="#i-glint"/></svg><svg class="cv-star" style="left:69%;top:31%;--d:1.1s;--z:10" aria-hidden="true"><use href="#i-glint"/></svg><svg class="cv-star" style="left:50%;top:21%;--d:2.2s;--z:14" aria-hidden="true"><use href="#i-glint"/></svg><svg class="cv-star" style="left:22%;top:49%;--d:0.6s;--z:9" aria-hidden="true"><use href="#i-glint"/></svg><svg class="cv-star" style="left:78%;top:51%;--d:1.7s;--z:11" aria-hidden="true"><use href="#i-glint"/></svg><svg class="cv-star" style="left:36%;top:66%;--d:2.8s;--z:8" aria-hidden="true"><use href="#i-glint"/></svg><svg class="cv-star" style="left:64%;top:67%;--d:3.3s;--z:9" aria-hidden="true"><use href="#i-glint"/></svg><span class="cv-sheen" aria-hidden="true"></span><span class="cover-glint" aria-hidden="true"></span></div>
     <div class="face back endpaper" aria-hidden="true"><div class="exlibris"><span>Ex Libris</span><b>Open Book Counseling</b><i>Draper · Bountiful · Online</i></div></div>
    </div>
   </div>
@@ -744,7 +743,6 @@ img.sc-base{position:absolute;inset:0;width:100%!important;height:100%!important
  <p><a href="/professional/">Professional version</a> · <a href="/professional/intake.html">Book an appointment</a> · <a href="tel:3855246665">385-524-6665</a></p>
  <p class="note">© Open Book Counseling, PLLC. This site uses no tracking pixels. Please don’t send health details by email.</p>
  <div class="egg-seal-wrap" hidden><button class="egg-seal" type="button" aria-expanded="false" aria-controls="egg-list"><svg class="seal-ico" aria-hidden="true" focusable="false"><use href="#i-seal"/></svg><span class="egg-count">0 of 6</span></button><div class="egg-list" id="egg-list" hidden></div></div>
- <p class="note trial-note">Storybook trial design: The Quiet Library (Faithful revamp). A preview, not the live storybook.</p>
 </footer>
 <div class="night" id="night" hidden role="dialog" aria-modal="false" aria-labelledby="night-h">
  <svg class="sky" id="sky" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
@@ -762,7 +760,7 @@ var book=$('#book'),pl=$('#pl'),pr=$('#pr'),leaf=$('#leaf'),lf=$('.front',leaf),
 var cur=0,busy=false,opened=H.classList.contains('opened');
 var calmBtns=$$('.calm-btn');
 function isCalm(){return H.classList.contains('calm')}
-function setCalm(v,save){H.classList.toggle('calm',v);calmBtns.forEach(function(b){b.setAttribute('aria-pressed',String(v));b.textContent='Calm mode: '+(v?'on':'off')});if(save){try{localStorage.setItem('obcTrialCalm',v?'1':'0')}catch(e){}}if(v)$$('[data-r]').forEach(function(el){el.classList.add('in')})}
+function setCalm(v,save){H.classList.toggle('calm',v);calmBtns.forEach(function(b){b.setAttribute('aria-pressed',String(v));b.textContent='Calm mode: '+(v?'on':'off')});if(save){try{localStorage.setItem('obcSbCalm',v?'1':'0')}catch(e){}}if(v)$$('[data-r]').forEach(function(el){el.classList.add('in')})}
 setCalm(isCalm(),false);
 calmBtns.forEach(function(b){b.addEventListener('click',function(){setCalm(!isCalm(),true)})});
 if(rm.addEventListener)rm.addEventListener('change',function(e){setCalm(e.matches,false)});
@@ -823,7 +821,7 @@ function turnTo(to,opts){
 
 function openBook(instant){
  if(opened)return;opened=true;
- try{sessionStorage.setItem('obcTrialOpen','1')}catch(e){}
+ try{sessionStorage.setItem('obcSbOpen','1')}catch(e){}
  paint(cur);fresh(pr);showBody(cur,false);updateUI();armOpeners();if(!desk.matches)chaps.forEach(arm);
  if(instant||isCalm()){H.classList.remove('closed');H.classList.add('opened');afterOpen(instant);return}
  H.classList.add('opening');H.classList.remove('closed');
@@ -924,13 +922,13 @@ document.addEventListener('visibilitychange',function(){H.classList.toggle('paus
 var mqh=function(){if(opened&&desk.matches){paint(cur);showBody(cur,false);updateUI()}};
 if(desk.addEventListener)desk.addEventListener('change',mqh);
 
-window.__trial={turnTo:turnTo,openBook:openBook,get cur(){return cur},get opened(){return opened},N:N,desk:desk,isCalm:isCalm,fitHots:fitHots,updateUI:updateUI};
+window.__sb={turnTo:turnTo,openBook:openBook,get cur(){return cur},get opened(){return opened},N:N,desk:desk,isCalm:isCalm,fitHots:fitHots,updateUI:updateUI};
 })();
 
 /* ===== Scene notes and easter eggs ===== */
 (function(){
 'use strict';
-var T=window.__trial;if(!T)return;
+var T=window.__sb;if(!T)return;
 var H=document.documentElement;
 var $=function(s,r){return (r||document).querySelector(s)},$$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
 var EGGS={
@@ -942,7 +940,7 @@ var EGGS={
  wish:{name:'A wish on the moon',hint:'The moon in the first painting will take a wish.'}
 };
 var KEYS=Object.keys(EGGS),found={};
-try{found=JSON.parse(localStorage.getItem('obcTrialEggs')||'{}')||{}}catch(e){found={}}
+try{found=JSON.parse(localStorage.getItem('obcSbEggs')||'{}')||{}}catch(e){found={}}
 var toast=$('#egg-toast'),tt=0,sealWrap=$('.egg-seal-wrap'),sealBtn=$('.egg-seal'),list=$('#egg-list');
 function count(){return KEYS.filter(function(k){return found[k]}).length}
 function renderSeal(){
@@ -951,7 +949,7 @@ function renderSeal(){
 }
 function say(msg){toast.innerHTML='<svg class="seal-ico" aria-hidden="true"><use href="#i-seal"/></svg><span>'+msg+'</span>';toast.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){toast.classList.remove('show')},4200)}
 function find(k,msg){
- var first=!found[k];found[k]=1;try{localStorage.setItem('obcTrialEggs',JSON.stringify(found))}catch(e){}
+ var first=!found[k];found[k]=1;try{localStorage.setItem('obcSbEggs',JSON.stringify(found))}catch(e){}
  renderSeal();say(msg+(first?' ('+count()+' of '+KEYS.length+' found)':''));
 }
 renderSeal();
