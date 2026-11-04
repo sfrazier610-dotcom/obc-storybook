@@ -579,6 +579,43 @@ img.sc-base{position:absolute;inset:0;width:100%!important;height:100%!important
 .numeral,.vignette{pointer-events:none}
 .calm .night,.calm .v-star,.calm .v-line,.calm .kind-note,.calm .hang.swing,.calm .flourish,.calm .headpiece{animation:none!important}
 .calm .v-star{opacity:1}.calm .v-line{stroke-dashoffset:0}
+
+/* ===== Desktop fit fix (Nov 3): the spread must fit short laptop windows, ribbons must not cover the heading, notes stay on the painting ===== */
+@media (min-width:900px){
+ .pg,.leaf .face{container-type:size}
+ .ribbons{gap:clamp(5px,calc(var(--bw) * .009),10px)}
+ .ribbon{width:clamp(24px,calc(var(--bw) * .03),34px)}
+ /* text starts below the hanging ribbons (they reach about 82px into the page) */
+ .ptext{padding-top:max(7%,88px);padding-bottom:max(6%,22px)}
+ .bm-bk{left:3%}
+}
+@container (max-height:600px){
+ .ptext{padding-top:84px;padding-right:7%}
+ .ptext .headpiece,.ptext .spot{display:none}
+ .ptext .flourish{margin:4px 0 8px;height:13px}
+ .ptext .ctitle{font-size:clamp(24px,calc(var(--bw) * .04),40px)}
+ .ptext .intro{font-size:16px;line-height:1.45}
+ .ptext .eyebrow{font-size:12.5px;line-height:1.35;margin-bottom:.6em}
+ .ptext .ctas{gap:8px}
+ .ptext .ctas .btn{min-height:38px;padding:8px 16px;font-size:15.5px}
+ .pups{width:min(46%,200px);padding:6px 8px 26px}
+ .pups-tag{font-size:14px}
+}
+@container (max-height:470px){
+ .ptext{padding-top:80px;padding-bottom:16px}
+ .ptext .flourish,.ptext .eyebrow{display:none}
+ .ptext .clabel{margin-bottom:2px;font-size:12.5px}
+ .ptext .intro{font-size:15px;margin-bottom:.6em}
+ .ptext .ctas .btn{min-height:34px;padding:6px 14px;font-size:14.5px}
+}
+@container (max-height:400px){
+ .ptext .intro~.intro{display:none}
+}
+/* safety net: if a page still runs long, it scrolls inside the page instead of being cut off */
+@media (min-width:900px){.pg .ptext{overflow-y:auto;scrollbar-width:thin;justify-content:safe center}}
+.hot-note{translate:var(--ndx,0px) var(--ndy,0px)}
+@container (max-width:300px){.hot-note{font-size:13.5px;width:190px;padding:7px 10px 8px}.hot-note b{font-size:11.5px}}
+.hot.flip-d .hot-note{bottom:auto;top:24px}.hot.flip-u .hot-note{top:auto;bottom:24px}
 </style>
 </head>
 <body>
@@ -973,11 +1010,25 @@ renderSeal();
 sealBtn&&sealBtn.addEventListener('click',function(){var o=list.hidden;list.hidden=!o;sealBtn.setAttribute('aria-expanded',String(o))});
 
 /* scene notes */
+/* keep an open note fully on its painting: nudge it sideways, or flip it below/above the dot */
+function placeNote(h){var n=$('.hot-note',h),sc=h.closest('.scene');if(!n||!sc)return;
+ h.classList.remove('flip-d','flip-u');n.style.setProperty('--ndx','0px');
+ var a=sc.getBoundingClientRect(),r=n.getBoundingClientRect(),m=8,dx=0;
+ if(r.left<a.left+m)dx=a.left+m-r.left;else if(r.right>a.right-m)dx=a.right-m-r.right;
+ if(dx)n.style.setProperty('--ndx',Math.round(dx)+'px');
+ var down=h.classList.contains('n-down'),hb=h.getBoundingClientRect(),up=hb.top-a.top,dn=a.bottom-hb.top;
+ if(!down&&r.top<a.top+m&&dn>up){h.classList.add('flip-d');down=true}else if(down&&r.bottom>a.bottom-m&&up>dn){h.classList.add('flip-u');down=false}
+ n.style.setProperty('--ndy','0px');r=n.getBoundingClientRect();var dy=0;
+ if(r.bottom>a.bottom-m)dy=a.bottom-m-r.bottom;if(r.top+dy<a.top+m)dy=a.top+m-r.top;
+ if(dy)n.style.setProperty('--ndy',Math.round(dy)+'px');
+}
+window.addEventListener('resize',function(){$$('.hot.open').forEach(placeNote)});
 function closeNotes(except){$$('.hot.open').forEach(function(h){if(h!==except){h.classList.remove('open');var b=$('.hot-btn',h);b&&b.setAttribute('aria-expanded','false')}})}
 document.addEventListener('click',function(e){
  var b=e.target.closest&&e.target.closest('.hot-btn');
  if(!b){if(!(e.target.closest&&e.target.closest('.hot-note')))closeNotes();return}
  var h=b.parentNode,o=!h.classList.contains('open');closeNotes(h);h.classList.toggle('open',o);b.setAttribute('aria-expanded',String(o));
+ if(o)placeNote(h);
  if(o&&b.getAttribute('data-egg')==='wish'){var mv=b.closest('.sc-mv');if(mv){mv.classList.remove('wish');void mv.offsetWidth;mv.classList.add('wish')}find('wish','A shooting star crossed the moon.')}
 });
 
