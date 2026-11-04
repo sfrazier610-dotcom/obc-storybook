@@ -31,3 +31,12 @@ $('#quiz').addEventListener('submit',e=>{e.preventDefault();const f=new FormData
  <a class="btn sm" href="/professional/intake.html">${(window.THEME&&window.THEME.reqWord)||'Request'} ${esc(x.c.name.split(' ')[0])}</a></li>`).join('')+`</ol><p class="note">Scores reflect publicly listed specialties only, not quality. Feeling understood in the first sessions matters most. You can switch clinicians within the practice anytime.</p>`;
  $('#results').scrollIntoView({behavior:'smooth'});});
 })();
+/* Charm covers (new, Quiet Library design): each charm card starts closed; "Turn a card over to open it". Content stays in the DOM for screen readers. */
+document.addEventListener('DOMContentLoaded',function(){var root=document.getElementById('coping');if(!root)return;
+ root.querySelectorAll('.skill').forEach(function(c,i){var h=c.querySelector('h3'),cat=c.querySelector('.cat');if(!h)return;
+  var f=document.createElement('button');f.type='button';f.className='charm-front';f.setAttribute('aria-label','Open the charm: '+h.textContent);
+  f.innerHTML='<span class="cf-seal" aria-hidden="true"></span><span class="cf-cat">'+(cat?cat.textContent:'')+'</span><span class="cf-name">'+h.innerHTML+'</span><span class="cf-open">Turn over to open</span>';
+  f.style.setProperty('--i',i%6);c.classList.add('closed-charm');c.appendChild(f);
+  f.addEventListener('click',function(){c.classList.add('open');c.classList.remove('closed-charm');f.setAttribute('tabindex','-1');f.setAttribute('aria-hidden','true');h.setAttribute('tabindex','-1');setTimeout(function(){h.focus({preventScroll:true})},60);setTimeout(function(){f.remove()},900)});
+ });
+});
