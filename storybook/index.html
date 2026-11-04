@@ -763,6 +763,7 @@ img.sc-base{position:absolute;inset:0;width:100%!important;height:100%!important
 /* ===== Motion system ===== */
 /* headings ink themselves in, word by word, with a travelling nib (transform + opacity only) */
 .ptext .ctitle{position:relative;width:fit-content;max-width:100%}
+.ctitle{overflow-x:clip;overflow-clip-margin:10px}
 .ctitle .w{display:inline-block;will-change:auto}
 .pr.fresh .ctitle{animation:none}
 .pr.fresh .ctitle .w{animation:wordInk var(--d-word) var(--ease-out) calc(360ms + var(--w,0) * var(--d-stagger)) both}
