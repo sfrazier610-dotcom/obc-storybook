@@ -845,6 +845,35 @@ img.sc-base{position:absolute;inset:0;width:100%!important;height:100%!important
  .js:not(.calm) .opener.in .blend,.js:not(.calm) .opener.in .blend-g{animation:warmIn var(--d-warm) var(--ease-out) 700ms both}
 }
 .calm .blend,.calm .blend-g{display:none}
+
+/* ===== Your story so far (localStorage only, nothing leaves the device) ===== */
+.resume{display:flex;align-items:stretch;gap:6px;justify-content:center;margin:0 0 4px}
+.resume[hidden]{display:none}
+.resume-btn{flex-direction:column;gap:2px;line-height:1.15;padding:9px 22px;background:rgba(240,215,154,.12);color:var(--gilt);border-color:rgba(240,215,154,.6)}
+.resume-btn small{font:500 13px/1.2 var(--sans);letter-spacing:.04em;opacity:.85}
+.resume-x{width:40px;border-radius:999px;border:1px solid rgba(240,215,154,.35);background:transparent;color:var(--gilt);font-size:20px;cursor:pointer}
+.resume-x:hover,.resume-x:focus-visible{background:rgba(240,215,154,.14)}
+.js:not(.calm) .resume:not([hidden]){animation:riseIn 700ms var(--ease-out) 600ms both}
+.toc a.seen .toc-l::after{content:"";display:inline-block;width:6px;height:6px;margin:0 0 2px 8px;border-radius:50%;background:var(--gold);vertical-align:middle}
+.toc a[aria-current="true"]{background:var(--parch2)}
+.toc-prog{border-top:1px solid rgba(200,155,60,.35);margin-top:6px;padding:10px 12px 4px}
+.toc-prog[hidden]{display:none}
+.prog-t{display:block;font:600 16px/1.3 var(--display)}
+.prog-bar{display:block;height:4px;margin:8px 0;border-radius:4px;background:rgba(127,85,23,.18);overflow:hidden}
+.prog-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold-ink),var(--gold));transform-origin:left;transform:scaleX(var(--p,0));transition:transform 700ms var(--ease-out)}
+.prog-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.prog-row small{font:400 12px/1.3 var(--sans);color:var(--muted)}
+.forget{font:600 13px/1 var(--sans);color:var(--wine);background:none;border:0;padding:6px 0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.calm .prog-bar i{transition:none}
+
+/* ===== Paintings react: glows lift on hover, a tap scatters a few motes ===== */
+.sc-glow{transition:opacity 500ms var(--ease-out)}
+@media (hover:hover){.scene .sc-glow{opacity:.82}.scene:hover .sc-glow{opacity:1}}
+.tapmote{position:absolute;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:50%;pointer-events:none;z-index:7;background:radial-gradient(circle,#fff6d8 0 35%,rgba(255,214,140,.7) 60%,transparent 72%);animation:tapMote 950ms var(--ease-out) both}
+@keyframes tapMote{0%{opacity:0;transform:translate(0,0) scale(.6)}15%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.4)}}
+.hot-btn{transition:transform var(--d-quick) var(--ease-lift)}
+.hot-btn:active{transform:scale(.92)}
+.calm .tapmote{display:none}
 </style>
 </head>
 <body>
@@ -870,7 +899,7 @@ img.sc-base{position:absolute;inset:0;width:100%!important;height:100%!important
  <a class="rr-link" href="resources/"><svg class="ico" aria-hidden="true" focusable="false"><use href="#i-book"/></svg>The Reading Room</a>
  <nav class="toc-wrap" aria-label="Chapters">
   <button class="toc-btn" type="button" aria-expanded="false" aria-controls="toc">Contents</button>
-  <ol class="toc" id="toc" hidden><li><a href="#home" data-turn="1"><span class="toc-l">Prologue</span> Empowering your New Story!</a></li><li><a href="#match" data-turn="1"><span class="toc-l">Chapter I</span> The Guide-Finding Ritual: Find your guide</a></li><li><a href="#team" data-turn="1"><span class="toc-l">Chapter II</span> The Hall of Guides</a></li><li><a href="#services" data-turn="1"><span class="toc-l">Chapter III</span> The Spellbook of Approaches</a></li><li><a href="#toolkit" data-turn="1"><span class="toc-l">Chapter IV</span> The Charm Library</a></li><li><a href="#quest" data-turn="1"><span class="toc-l">A Side Quest</span> The Fogstorm: Play the game</a></li><li><a href="#insurance" data-turn="1"><span class="toc-l">Chapter V</span> The Treasury: Insurance &amp; fees</a></li><li><a href="#locations" data-turn="1"><span class="toc-l">Chapter VI</span> The Two Libraries</a></li><li><a href="#faq" data-turn="1"><span class="toc-l">Chapter VII</span> Scrolls of Questions</a></li><li><a href="#careers" data-turn="1"><span class="toc-l">Chapter VIII</span> The Guild Hall: Careers</a></li><li class="toc-rr"><a href="resources/"><span class="toc-l">Articles</span> The Reading Room</a></li><li class="toc-calm"><button class="calm-btn" type="button" aria-pressed="false">Calm mode: off</button></li></ol>
+  <ol class="toc" id="toc" hidden><li><a href="#home" data-turn="1"><span class="toc-l">Prologue</span> Empowering your New Story!</a></li><li><a href="#match" data-turn="1"><span class="toc-l">Chapter I</span> The Guide-Finding Ritual: Find your guide</a></li><li><a href="#team" data-turn="1"><span class="toc-l">Chapter II</span> The Hall of Guides</a></li><li><a href="#services" data-turn="1"><span class="toc-l">Chapter III</span> The Spellbook of Approaches</a></li><li><a href="#toolkit" data-turn="1"><span class="toc-l">Chapter IV</span> The Charm Library</a></li><li><a href="#quest" data-turn="1"><span class="toc-l">A Side Quest</span> The Fogstorm: Play the game</a></li><li><a href="#insurance" data-turn="1"><span class="toc-l">Chapter V</span> The Treasury: Insurance &amp; fees</a></li><li><a href="#locations" data-turn="1"><span class="toc-l">Chapter VI</span> The Two Libraries</a></li><li><a href="#faq" data-turn="1"><span class="toc-l">Chapter VII</span> Scrolls of Questions</a></li><li><a href="#careers" data-turn="1"><span class="toc-l">Chapter VIII</span> The Guild Hall: Careers</a></li><li class="toc-prog" hidden><span class="toc-l">Your story so far</span><span class="prog-t"></span><span class="prog-bar" aria-hidden="true"><i></i></span><span class="prog-row"><small>Saved only on this device.</small><button class="forget" type="button">Forget my place</button></span></li><li class="toc-rr"><a href="resources/"><span class="toc-l">Articles</span> The Reading Room</a></li><li class="toc-calm"><button class="calm-btn" type="button" aria-pressed="false">Calm mode: off</button></li></ol>
  </nav>
  <button class="calm-btn top-calm" type="button" aria-pressed="false">Calm mode: off</button>
  <a class="btn book-btn" href="/professional/intake.html"><span class="long">Book an appointment</span><span class="short">Book</span></a>
@@ -894,6 +923,7 @@ img.sc-base{position:absolute;inset:0;width:100%!important;height:100%!important
    </div>
   </div>
   <div class="cover-ctl">
+   <div class="resume" hidden><button class="btn resume-btn" type="button"><span>Continue where you left off</span><small class="resume-where"></small></button><button class="resume-x" type="button" aria-label="Forget my place">×</button></div>
    <button class="btn open-btn" id="open" type="button">Open the book</button>
    <button class="btn ghost" id="skip" type="button">Skip to the story</button>
    <a class="pro-link" href="/professional/">Prefer a classic, professional site? View the <span class="nw">professional version <span aria-hidden="true">→</span></span></a>
@@ -1159,6 +1189,28 @@ function rwShow(k,anim){var l=rwLine();if(!l)return;var p=PAIRS[k%PAIRS.length];
 setInterval(function(){if(isCalm()||document.hidden||!desk.matches||!opened||busy||cur!==0)return;var l=rwLine();if(!l)return;if(!l.classList.contains('done')){rwShow(rwK,true);return}
  l.classList.add('out');setTimeout(function(){rwK=(rwK+1)%PAIRS.length;rwShow(rwK,true)},520)},4800);
 setTimeout(function(){if(cur===0)rwShow(0,!isCalm())},1500);
+/* your story so far: last chapter + chapters read, kept in localStorage on this device only */
+function lsGet(k,d){try{var v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+var seen=lsGet('obcSbSeen',[]);if(!Array.isArray(seen))seen=[];
+function chapName(id){var c=chaps[ids.indexOf(id)];if(!c)return'';var a=c.getAttribute('data-label'),l=c.getAttribute('aria-label')||'',t=l.indexOf(':')>=0?l.slice(l.indexOf(':')+1).trim():c.getAttribute('data-short');return a+' \u00b7 '+t}
+function remember(i){if(i<0||i>=N)return;var id=ids[i];lsSet('obcSbLast',id);if(seen.indexOf(id)<0){seen.push(id);lsSet('obcSbSeen',seen)}drawProgress()}
+function drawProgress(){var p=$('.toc-prog');if(!p)return;var n=seen.filter(function(id){return ids.indexOf(id)>=0}).length;p.hidden=n<2;
+ $('.prog-t',p).textContent=n+' of '+N+' chapters read';$('.prog-bar',p).style.setProperty('--p',n/N);
+ $$('.toc a[href^="#"]').forEach(function(a){var id=a.getAttribute('href').slice(1),k=ids.indexOf(id);if(k<0)return;var r=seen.indexOf(id)>=0;a.classList.toggle('seen',r);a.setAttribute('aria-current',(opened&&k===cur)?'true':'false');var sr=$('.sr',a);if(r&&!sr){a.insertAdjacentHTML('beforeend','<span class="sr"> (read)</span>')}else if(!r&&sr){sr.remove()}})}
+function forget(){seen=[];try{localStorage.removeItem('obcSbLast');localStorage.removeItem('obcSbSeen')}catch(e){}var r=$('.resume');if(r)r.hidden=true;drawProgress()}
+(function(){var last=lsGet('obcSbLast',null),r=$('.resume');if(!r)return;
+ if(last&&last!=='home'&&ids.indexOf(last)>0&&!opened){$('.resume-where',r).textContent=chapName(last);r.hidden=false}
+ $('.resume-btn',r).addEventListener('click',function(){r.hidden=true;turnTo(last)});
+ $('.resume-x',r).addEventListener('click',function(){forget();var o=$('#open');if(o)o.focus()})})();
+var fg=$('.forget');if(fg)fg.addEventListener('click',function(){forget();var t=$('.prog-t');var a=$('a',toc);if(a)a.focus()});
+var _upd=updateUI;updateUI=function(){_upd();if(opened&&desk.matches)remember(cur);else drawProgress()};
+if('IntersectionObserver' in window){var cio=new IntersectionObserver(function(es){if(desk.matches||!opened)return;es.forEach(function(e){if(e.isIntersecting)remember(chaps.indexOf(e.target))})},{threshold:.35});chaps.forEach(function(c){cio.observe(c)})}
+/* paintings react to a tap with a few motes (not on hotspots; calm off) */
+document.addEventListener('pointerdown',function(e){if(isCalm())return;var sc=e.target.closest&&e.target.closest('.scene');if(!sc||e.target.closest('button,a,.hot-note'))return;
+ var b=sc.getBoundingClientRect(),x=e.clientX-b.left,y=e.clientY-b.top;for(var k=0;k<7;k++){var m=document.createElement('i'),a=Math.random()*6.283,d=24+Math.random()*46;m.className='tapmote';m.setAttribute('aria-hidden','true');
+  m.style.left=x+'px';m.style.top=y+'px';m.style.setProperty('--dx',(Math.cos(a)*d).toFixed(1)+'px');m.style.setProperty('--dy',(Math.sin(a)*d-18).toFixed(1)+'px');m.style.animationDelay=(k*25)+'ms';
+  m.addEventListener('animationend',function(){this.remove()});sc.appendChild(m)}},{passive:true});
 /* boot */
 var hashIdx=ids.indexOf((location.hash||'').replace('#','').replace('-body',''));
 if(hashIdx>=0)cur=hashIdx;
