@@ -557,6 +557,9 @@ img.sc-base{position:absolute;inset:0;width:100%!important;height:100%!important
  .v-lantern .ear-wrap{inset:auto 0 0 0;height:100%}
  .v-lantern .opener .pg-r .dogear{--ear-bg:#0a1518}
  .pups{right:6%;width:min(72%,300px)}
+ /* phone: the open puppies tab gets its own room below the page text instead of covering 'Meet the guides' */
+ .opener .pg-r{transition:padding-bottom 800ms var(--ease-out)}
+ .calm .opener .pg-r{transition:none}
  .night{padding-top:70px}
  .hot-note{font-size:15px}
 }
@@ -990,6 +993,8 @@ document.addEventListener('click',function(e){
  var d=e.target.closest&&e.target.closest('.dogear');if(!d)return;
  var w=d.parentNode,o=!w.classList.contains('on');w.classList.toggle('on',o);d.setAttribute('aria-expanded',String(o));
  var p=$('.pups',w);p&&p.setAttribute('aria-hidden',String(!o));
+ var pg=w.closest('.pg-r');
+ if(pg){if(o&&!T.desk.matches&&p){pg.style.paddingBottom=(p.offsetHeight+16)+'px';setTimeout(function(){if(w.classList.contains('on'))p.scrollIntoView({block:'nearest',behavior:T.isCalm()?'auto':'smooth'})},T.isCalm()?0:820)}else pg.style.paddingBottom=''}
  if(o)find('pups','Ragnar and Orion say hello.');
 });
 
