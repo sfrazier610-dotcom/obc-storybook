@@ -945,6 +945,18 @@ img.sc-base{position:absolute;inset:0;width:100%!important;height:100%!important
 .hot-btn{transition:transform var(--d-quick) var(--ease-lift)}
 .hot-btn:active{transform:scale(.92)}
 .calm .tapmote{display:none}
+/* ===== Painted depth (#10): lamplight in the paint, dust motes drifting in front, a slow breathing vignette.
+   Only opacity/transform animate; parallax rides the existing --px/--py (pointer on desktop, scroll on phones).
+   All layers sit inside .sc-mv under the hotspots (z-index 2) so notes stay crisp. ===== */
+.sc-mv::before,.sc-mv::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none}
+.sc-mv::after{background:radial-gradient(ellipse 70% 60% at 38% 38%,rgba(255,206,140,.22),rgba(255,180,100,.08) 45%,transparent 72%);opacity:.7;animation:dpLamp 9s ease-in-out infinite alternate}
+.sc-mv::before{background:radial-gradient(ellipse 78% 72% at 50% 48%,transparent 55%,rgba(30,18,8,.3) 100%);opacity:.8;animation:dpVig 11s ease-in-out infinite alternate}
+.sc-glow{overflow:hidden}
+.sc-glow::before{content:"";position:absolute;left:0;right:0;top:0;height:200%;pointer-events:none;opacity:.5;background-size:260px 50%;background-image:radial-gradient(circle at 18% 28%,rgba(255,236,200,.75) 0 1px,transparent 2.2px),radial-gradient(circle at 62% 66%,rgba(255,226,180,.55) 0 1.2px,transparent 2.6px),radial-gradient(circle at 84% 14%,rgba(255,240,210,.6) 0 .8px,transparent 1.8px);translate:calc(var(--px,0) * 24px) calc(var(--py,0) * 20px);transition:translate 900ms var(--ease-out);animation:rise 60s linear infinite}
+@keyframes dpLamp{from{opacity:.55}to{opacity:.9}}
+@keyframes dpVig{from{opacity:.7}to{opacity:.95}}
+.calm .sc-mv::before,.calm .sc-mv::after{animation:none!important}
+.calm .sc-glow::before{display:none}
 </style>
 </head>
 <body>
