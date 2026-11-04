@@ -2,7 +2,7 @@
 // Ages: "under8" = child under 8 (only if explicitly confirmed), "child8" = child 8–12, "teen", "adult". null = not publicly listed. settings: "inperson"/"telehealth" (confirmed by Scott Oct 21 2026; offices confirmed by Scott Oct 21 2026; Amanda is telehealth only, based at Draper). agesPending = only children (incl. under 8) confirmed by Scott, Oct 21 2026; teen/adult still to confirm.
 window.OBC = {
  clinicians: [
-  {id:"scott",name:"Scott Frazier",cred:"CMHC, CCTP, MS in Counseling",ages:["child8","teen","adult"],agesLabel:"Ages 8+",formats:["individual","couples","family"],offices:["draper","bountiful"],settings:["inperson","telehealth"],
+  {id:"scott",name:"Scott Frazier",cred:"CMHC, CCTP",ages:["child8","teen","adult"],agesLabel:"Ages 8+",formats:["individual","couples","family"],offices:["draper","bountiful"],settings:["inperson","telehealth"],
    concerns:["trauma","anxiety","depression","eating","ocd","adhd","addiction","personality","highprofile","lgbtq"],
    mods:["ART","EMDR","CBT","TF-CBT","DBT","EFT","IFS","Imago","SFBT","ACT","Gottman","ArtTherapy","Attachment","ERP","Forensic","Interpersonal","PersonCentered","TraumaFocused"],style:"Direct, nonjudgmental, non-shame-based; LGBTQ+ affirming. Works with high-profile / high-stress clients.",
    card:"Scott Frazier, CMHC, CCTP, MS in Counseling, is a Licensed Clinical Mental Health Counselor who works with children 8+, teens, adults and couples on trauma, PTSD, depression, anxiety and relationships. He uses ART, EMDR, CBT, trauma-focused CBT, DBT, EFT, ACT, Imago, solution-focused therapy and the Gottman Method in a direct, nonjudgmental, non-shame-based style.",
