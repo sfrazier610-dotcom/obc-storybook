@@ -1298,7 +1298,7 @@ function drawProgress(){var p=$('.toc-prog');if(!p)return;var n=seen.filter(func
  /* fix13: the end of the book offers the next unread chapter (from obcSbSeen only) */
  var nu=null;for(var q=0;q<N;q++){if(ids[q]!=='careers'&&seen.indexOf(ids[q])<0){nu=ids[q];break}}
  $$('.next-unread').forEach(function(x){x.hidden=!nu||n<2;var l=$('a',x);if(nu){l.setAttribute('href','#'+nu);$('.nu-where',x).textContent=chapName(nu)}})}
-function forget(){seen=[];try{localStorage.removeItem('obcSbLast');localStorage.removeItem('obcSbSeen')}catch(e){}var r=$('.resume');if(r)r.hidden=true;drawProgress()}
+function forget(){seen=[];try{localStorage.removeItem('obcSbLast');localStorage.removeItem('obcSbSeen')}catch(e){}try{sessionStorage.removeItem('obcSbOpen')}catch(e){}var r=$('.resume');if(r)r.hidden=true;drawProgress()}
 (function(){var last=lsGet('obcSbLast',null),r=$('.resume');if(!r)return;
  if(last&&last!=='home'&&ids.indexOf(last)>0&&!opened){$('.resume-where',r).textContent=chapName(last);r.hidden=false}
  $('.resume-btn',r).addEventListener('click',function(){r.hidden=true;turnTo(last)});
@@ -1337,6 +1337,8 @@ mnT.addEventListener('click',function(e){e.stopPropagation();window.scrollTo(0,0
 /* boot */
 var hashIdx=ids.indexOf((location.hash||'').replace('#','').replace('-body',''));
 if(hashIdx>=0)cur=hashIdx;
+ /* fix14: same-tab reload (book already open this session, no #chapter in the URL) reopens at the last chapter read */
+ else if(opened){try{var lastI=ids.indexOf(JSON.parse(localStorage.getItem('obcSbLast')));if(lastI>0)cur=lastI}catch(e){}}
 H.setAttribute('data-scene',ids[cur]);
 if(opened){opened=false;H.classList.remove('opened');H.classList.add('closed');openBook(true)}
 else{updateUI()}
