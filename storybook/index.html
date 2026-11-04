@@ -1102,7 +1102,7 @@ function R(i){return $('.pg-r',src(i)).innerHTML}
 function fresh(el){el.classList.remove('fresh');void el.offsetWidth;el.classList.add('fresh')}
 
 /* reveals */
-var io=('IntersectionObserver' in window)?new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12,rootMargin:'0px 0px -6% 0px'}):null;
+var io=('IntersectionObserver' in window)?new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:0,rootMargin:'0px 0px -8% 0px'}):null;
 function arm(root){$$('[data-r]',root).forEach(function(el){el.classList.remove('in');if(io&&!isCalm())io.observe(el);else el.classList.add('in')})}
 function armOpeners(){$$('.opener').forEach(function(el){if(io&&!isCalm())io.observe(el);else el.classList.add('in')})}
 
@@ -1206,7 +1206,7 @@ function forget(){seen=[];try{localStorage.removeItem('obcSbLast');localStorage.
  $('.resume-x',r).addEventListener('click',function(){forget();var o=$('#open');if(o)o.focus()})})();
 var fg=$('.forget');if(fg)fg.addEventListener('click',function(){forget();var t=$('.prog-t');var a=$('a',toc);if(a)a.focus()});
 var _upd=updateUI;updateUI=function(){_upd();if(opened&&desk.matches)remember(cur);else drawProgress()};
-if('IntersectionObserver' in window){var cio=new IntersectionObserver(function(es){if(desk.matches||!opened)return;es.forEach(function(e){if(e.isIntersecting)remember(chaps.indexOf(e.target))})},{threshold:.35});chaps.forEach(function(c){cio.observe(c)})}
+if('IntersectionObserver' in window){var rio=new IntersectionObserver(function(es){if(desk.matches||!opened)return;es.forEach(function(e){if(e.isIntersecting)remember(chaps.indexOf(e.target))})},{rootMargin:'-45% 0px -50% 0px'});chaps.forEach(function(c){rio.observe(c)})}
 /* paintings react to a tap with a few motes (not on hotspots; calm off) */
 document.addEventListener('pointerdown',function(e){if(isCalm())return;var sc=e.target.closest&&e.target.closest('.scene');if(!sc||e.target.closest('button,a,.hot-note'))return;
  var b=sc.getBoundingClientRect(),x=e.clientX-b.left,y=e.clientY-b.top;for(var k=0;k<7;k++){var m=document.createElement('i'),a=Math.random()*6.283,d=24+Math.random()*46;m.className='tapmote';m.setAttribute('aria-hidden','true');
