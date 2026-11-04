@@ -62,8 +62,9 @@ document.querySelectorAll('.acc button').forEach(b=>b.addEventListener('click',(
 /* Charm covers (new, Quiet Library design): each charm card starts closed; "Turn a card over to open it". Content stays in the DOM for screen readers. */
 document.addEventListener('DOMContentLoaded',function(){var root=document.getElementById('coping');if(!root)return;
  root.querySelectorAll('.skill').forEach(function(c,i){var h=c.querySelector('h3'),cat=c.querySelector('.cat');if(!h)return;
-  var f=document.createElement('button');f.type='button';f.className='charm-front';f.setAttribute('aria-label','Open the charm: '+h.textContent);
-  f.innerHTML='<span class="cf-seal" aria-hidden="true"></span><span class="cf-cat">'+(cat?cat.textContent:'')+'</span><span class="cf-name">'+h.innerHTML+'</span><span class="cf-open">Turn over to open</span>';
+  var f=document.createElement('button');f.type='button';f.className='charm-front';/* fix18: the label carries all of the visible text (tag, name, "Turn over to open"), spaced, so it matches what is seen */
+  f.setAttribute('aria-label',('Open the charm: '+(cat?cat.textContent+' ':'')+h.textContent+' Turn over to open').replace(/\s+/g,' '));
+  f.innerHTML='<span class="cf-seal" aria-hidden="true"></span><span class="cf-cat">'+(cat?cat.textContent:'')+'</span> <span class="cf-name">'+h.innerHTML+'</span> <span class="cf-open">Turn over to open</span>';
   f.style.setProperty('--i',i%6);c.classList.add('closed-charm');c.appendChild(f);
   f.addEventListener('click',function(){c.classList.add('open');c.classList.remove('closed-charm');f.setAttribute('tabindex','-1');f.setAttribute('aria-hidden','true');h.setAttribute('tabindex','-1');setTimeout(function(){h.focus({preventScroll:true})},60);setTimeout(function(){f.remove()},900)});
  });
