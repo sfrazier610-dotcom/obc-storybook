@@ -41,6 +41,22 @@ ins.addEventListener('change',()=>{const v=ins.value;$('#ins-out').innerHTML=!v?
 function fee(){const t=$('#fee-type').value,n=Math.max(1,Math.min(52,parseInt($('#fee-n').value)||1));$('#fee-out').textContent=`${n} × $${D.fees[t]} = $${(n*D.fees[t]).toLocaleString()}${t==='group'?' per person':''}`;}
 $('#fee-type').addEventListener('input',fee);$('#fee-n').addEventListener('input',fee);fee();
 })();
+(function(){if(!document.querySelector('#faq-list'))return;
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+// --- verbatim from shared/app.js: faq ---
+// faq
+const faq=[["Is this an emergency service?","No. If you are in crisis, call or text 988, or call 911 for emergencies."],
+["Do you offer telehealth?","Yes. Sessions are available in person in Draper and Bountiful, and online."],
+["What does a session cost?","Self-pay: individual $150, couples $200, group $40 per person. Many insurance plans and EAPs are accepted."],
+["Do you take my insurance?","Use the checker above. Credentialing varies by therapist, so please confirm with scheduling."],
+["Who do you work with?","Individuals, couples and families, from children and teens through adults, including people in high-stress or high-visibility roles."],
+["Is my information private?","Yes. Therapy is confidential within legal limits. This website's match quiz runs only in your browser and sends no data."],
+["What if my first therapist isn't the right fit?","Fit matters. Let us know and we'll help you switch within the practice."],
+["What are your hours?","Mon–Fri 8am–8pm, Sat 8am–6pm, closed Sunday."]];
+$('#faq-list').innerHTML=faq.map(([q,a],i)=>`<div class="acc"><h3><button aria-expanded="false" aria-controls="fa${i}" id="fq${i}">${esc(q)}</button></h3><div id="fa${i}" role="region" aria-labelledby="fq${i}" hidden><p>${esc(a)}</p></div></div>`).join('');
+document.querySelectorAll('.acc button').forEach(b=>b.addEventListener('click',()=>{const o=b.getAttribute('aria-expanded')==='true';b.setAttribute('aria-expanded',!o);document.getElementById(b.getAttribute('aria-controls')).hidden=o;}));
+})();
 /* Charm covers (new, Quiet Library design): each charm card starts closed; "Turn a card over to open it". Content stays in the DOM for screen readers. */
 document.addEventListener('DOMContentLoaded',function(){var root=document.getElementById('coping');if(!root)return;
  root.querySelectorAll('.skill').forEach(function(c,i){var h=c.querySelector('h3'),cat=c.querySelector('.cat');if(!h)return;
