@@ -1140,7 +1140,7 @@ function turnTo(to,opts){
  }
  busy=true;var fwd=to>from;
  pr.classList.remove('fresh');
- if(fwd){pl.innerHTML=L(from);pr.innerHTML=R(to);lf.innerHTML=R(from);lb.innerHTML=L(to);fresh(pr)}
+ if(fwd){pl.classList.remove('warm');pl.innerHTML=L(from);pr.innerHTML=R(to);lf.innerHTML=R(from);lb.innerHTML=L(to);fresh(pr)}
  else{pl.innerHTML=L(to);pr.innerHTML=R(from);lf.innerHTML=R(to);lb.innerHTML=L(from);warm(pl)}
  lf.insertAdjacentHTML('beforeend','<i class="curl"></i>');lb.insertAdjacentHTML('beforeend','<i class="curl"></i>');
  leaf.className='leaf on '+(fwd?'fwd':'bwd');cast.className='cast '+(fwd?'fwd':'bwd');ghosts.forEach(function(g,k){g.className='gleaf g'+(k+1)+' on '+(fwd?'fwd':'bwd')});book.classList.add('turning');
