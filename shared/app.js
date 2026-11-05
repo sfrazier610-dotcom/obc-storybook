@@ -72,7 +72,7 @@ const faq=[["Is this an emergency service?","No. If you are in crisis, call or t
 ["Who do you work with?","Individuals, couples and families, from children and teens through adults, including people in high-stress or high-visibility roles."],
 ["Is my information private?","Yes. Therapy is confidential within legal limits. This website's match quiz runs only in your browser and sends no data."],
 ["What if my first therapist isn't the right fit?","Fit matters. Let us know and we'll help you switch within the practice."],
-["What are your hours?","Mon–Fri 8am–8pm, Sat 8am–6pm, closed Sunday."]];
+["What are your hours?","Mon–Fri 8am–9pm, Sat 8am–4pm, closed Sunday."]];
 $('#faq-list').innerHTML=faq.map(([q,a],i)=>`<div class="acc"><h3><button aria-expanded="false" aria-controls="fa${i}" id="fq${i}">${esc(q)}</button></h3><div id="fa${i}" role="region" aria-labelledby="fq${i}" hidden><p>${esc(a)}</p></div></div>`).join('');
 document.querySelectorAll('.acc button').forEach(b=>b.addEventListener('click',()=>{const o=b.getAttribute('aria-expanded')==='true';b.setAttribute('aria-expanded',!o);document.getElementById(b.getAttribute('aria-controls')).hidden=o;}));
 })();
