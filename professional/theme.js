@@ -1,6 +1,3 @@
-(function(){const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;if(RM||!('IntersectionObserver'in window))return;
-const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('turn');io.unobserve(e.target);}}),{threshold:.08});
-document.querySelectorAll('main>section').forEach(s=>{s.classList.add('page');io.observe(s);});})();
 (function(){const R=window.OBC_REVIEWS,card=document.getElementById('rv-card');if(!R||!R.length||!card)return;
 const RM=matchMedia('(prefers-reduced-motion: reduce)').matches,S=window.OBC_REVIEWS_SUMMARY||{},MAX=300,DELAY=7000;
 const lk=document.getElementById('rv-link');if(S.url)lk.href=S.url;else lk.remove();
@@ -20,6 +17,7 @@ show(0);setPaused(paused);})();
 /* Team photos (from the practice's Google Site About page). Professional site only. */
 (function(){const g=document.getElementById('team-grid');if(!g||!window.OBC)return;
 const P={'Scott Frazier':'scott-frazier','Amber Frazier':'amber-frazier','Shanna Manjang':'shanna-manjang','Amanda Lloyd':'amanda-lloyd','Aspen Johnson':'aspen-johnson','Abby Locke':'abby-locke','Makayla Jones':'makayla-jones'};
-const fix=()=>g.querySelectorAll('article.card').forEach(c=>{const a=c.querySelector('.avatar');if(!a)return;const n=c.querySelector('h3').textContent.trim(),f=P[n];if(!f)return;
-const cr=(c.querySelector('.cred')||{}).textContent||'';const im=new Image();im.src='img/team/'+f+'.webp';im.width=im.height=480;im.loading='lazy';im.decoding='async';im.className='avatar photo';im.alt=n+(cr?', '+cr.trim():'');a.replaceWith(im);});
-fix();new MutationObserver(fix).observe(g,{childList:true});})();
+let fix=()=>g.querySelectorAll('article.card').forEach(c=>{const a=c.querySelector('.avatar');if(!a)return;const n=c.querySelector('h3').textContent.trim(),f=P[n];if(!f)return;
+const cr=(c.querySelector('.cred')||{}).textContent||'';const im=new Image();im.src='img/team/'+f+'.webp';im.width=im.height=96;im.loading='lazy';im.decoding='async';im.className='avatar photo';im.alt=n+(cr?', '+cr.trim():'');a.replaceWith(im);});
+const am=()=>g.querySelectorAll('article.card').forEach(c=>{const h=c.querySelector('h3');if(!h||h.textContent.trim()!=='Amber Frazier'||c.querySelector('.amber-line'))return;const p=document.createElement('p');p.className='amber-line';p.textContent='Well sought out for her trauma work with both children and adults.';const t=c.querySelector('.cred');if(t)t.after(p);});
+const fx=fix;fix=()=>{fx();am();};fix();new MutationObserver(fix).observe(g,{childList:true});})();
