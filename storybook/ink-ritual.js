@@ -64,7 +64,7 @@ function build(el){
   svg.setAttribute('width','100%');
   svg.setAttribute('height','100%');
   svg.innerHTML='<path class="strike" d="'+strike+'"></path><path class="flour" d="'+flour+'"></path>'
-    +'<g class="quill"><path d="M0 0 C -2.2 -3.2 -8 -7.2 -15 -6.2 C -8.2 -3.2 -3.2 -1.1 0 0 Z"></path><path class="nib" d="M0 0 l 1.6 -0.45 l -0.35 1.25 Z"></path></g>';
+    +'<g class="quill"><path d="M0 0 C -3 -5 -12 -11 -22 -9 C -12 -5 -5 -1.6 0 0 Z"></path><circle class="nib" cx="0" cy="0" r="2.4"></circle></g>';
   svg._nw=el.querySelector('.rw-new');
   svg._box={br:br,left:el.clientLeft,top:el.clientTop};
   return svg;
@@ -99,7 +99,7 @@ function run(el,veil,my){
   var slen=prep(strike),flen=prep(flour);
   if(!(slen>1)){veil.classList.add('rest');el.classList.remove('inking');setTimeout(function(){if(veil.parentNode)veil.remove()},400);return}
   var t0=performance.now();
-  var S=880,F0=620,F=480;
+  var S=1100,F0=820,F=520;
   var dropped={};
   var nw=veil._nw,br=veil._box;
   if(nw&&br){
@@ -119,7 +119,7 @@ function run(el,veil,my){
   }
   function place(pt,prev){
     var ang=Math.atan2(pt.y-prev.y,pt.x-prev.x)*180/Math.PI;
-    quill.setAttribute('transform','translate('+pt.x.toFixed(2)+' '+pt.y.toFixed(2)+') rotate('+(ang-18).toFixed(1)+') scale(1.45)');
+    quill.setAttribute('transform','translate('+pt.x.toFixed(2)+' '+(pt.y-7).toFixed(2)+') rotate('+(ang-18).toFixed(1)+')');
   }
   function frame(now){
     if(el._ink!==my)return;
