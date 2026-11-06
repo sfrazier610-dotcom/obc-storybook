@@ -1,44 +1,151 @@
 /* Quiet Library: restored interactive chapters.
-   The code inside each block below is copied verbatim from ../shared/app.js (same scoring, same data from ../shared/data.js).
-   Only the wrapper and the existence guard are new. */
+   Insurance, fees, and FAQ blocks below stay aligned with ../shared/app.js.
+   The quiz block is the Chapter I matcher: same weights (+3 / +2 / +1) and the same gender filter.
+   Labeled exception: a telehealth answer does not apply in-person office points. */
 (function(){if(!document.querySelector('#quiz')||!window.OBC)return;
 const D=window.OBC,$=s=>document.querySelector(s),C=D.concernLabels,M=D.modLabels;
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-// --- verbatim from shared/app.js: quiz ---
-// quiz chips
-$('#q-concerns').innerHTML=Object.entries(C).map(([k,v])=>`<label><input type="checkbox" name="concern" value="${k}">${esc(v)}</label>`).join('');
-$('#q-mods').innerHTML=Object.entries(M).map(([k,v])=>`<label><input type="checkbox" name="mod" value="${k}">${esc(v)}</label>`).join('');
+const POPULAR=['trauma','anxiety','depression','relationships','grief','burnout'];
+const GROUPS=[
+ ['Hard chapters',['abuse','shame','selfharm','addiction']],
+ ['Body & mind',['eating','bodyimage','ocd','adhd','autism','chronic','dysregulation']],
+ ['Relationships & home',['family','attachment']],
+ ['Identity & belief',['faith','lgbtq','personality']],
+ ['Life stage',['highprofile','transitions']]
+];
+const SHORT=['EMDR','ART','CBT','TF-CBT','DBT','IFS','EFT','ACT','Play','Gottman'];
+function chip(map,name,k){
+ return `<label><input type="checkbox" name="${name}" value="${k}">${esc(map[k]||k)}</label>`;
+}
+function chipRow(map,name,keys){
+ return `<div class="chips">${keys.map(k=>chip(map,name,k)).join('')}</div>`;
+}
+const concernHost=$('#q-concerns');
+concernHost.innerHTML=chipRow(C,'concern',POPULAR)
+ +`<button type="button" class="btn ghost sm show-more" aria-expanded="false" aria-controls="concern-more" data-more="Show more" data-less="Show fewer">Show more</button>`
+ +`<div id="concern-more" class="chip-more" hidden>${GROUPS.map((g,i)=>`<div class="chip-group" role="group" aria-labelledby="cg-${i}"><p class="chip-cat" id="cg-${i}">${esc(g[0])}</p>${chipRow(C,'concern',g[1])}</div>`).join('')}</div>`;
+const moreMods=Object.keys(M).filter(k=>SHORT.indexOf(k)<0);
+const modHost=$('#q-mods');
+modHost.innerHTML=chipRow(M,'mod',SHORT)
+ +`<button type="button" class="btn ghost sm show-more" aria-expanded="false" aria-controls="mod-more" data-more="More approaches" data-less="Fewer approaches">More approaches</button>`
+ +`<div id="mod-more" class="chips" hidden>${moreMods.map(k=>chip(M,'mod',k)).join('')}</div>`;
+function wireMore(root){
+ if(!root||!root.querySelectorAll) return;
+ root.querySelectorAll('.show-more').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+   const panel=document.getElementById(btn.getAttribute('aria-controls'));
+   const open=btn.getAttribute('aria-expanded')==='true';
+   btn.setAttribute('aria-expanded',String(!open));
+   if(panel) panel.hidden=open;
+   btn.textContent=open?btn.getAttribute('data-more'):btn.getAttribute('data-less');
+  });
+ });
+}
+wireMore(concernHost);wireMore(modHost);
 const AGE={under8:'children under 8',child8:'children 8–12',teen:'teens',adult:'adults'};
-function ageText(g){const o=[];if(g.includes('under8')&&g.includes('child8'))o.push('children (including under 8)');else{if(g.includes('under8'))o.push('children under 8');if(g.includes('child8'))o.push('children 8–12');}if(g.includes('teen'))o.push('teens');if(g.includes('adult'))o.push('adults');return o.join(', ');}
 function score(c,a){let pts=0,max=0,why=[],gaps=[];
  a.concerns.forEach(x=>{max+=3;if(c.concerns.includes(x)){pts+=3;why.push(`Lists ${C[x]} (+3)`);}else gaps.push(`${C[x]} not listed`);});
  max+=2;if(c.ages===null||(c.agesPending&&!c.ages.includes(a.age)&&a.age!=='under8')){pts+=1;why.push('Age range not publicly listed (+1, confirm)');}else if(c.ages.includes(a.age)){pts+=2;why.push(`Works with ${AGE[a.age]}${c.agesLabel?' ('+c.agesLabel+')':''} (+2)`);}else gaps.push(`Doesn't list ${AGE[a.age]}`);
  max+=2;if(c.formats===null){pts+=1;why.push('Formats not publicly listed (+1, confirm)');}else if(c.formats.includes(a.format)){pts+=2;why.push(`Offers ${a.format} therapy (+2)`);}else gaps.push(`${a.format} therapy not listed`);
  if(a.setting&&a.setting!=='either'){max+=2;const sl=a.setting==='inperson'?'in-person sessions':'telehealth';if(!c.settings){pts+=1;why.push(`${sl} not confirmed (+1, confirm)`);}else if(c.settings.includes(a.setting)){pts+=2;why.push(`Offers ${sl} (+2)`);}else gaps.push(c.settings.length===1&&c.settings[0]==='telehealth'?'Telehealth only':`No ${sl}`);}
- if(a.office!=='either'){max+=2;const on=a.office==='bountiful'?'Bountiful':'Draper';const ip=c.settings&&c.settings.includes('inperson');if(c.offices&&c.offices.includes(a.office)&&ip){pts+=2;why.push(`Sees clients in ${on} (+2)`);}else gaps.push(!ip?'Telehealth only':`Not in the ${on} office`);}
+ /* Telehealth does not ask for an in-person office, and those points are not applied. */
+ if(a.setting!=='telehealth'&&a.office&&a.office!=='either'){max+=2;const on=a.office==='bountiful'?'Bountiful':'Draper';const ip=c.settings&&c.settings.includes('inperson');if(c.offices&&c.offices.includes(a.office)&&ip){pts+=2;why.push(`Sees clients in ${on} (+2)`);}else gaps.push(!ip?'Telehealth only':`Not in the ${on} office`);}
  a.mods.forEach(m=>{max+=1;if(c.mods.includes(m)){pts+=1;why.push(`Uses ${M[m]} (+1)`);}else gaps.push(`${M[m]} not listed`);});
- return {c,pts,max,pct:Math.round(100*pts/max),why,gaps};}
+ return {c,pts,max,pct:max?Math.round(100*pts/max):0,why,gaps};}
 window.obcScore=score;
+function plainReason(w){
+ let s=String(w).replace(/\s*\(\+\d+, confirm\)\s*$/,'').replace(/\s*\(\+\d+\)\s*$/,'');
+ if(s==='Age range not publicly listed') return 'Age range is not publicly listed, so this is only a light match';
+ if(/ not confirmed$/.test(s)) return s.replace(/ not confirmed$/,' is not confirmed publicly');
+ if(s.indexOf('Sees clients in ')===0) return 'Sees clients in person in '+s.slice('Sees clients in '.length);
+ return s;
+}
+function humanWhy(lines){
+ const out=[];
+ (lines||[]).forEach(w=>{
+  const s=plainReason(w);
+  if(s&&out.indexOf(s)<0) out.push(s);
+ });
+ return out.slice(0,3);
+}
 const PHOTOS={scott:'scott-frazier',amber:'amber-frazier',shanna:'shanna-manjang',amanda:'amanda-lloyd',aspen:'aspen-johnson',abby:'abby-locke'};
+const AWARDS={
+ scott:['<p class="award">City Weekly Best of Utah 2026: Best Experiential Therapist, 1st place</p><p class="award past">City Weekly Best of Utah 2025, 2nd place</p>'],
+ amber:['<p class="award">City Weekly Best of Utah 2026: Best Psychotherapist/Counselor, 3rd place</p>']
+};
+function awardHtml(c){return (AWARDS[c.id]||[]).join('');}
+function toolsHtml(){
+ return `<div class="match-tools"><button type="button" class="btn ghost sm" data-match-act="retake">Retake</button><button type="button" class="btn ghost sm" data-match-act="adjust">Adjust answers</button></div>`;
+}
+function ctas(first){
+ return `<div class="match-ctas"><a class="btn sm" href="/professional/intake.html">Begin with ${esc(first)}</a><a class="btn ghost sm" href="tel:3855246665">Call (385) 524-6665</a><a class="btn ghost sm" href="#team">Meet in the Hall</a></div>`;
+}
+function softCopy(a){
+ const bits=['age','format'];
+ if(a.setting&&a.setting!=='either') bits.push(a.setting==='telehealth'?'telehealth':'meeting in person');
+ if(a.setting!=='telehealth'&&a.office&&a.office!=='either') bits.push('office');
+ const last=bits.pop();
+ const list=bits.length?bits.join(', ')+' and '+last:last;
+ return `Soft match — based mainly on ${list}. These percentages can tie when the lantern has little to go on. Add a concern for a clearer light.`;
+}
 function resultsHtml(a){
  const G=(a.gender==='man'||a.gender==='woman')?a.gender:null;
- if(a.age==='under8'&&!D.clinicians.some(c=>c.ages&&c.ages.includes('under8'))) return {magical:false,html:'<div class="card under8-note" role="status" tabindex="-1"><p>For children under 8, please call us at <a href="tel:3855246665">(385) 524-6665</a> and we\'ll help you find the right fit or a trusted referral.</p></div>'};
- const r=D.clinicians.filter(c=>a.age!=='under8'||!c.ages||c.ages.includes('under8')).filter(c=>!G||c.gender===G).map(c=>score(c,a)).sort((x,y)=>y.pct-x.pct||y.pts-x.pts);
- if(G&&!r.length) return {magical:false,html:'<div class="card" role="status" tabindex="-1"><p>None of our counselors who are '+(G==='man'?'men':'women')+' list this age group. You can choose No preference to see every counselor who does, or call us at <a href="tel:3855246665">(385) 524-6665</a> and we\'ll help you find the right fit.</p></div>'};
- const setNote=a.setting==='either'?'':`<p class="note">You chose ${a.setting==='inperson'?'in person':'telehealth'}.</p>`;
+ const tools=toolsHtml();
+ if(a.age==='under8'&&!D.clinicians.some(c=>c.ages&&c.ages.includes('under8'))) return {magical:false,html:tools+'<div class="card under8-note" role="status" tabindex="-1"><p>For children under 8, please call us at <a href="tel:3855246665">(385) 524-6665</a> and we\'ll help you find the right fit or a trusted referral.</p></div>'};
+ const r=D.clinicians.filter(c=>c.id!=='makayla').filter(c=>a.age!=='under8'||!c.ages||c.ages.includes('under8')).filter(c=>!G||c.gender===G).map(c=>score(c,a)).sort((x,y)=>y.pct-x.pct||y.pts-x.pts);
+ if(G&&!r.length) return {magical:false,html:tools+'<div class="card" role="status" tabindex="-1"><p>None of our counselors who are '+(G==='man'?'men':'women')+' list this age group. You can choose No preference to see every counselor who does, or call us at <a href="tel:3855246665">(385) 524-6665</a> and we\'ll help you find the right fit.</p><p><button type="button" class="btn sm" data-match-act="clear-gender">Clear gender preference</button></p></div>'};
+ const thin=!a.concerns.length&&!a.mods.length;
+ let setNote='';
+ if(a.setting==='telehealth') setNote='<p class="note">You chose telehealth, so office points were not used.</p>';
+ else if(a.setting==='inperson') setNote='<p class="note">You chose in person.</p>';
+ const tie=r.length>1&&r[0].pct===r[1].pct;
+ const tieNote=tie?'<p class="note tie-note">Where the fit is the same, counselors stay in the order of the Hall.</p>':'';
+ const softNote=thin?`<p class="soft-note" role="status">${esc(softCopy(a))}</p>`:'';
+ const tryGender=G?`<p class="note"><button type="button" class="btn ghost sm" data-match-act="clear-gender">Try without gender filter</button></p>`:'';
  const T=window.THEME||{};
  const cards=r.map((x,i)=>{const file=PHOTOS[x.c.id];const initials=esc(x.c.name.split(/\s+/).map(s=>s[0]).join(''));
-  return `<li class="card portrait-card" style="--i:${i}"><figure class="portrait-frame"><span class="portrait-fallback" aria-hidden="true">${initials}</span>${file?`<img class="portrait" src="../professional/img/team/${file}.webp" alt="" width="160" height="160" decoding="async">`:''}</figure><div class="portrait-body"><div class="rhead"><span class="rank">#${i+1}</span><span class="who"><strong>${esc(x.c.name)}</strong>, ${esc(x.c.cred)}</span><span class="pct">${x.pct}% fit (${x.pts}/${x.max} pts)</span></div>
+  const human=humanWhy(x.why);
+  const first=x.c.name.split(' ')[0];
+  return `<li class="card portrait-card${i===0?' is-lead':''}" style="--i:${i}"><figure class="portrait-frame"><span class="portrait-fallback" aria-hidden="true">${initials}</span>${file?`<img class="portrait" src="../professional/img/team/${file}.webp" alt="" width="160" height="160" decoding="async">`:''}</figure><div class="portrait-body"><div class="rhead"><span class="rank">#${i+1}</span><h4 class="who"><strong>${esc(x.c.name)}</strong>, ${esc(x.c.cred)}</h4><span class="pct">${x.pct}% ${thin?'soft fit':'fit'}</span></div>
+ ${awardHtml(x.c)}
  <div class="bar" role="img" aria-label="${x.pct} percent"><span style="width:${x.pct}%"></span></div>
- <p><strong>Why:</strong></p><ul>${x.why.map(w=>`<li>${esc(w)}</li>`).join('')||'<li>No overlap with your selections</li>'}</ul>
- ${x.gaps.length?`<p class="gaps"><strong>Not listed:</strong> ${esc(x.gaps.join('; '))}</p>`:''}
- <a class="btn sm" href="/professional/intake.html">${(T.reqWord)||'Request'} ${esc(x.c.name.split(' ')[0])}</a></div></li>`;}).join('');
- return {magical:true,html:`<h3 id="results-title" tabindex="-1">${T.resultsTitle||'Your ranked matches'} (${a.age==='under8'?r.length+' clinicians who see children under 8':G?r.length+' of '+D.clinicians.length+' clinicians, by your gender preference':'all '+r.length+' clinicians'})</h3>${setNote}${a.age==='under8'?'<p class="note">For children under 8, you can also call us at <a href="tel:3855246665">(385) 524-6665</a> and we\'ll help you find the right fit.</p>':''}<ol class="ranked">`+cards+`</ol><p class="note">Scores reflect publicly listed specialties only, not quality. Feeling understood in the first sessions matters most. You can switch clinicians within the practice anytime.</p><p class="note"><a href="#team">Read more in the Hall of Counselors</a></p>`};
+ <p><strong>Why</strong></p><ul class="why-human">${human.map(w=>`<li>${esc(w)}</li>`).join('')||'<li>No listed overlap with your selections yet</li>'}</ul>
+ <details class="score-details"><summary>Score details</summary><ul>${x.why.map(w=>`<li>${esc(w)}</li>`).join('')||'<li>No overlap with your selections</li>'}</ul></details>
+ ${x.gaps.length?`<p class="gaps-label"><strong>Not listed</strong></p><ul class="gap-chips">${x.gaps.map(g=>`<li>${esc(g)}</li>`).join('')}</ul>`:''}
+ ${ctas(first)}</div></li>`;}).join('');
+ const title=`<h3 id="results-title" tabindex="-1">${T.resultsTitle||'Your ranked matches'} (${a.age==='under8'?r.length+' clinicians who see children under 8':G?r.length+' of '+D.clinicians.length+' clinicians, by your gender preference':'all '+r.length+' clinicians'})</h3>`;
+ return {magical:true,html:tools+title+softNote+setNote+tieNote+tryGender+`<ol class="ranked${thin?' is-soft':''}">`+cards+`</ol><p class="note">Scores reflect publicly listed specialties only, not quality. Feeling understood in the first sessions matters most. You can switch clinicians within the practice anytime.</p><p class="note"><a href="#team">Read more in the Hall of Counselors</a></p><p class="note">If you want a next chapter, the <a href="#insurance">Treasury</a> and the <a href="#locations">Two Libraries</a> are open.</p>`};
 }
+window.obcResultsHtml=resultsHtml;
 function showResults(root){const h=root.querySelector('h3,[role="status"]');if(h){if(!h.hasAttribute('tabindex'))h.setAttribute('tabindex','-1');try{h.focus({preventScroll:true})}catch(err){h.focus()}}
- const calm=document.documentElement.classList.contains('calm');try{root.scrollIntoView({behavior:calm?'auto':'smooth',block:'nearest'})}catch(err){}}
+ const calm=document.documentElement.classList.contains('calm')||window.matchMedia('(prefers-reduced-motion: reduce)').matches;try{root.scrollIntoView({behavior:calm?'auto':'smooth',block:'nearest'})}catch(err){}}
+let allowThin=false;
+const thin=document.createElement('div');
+thin.id='thin-confirm';
+thin.className='thin-confirm';
+thin.hidden=true;
+thin.setAttribute('role','region');
+thin.setAttribute('aria-label','A gentle check before the lantern lights');
+thin.innerHTML='<p id="thin-title"><strong>The lantern is still dim.</strong> With no concerns and no approaches chosen, the ranking will be a near-tie. Add a concern for a clearer lantern, or light it anyway.</p><div class="thin-actions"><button type="button" class="btn sm" id="thin-back">Add a concern</button><button type="button" class="btn ghost sm" id="thin-go">Light it anyway</button></div>';
+const results=$('#results');
+if(results&&results.before) results.before(thin);
+const thinBack=thin.querySelector('#thin-back');
+const thinGo=thin.querySelector('#thin-go');
+if(thinBack) thinBack.addEventListener('click',()=>{allowThin=false;thin.hidden=true;if(window.obcMatchGoto) window.obcMatchGoto(0);});
+if(thinGo) thinGo.addEventListener('click',()=>{allowThin=true;thin.hidden=true;const q=$('#quiz');if(q.requestSubmit) q.requestSubmit();else q.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));});
+window.obcMatchOnAnswersReset=function(){allowThin=false;thin.hidden=true;};
+if(results) results.addEventListener('click',e=>{
+ const b=e.target&&e.target.closest?e.target.closest('[data-match-act]'):null;
+ if(!b) return;
+ const act=b.getAttribute('data-match-act');
+ if(act==='retake'&&window.obcMatchRetake) window.obcMatchRetake();
+ else if(act==='adjust'&&window.obcMatchGoto) window.obcMatchGoto(-1);
+ else if(act==='clear-gender'&&window.obcMatchClearGender) window.obcMatchClearGender();
+});
 $('#quiz').addEventListener('submit',e=>{e.preventDefault();const f=new FormData(e.target);
  const a={concerns:f.getAll('concern'),age:f.get('age'),format:f.get('format'),mods:f.getAll('mod'),setting:f.get('setting'),office:f.get('office')||'either',gender:f.get('gender')||'any'};
+ if(!a.concerns.length&&!a.mods.length&&!allowThin){thin.hidden=false;if(thinBack){try{thinBack.focus();}catch(err){}}try{thin.scrollIntoView({behavior:'smooth',block:'nearest'});}catch(err){}return;}
+ allowThin=false;thin.hidden=true;
  const out=resultsHtml(a);
  const paint=animated=>{const root=$('#results');root.classList.toggle('is-reveal',!!animated&&out.magical);root.innerHTML=out.html;root.querySelectorAll('img.portrait').forEach(img=>img.addEventListener('error',()=>img.remove()));};
  if(out.magical&&typeof window.obcMatchReveal==='function') window.obcMatchReveal(paint,()=>showResults($('#results')));
