@@ -44,13 +44,30 @@ main>nav.crumbs{padding:20px 20px 0;font-size:15px}main>section.page-hero{paddin
 .note,.gaps,.cred{color:var(--muted);font-size:15px}.cred{font-weight:600;margin:0}
 .card{background:#fff;border:1px solid var(--line);border-radius:var(--r);box-shadow:0 2px 10px rgba(22,50,58,.06);padding:22px}
 /* hero */
-.hero2{display:grid;gap:28px;align-items:center}
+.hero2{display:grid;gap:28px;align-items:center;position:relative;max-width:none!important;
+ padding-left:max(20px,calc((100% - 1144px)/2))!important;padding-right:max(20px,calc((100% - 1144px)/2))!important;
+ background:
+  radial-gradient(ellipse 46% 78% at 10% 28%, rgba(31,111,107,.15), transparent 68%),
+  radial-gradient(ellipse 38% 64% at 88% 6%, rgba(31,111,107,.11), transparent 66%),
+  linear-gradient(180deg, #E6F0EE 0%, rgba(230,240,238,.72) 48%, rgba(247,244,238,0) 100%)}
 @media(min-width:900px){.hero2{grid-template-columns:7fr 5fr;gap:48px;padding-top:64px}}
 .hero2 h1{font-size:clamp(2rem,4.4vw,3.2rem)}
 .collage{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.collage img{width:100%;height:auto;aspect-ratio:1;object-fit:cover;border-radius:18px;display:block}
 .collage img:nth-child(2n){transform:translateY(14px)}
 @media(max-width:899px){.collage{grid-template-columns:repeat(6,1fr);gap:6px}.collage img{border-radius:12px}.collage img:nth-child(2n){transform:none}}
-.sb-entry a{display:inline-flex;gap:8px;align-items:center;min-height:48px;padding:6px 16px;border-radius:12px;background:var(--brand2);color:var(--ink);text-decoration:none;border:1px solid #c7dbd7}.sb-entry a:hover{background:#d6e8e4}
+@media (prefers-reduced-motion: no-preference){
+ .collage img{animation:obc-breath 18s ease-in-out infinite}
+ .collage img:nth-child(2n){animation-name:obc-breath-shift}
+ .collage img:nth-child(1){animation-delay:-2s}.collage img:nth-child(2){animation-delay:-7s}
+ .collage img:nth-child(3){animation-delay:-4s}.collage img:nth-child(4){animation-delay:-11s}
+ .collage img:nth-child(5){animation-delay:-5s}.collage img:nth-child(6){animation-delay:-9s}
+}
+@media (prefers-reduced-motion: no-preference) and (max-width:899px){
+ .collage img:nth-child(2n){animation-name:obc-breath}
+}
+@keyframes obc-breath{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes obc-breath-shift{0%,100%{transform:translateY(14px)}50%{transform:translateY(9px)}}
+.sb-entry a{display:inline-block;min-height:48px;padding:10px 16px;border-radius:12px;background:var(--brand2);color:var(--ink);text-decoration:none;border:1px solid #c7dbd7}.sb-entry a span[aria-hidden]{margin-right:6px}.sb-entry a:hover{background:#d6e8e4}
 /* trust strip */
 .trust2{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:center;background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line);max-width:none!important;padding:20px max(20px,calc((100% - 1160px)/2))!important}
 .trust2 .bou img{height:72px;width:auto;display:block;border-radius:3px;box-shadow:0 1px 4px rgba(0,0,0,.2)}
@@ -122,3 +139,44 @@ form.intake{display:grid;gap:.8rem;max-width:34rem}form.intake label{display:gri
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 @media(max-width:480px){.top{gap:6px 8px;flex-wrap:wrap}.brand{font-size:15px;gap:5px;letter-spacing:-.01em}.brand-mark{height:22px}.top-call{margin-left:auto}.menu{padding:0 10px}}
 @media(max-width:360px){.brand{font-size:14px}.brand-mark{display:none}}
+/* NPP footer link omitted: no Notice of Privacy Practices URL is published in this repo. Add it when Scott provides the URL. */
+/* scroll-reveal: 14px rise. Hidden only after motion.js marks offscreen nodes, and only when motion is allowed. */
+@media (prefers-reduced-motion: no-preference){
+ .reveal{opacity:0;transform:translateY(14px)}
+ .reveal.in{opacity:1;transform:none;transition:opacity .7s ease, transform .7s ease;transition-delay:var(--d,0ms)}
+}
+/* service line icons */
+.svc::before{content:"";display:block;width:40px;height:40px;margin:0 0 12px;background:center/contain no-repeat}
+.svc-individual::before{background-image:url(img/icons/individual.svg)}
+.svc-couples::before{background-image:url(img/icons/couples.svg)}
+.svc-family::before{background-image:url(img/icons/family.svg)}
+.svc-children::before{background-image:url(img/icons/children.svg)}
+.svc-trauma::before{background-image:url(img/icons/trauma.svg)}
+.svc-anxiety::before{background-image:url(img/icons/anxiety.svg)}
+.svc-telehealth::before{background-image:url(img/icons/telehealth.svg)}
+.page-hero.svc::before{width:44px;height:44px}
+/* location stand-in photo */
+.loc-photo{width:100%;height:190px;object-fit:cover;object-position:center;border-radius:12px;display:block;margin:0 0 12px}
+/* intake bridge */
+.bridge{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:22px 22px 8px;margin:12px 0 22px;box-shadow:0 2px 10px rgba(22,50,58,.06)}
+.bridge h2{font-size:1.45rem}
+.bridge-steps{list-style:none;padding:0;margin:0 0 8px;display:grid;gap:16px}
+.bridge-steps li{display:grid;grid-template-columns:40px 1fr;gap:12px;align-items:start;margin:0}
+.bridge-steps .n{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--brand2);color:var(--brand);font:600 1.05rem var(--head)}
+.bridge-steps h3{font-size:1.15rem;margin:0}
+.bridge-steps p{margin:.25em 0 0;font-size:15px}
+@media(min-width:840px){
+ .bridge-steps{grid-template-columns:repeat(3,1fr);gap:18px}
+ .bridge-steps li{grid-template-columns:1fr;gap:8px}
+}
+/* resources hub */
+.res-grid{display:grid;gap:16px;grid-template-columns:1fr}
+@media(min-width:700px){.res-grid{grid-template-columns:1fr 1fr}}
+.res-card{display:flex;flex-direction:column;align-items:flex-start;gap:4px;background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:20px;color:var(--ink);text-decoration:none;box-shadow:0 2px 10px rgba(22,50,58,.06)}
+a.res-card:hover{border-color:var(--brand);color:var(--ink)}
+.res-card h2,.res-card h3{color:var(--brand);font-size:1.3rem;margin:0}
+.res-card p,.res-card li{font-size:15px}
+.res-card .byline{color:var(--muted)}
+.res-card ul{margin:.4em 0;padding-left:1.15em}
+details.acc{background:#fff;border:1px solid var(--line);border-radius:12px;padding:4px 14px;margin:8px 0}
+details.acc summary{font-weight:600;min-height:48px;display:flex;align-items:center;cursor:pointer}
