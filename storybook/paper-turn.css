@@ -1,0 +1,99 @@
+/* One sheet of paper, drawn as joined strips on a curve.
+   Calm and reduced motion never show it. */
+.paper-rig{
+  position:absolute;
+  inset:0;
+  z-index:8;
+  pointer-events:none;
+  perspective:1700px;
+  perspective-origin:50% 46%;
+  transform-style:preserve-3d;
+}
+.paper-rig.mobile{
+  position:fixed;
+  z-index:36;
+}
+.paper-cast{
+  position:absolute;
+  top:2%;
+  bottom:2%;
+  width:42%;
+  pointer-events:none;
+  z-index:1;
+  background:linear-gradient(90deg, rgba(20,10,4,0), rgba(24,12,6,.5) 55%, rgba(24,12,6,0));
+  filter:blur(1px);
+  opacity:0;
+}
+.pseg{
+  position:absolute;
+  top:0;
+  height:100%;
+  overflow:hidden;
+  transform-origin:left center;
+  will-change:transform;
+  background-color:#f3e4c6;
+  background-image:url(img/paper-fiber.webp);
+  background-size:520px;
+}
+.paper-rig.bwd.mobile .pseg{transform-origin:right center}
+.pinner{
+  position:absolute;
+  top:0;
+  left:0;
+  height:100%;
+}
+.paper-rig .hot,
+.paper-rig .sc-hot,
+.paper-rig .shoot,
+.paper-rig .hot-note{display:none!important}
+.paper-rig .ptext{height:100%;box-sizing:border-box}
+.paper-rig .plate{height:100%}
+.paper-rig .plate-frame img,
+.paper-rig .scene{clip-path:none!important}
+.paper-rig .blend,.paper-rig .blend-g{display:none!important}
+.paper-rig .ptext>*{
+  opacity:1!important;
+  transform:none!important;
+  animation:none!important;
+}
+.pshade{
+  position:absolute;
+  inset:0;
+  z-index:3;
+  pointer-events:none;
+  background:rgba(28,12,4,.8);
+  opacity:0;
+}
+.pseg.fore::after{
+  content:"";
+  position:absolute;
+  top:0;
+  bottom:0;
+  right:0;
+  width:4px;
+  z-index:4;
+  pointer-events:none;
+  background:linear-gradient(90deg, rgba(70,36,12,.35), #fff8ea 50%, rgba(200,155,60,.4));
+}
+.paper-rig.bwd.mobile .pseg.fore::after{
+  right:auto;
+  left:0;
+  background:linear-gradient(270deg, rgba(70,36,12,.35), #fff8ea 50%, rgba(200,155,60,.4));
+}
+.book.turning .sheet{clip-path:inset(-20% -18% -20% -18%)}
+.book.turning .gleaf,.book.turning .leaf{visibility:hidden!important}
+html.paper-turning .opener .plate-frame img,
+html.paper-turning .opener .scene,
+html.paper-turning .opener .plate-frame .scene{
+  clip-path:none!important;
+  transition:none!important;
+}
+html.paper-turning .opener .ptext>*{
+  opacity:1!important;
+  transform:none!important;
+  animation:none!important;
+}
+.calm .paper-rig{display:none!important}
+@media (prefers-reduced-motion:reduce){
+  .paper-rig{display:none!important}
+}
