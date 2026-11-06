@@ -19,19 +19,30 @@ function score(c,a){let pts=0,max=0,why=[],gaps=[];
  a.mods.forEach(m=>{max+=1;if(c.mods.includes(m)){pts+=1;why.push(`Uses ${M[m]} (+1)`);}else gaps.push(`${M[m]} not listed`);});
  return {c,pts,max,pct:Math.round(100*pts/max),why,gaps};}
 window.obcScore=score;
-$('#quiz').addEventListener('submit',e=>{e.preventDefault();const f=new FormData(e.target);
- const a={concerns:f.getAll('concern'),age:f.get('age'),format:f.get('format'),mods:f.getAll('mod'),setting:f.get('setting'),office:f.get('office')||'either',gender:f.get('gender')||'any'};
+const PHOTOS={scott:'scott-frazier',amber:'amber-frazier',shanna:'shanna-manjang',amanda:'amanda-lloyd',aspen:'aspen-johnson',abby:'abby-locke'};
+function resultsHtml(a){
  const G=(a.gender==='man'||a.gender==='woman')?a.gender:null;
- if(a.age==='under8'&&!D.clinicians.some(c=>c.ages&&c.ages.includes('under8'))){$('#results').innerHTML='<div class="card under8-note" role="status"><p>For children under 8, please call us at <a href="tel:3855246665">(385) 524-6665</a> and we\'ll help you find the right fit or a trusted referral.</p></div>';$('#results').scrollIntoView&&$('#results').focus&&0;return;}
+ if(a.age==='under8'&&!D.clinicians.some(c=>c.ages&&c.ages.includes('under8'))) return {magical:false,html:'<div class="card under8-note" role="status" tabindex="-1"><p>For children under 8, please call us at <a href="tel:3855246665">(385) 524-6665</a> and we\'ll help you find the right fit or a trusted referral.</p></div>'};
  const r=D.clinicians.filter(c=>a.age!=='under8'||!c.ages||c.ages.includes('under8')).filter(c=>!G||c.gender===G).map(c=>score(c,a)).sort((x,y)=>y.pct-x.pct||y.pts-x.pts);
- if(G&&!r.length){$('#results').innerHTML='<div class="card" role="status"><p>None of our counselors who are '+(G==='man'?'men':'women')+' list this age group. You can choose No preference to see every counselor who does, or call us at <a href="tel:3855246665">(385) 524-6665</a> and we\'ll help you find the right fit.</p></div>';return;}
+ if(G&&!r.length) return {magical:false,html:'<div class="card" role="status" tabindex="-1"><p>None of our counselors who are '+(G==='man'?'men':'women')+' list this age group. You can choose No preference to see every counselor who does, or call us at <a href="tel:3855246665">(385) 524-6665</a> and we\'ll help you find the right fit.</p></div>'};
  const setNote=a.setting==='either'?'':`<p class="note">You chose ${a.setting==='inperson'?'in person':'telehealth'}.</p>`;
- const T=window.THEME||{};$('#results').innerHTML=`<h3>${T.resultsTitle||'Your ranked matches'} (${a.age==='under8'?r.length+' clinicians who see children under 8':G?r.length+' of '+D.clinicians.length+' clinicians, by your gender preference':'all '+r.length+' clinicians'})</h3>${setNote}${a.age==='under8'?'<p class="note">For children under 8, you can also call us at <a href="tel:3855246665">(385) 524-6665</a> and we\'ll help you find the right fit.</p>':''}<ol class="ranked">`+r.map((x,i)=>`<li class="card"><div class="rhead"><span class="rank">#${i+1}</span><strong>${esc(x.c.name)}</strong>, ${esc(x.c.cred)}<span class="pct">${x.pct}% fit (${x.pts}/${x.max} pts)</span></div>
+ const T=window.THEME||{};
+ const cards=r.map((x,i)=>{const file=PHOTOS[x.c.id];const initials=esc(x.c.name.split(/\s+/).map(s=>s[0]).join(''));
+  return `<li class="card portrait-card" style="--i:${i}"><figure class="portrait-frame"><span class="portrait-fallback" aria-hidden="true">${initials}</span>${file?`<img class="portrait" src="../professional/img/team/${file}.webp" alt="" width="160" height="160" decoding="async">`:''}</figure><div class="portrait-body"><div class="rhead"><span class="rank">#${i+1}</span><span class="who"><strong>${esc(x.c.name)}</strong>, ${esc(x.c.cred)}</span><span class="pct">${x.pct}% fit (${x.pts}/${x.max} pts)</span></div>
  <div class="bar" role="img" aria-label="${x.pct} percent"><span style="width:${x.pct}%"></span></div>
  <p><strong>Why:</strong></p><ul>${x.why.map(w=>`<li>${esc(w)}</li>`).join('')||'<li>No overlap with your selections</li>'}</ul>
  ${x.gaps.length?`<p class="gaps"><strong>Not listed:</strong> ${esc(x.gaps.join('; '))}</p>`:''}
- <a class="btn sm" href="/professional/intake.html">${(window.THEME&&window.THEME.reqWord)||'Request'} ${esc(x.c.name.split(' ')[0])}</a></li>`).join('')+`</ol><p class="note">Scores reflect publicly listed specialties only, not quality. Feeling understood in the first sessions matters most. You can switch clinicians within the practice anytime.</p>`;
- $('#results').scrollIntoView({behavior:'smooth'});});
+ <a class="btn sm" href="/professional/intake.html">${(T.reqWord)||'Request'} ${esc(x.c.name.split(' ')[0])}</a></div></li>`;}).join('');
+ return {magical:true,html:`<h3 id="results-title" tabindex="-1">${T.resultsTitle||'Your ranked matches'} (${a.age==='under8'?r.length+' clinicians who see children under 8':G?r.length+' of '+D.clinicians.length+' clinicians, by your gender preference':'all '+r.length+' clinicians'})</h3>${setNote}${a.age==='under8'?'<p class="note">For children under 8, you can also call us at <a href="tel:3855246665">(385) 524-6665</a> and we\'ll help you find the right fit.</p>':''}<ol class="ranked">`+cards+`</ol><p class="note">Scores reflect publicly listed specialties only, not quality. Feeling understood in the first sessions matters most. You can switch clinicians within the practice anytime.</p><p class="note"><a href="#team">Read more in the Hall of Counselors</a></p>`};
+}
+function showResults(root){const h=root.querySelector('h3,[role="status"]');if(h){if(!h.hasAttribute('tabindex'))h.setAttribute('tabindex','-1');try{h.focus({preventScroll:true})}catch(err){h.focus()}}
+ const calm=document.documentElement.classList.contains('calm');try{root.scrollIntoView({behavior:calm?'auto':'smooth',block:'nearest'})}catch(err){}}
+$('#quiz').addEventListener('submit',e=>{e.preventDefault();const f=new FormData(e.target);
+ const a={concerns:f.getAll('concern'),age:f.get('age'),format:f.get('format'),mods:f.getAll('mod'),setting:f.get('setting'),office:f.get('office')||'either',gender:f.get('gender')||'any'};
+ const out=resultsHtml(a);
+ const paint=animated=>{const root=$('#results');root.classList.toggle('is-reveal',!!animated&&out.magical);root.innerHTML=out.html;root.querySelectorAll('img.portrait').forEach(img=>img.addEventListener('error',()=>img.remove()));};
+ if(out.magical&&typeof window.obcMatchReveal==='function') window.obcMatchReveal(paint,()=>showResults($('#results')));
+ else{paint(false);showResults($('#results'));}});
 })();
 (function(){if(!document.querySelector('#ins')||!window.OBC)return;
 const D=window.OBC,$=s=>document.querySelector(s);
