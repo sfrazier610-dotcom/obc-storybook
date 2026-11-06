@@ -186,7 +186,7 @@ document.addEventListener('DOMContentLoaded',function(){var root=document.getEle
   f.style.setProperty('--i',i%6);c.classList.add('closed-charm');c.appendChild(f);
   f.addEventListener('click',function(){
     if(c.classList.contains('open'))return;
-    if(c.classList.contains('opening')){if(c._reveal)c._reveal();return}
+    if(c.classList.contains('opening')){if(performance.now()-(c._armed||0)>650&&c._reveal)c._reveal();return}
     var calm=document.documentElement.classList.contains('calm')||matchMedia('(prefers-reduced-motion: reduce)').matches;
     var ran=false;
     function reveal(){
@@ -201,6 +201,7 @@ document.addEventListener('DOMContentLoaded',function(){var root=document.getEle
     }
     c._reveal=reveal;
     if(calm||!window.obcCharm){reveal();return}
+    c._armed=performance.now();
     c.classList.add('opening');
     window.obcCharm.draw(c,f,reveal);
   });

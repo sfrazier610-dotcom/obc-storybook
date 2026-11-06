@@ -34,9 +34,11 @@ function draw(card,front,done){
   });
   void rite.offsetWidth;
   rite.classList.add('go');
-  var ended=false,timer=0,mo=null;
+  var ended=false,timer=0,mo=null,t0=performance.now();
   function finish(){
     if(ended)return;
+    var waited=performance.now()-t0;
+    if(waited<760&&!still()){timer=setTimeout(finish,760-waited);return}
     ended=true;
     clearTimeout(timer);
     if(mo)mo.disconnect();
@@ -44,7 +46,7 @@ function draw(card,front,done){
   }
   var path=rite.querySelector('.rite-path');
   if(path)path.addEventListener('animationend',finish);
-  timer=setTimeout(finish,1200);
+  timer=setTimeout(finish,1400);
   mo=new MutationObserver(function(){if(still())finish()});
   mo.observe(document.documentElement,{attributes:true,attributeFilter:['class']});
 }
