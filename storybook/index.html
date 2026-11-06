@@ -809,9 +809,7 @@ html.page-hidden .lantern-svg .flame-outer,html.page-hidden .lantern-svg .flame-
 .thin-confirm p{margin:0 0 10px}
 .thin-actions,.match-ctas{display:flex;flex-wrap:wrap;gap:8px}
 .match-ctas{margin-top:8px}
-.match-tools{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:32;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;width:max-content;max-width:calc(100% - 24px);margin:0;padding:8px;background:rgba(251,243,225,.96);border:1px solid rgba(200,155,60,.55);border-radius:999px;box-shadow:0 10px 24px rgba(40,20,8,.18)}
-@media (max-width:899px){.match-tools{position:static;left:auto;bottom:auto;transform:none;width:auto;max-width:none;margin:0 0 12px;box-shadow:none}}
-@media (min-width:900px){#results:not(:empty){padding-bottom:92px}}
+.match-tools{position:static;z-index:2;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:0 0 12px;padding:8px;background:rgba(251,243,225,.96);border:1px solid rgba(200,155,60,.45);border-radius:999px}
 #match .btn.sm,#thin-confirm .btn,.match-tools .btn,.match-ctas .btn,.show-more{min-height:44px}
 .js:not(.calm) #results.is-reveal .portrait-card{animation:portraitIn .72s var(--ease-out) both;animation-delay:calc(var(--i, 0) * 150ms)}
 .js:not(.calm) #results.is-reveal .ranked:not(.is-soft)>li.portrait-card:first-child{animation:portraitIn .95s var(--ease-out) both,leadEdge 1.6s ease both;animation-delay:0s}
