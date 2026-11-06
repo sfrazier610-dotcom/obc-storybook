@@ -1106,7 +1106,7 @@ html.page-hidden .lantern-svg .flame-outer,html.page-hidden .lantern-svg .flame-
 .calm .sc-glow::before{display:none}
 /* fix22: counselor photos back in the Hall seals (as in 4fb29aa, reusing professional/img/team). Initials stay underneath as the fallback. */.seal.has-photo{position:relative;width:88px;height:88px;overflow:hidden;padding:0}.seal.has-photo .seal-photo{position:absolute;inset:3px;width:calc(100% - 6px);height:calc(100% - 6px);border-radius:50%;object-fit:cover;aspect-ratio:1/1}.bookplate:hover .seal.has-photo{transform:none}@media(max-width:600px){.seal.has-photo{width:72px;height:72px}}
 </style>
-<link rel="stylesheet" href="quiet-craft.css?v=20261106e">
+<link rel="stylesheet" href="quiet-craft.css?v=20261106f">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
@@ -1134,6 +1134,8 @@ html.page-hidden .lantern-svg .flame-outer,html.page-hidden .lantern-svg .flame-
   <ol class="toc" id="toc" hidden><li><a href="#home" data-turn="1"><span class="toc-l">Prologue</span> Empowering your New Story!</a></li><li><a href="#match" data-turn="1"><span class="toc-l">Chapter I</span> The Counselor-Matching Guide: Find your counselor</a></li><li><a href="#team" data-turn="1"><span class="toc-l">Chapter II</span> The Hall of Counselors</a></li><li><a href="#services" data-turn="1"><span class="toc-l">Chapter III</span> The Skill Book of Approaches</a></li><li><a href="#toolkit" data-turn="1"><span class="toc-l">Chapter IV</span> The Charm Library</a></li><li><a href="#quest" data-turn="1"><span class="toc-l">A Side Quest</span> Wanderer's Quest: Calming the Fogstorm</a></li><li><a href="#insurance" data-turn="1"><span class="toc-l">Chapter V</span> The Treasury: Insurance &amp; fees</a></li><li><a href="#locations" data-turn="1"><span class="toc-l">Chapter VI</span> The Two Libraries</a></li><li><a href="#faq" data-turn="1"><span class="toc-l">Chapter VII</span> Scrolls of Questions</a></li><li><a href="#careers" data-turn="1"><span class="toc-l">Chapter VIII</span> The Guild Hall: Careers</a></li><li class="toc-prog" hidden><span class="toc-l">Your story so far</span><span class="prog-t"></span><span class="prog-bar" aria-hidden="true"><i></i></span><span class="prog-row"><small>Saved only on this device.</small><button class="forget" type="button">Forget my place</button></span></li><li class="toc-rr"><a href="resources/"><span class="toc-l">Articles</span> The Reading Room</a></li><li class="toc-calm"><button class="calm-btn" type="button" aria-pressed="false">Calm mode: off</button></li></ol>
  </nav>
  <button class="calm-btn top-calm" type="button" aria-pressed="false">Calm mode: off</button>
+ <button class="hearth-btn top-hearth" type="button" aria-pressed="false" aria-describedby="hearth-note">Hearth sound: off</button>
+ <span id="hearth-note" class="sr">Fireplace and page-turn stay off until you turn them on. Nothing plays on its own. The choice is saved in this browser under the key obcSbHearth. Calm mode keeps the hearth silent.</span>
  <a class="btn book-btn" href="/professional/intake.html"><span class="long">Book an appointment</span><span class="short">Book</span></a>
 </header>
 <main id="main">
@@ -1313,6 +1315,8 @@ html.page-hidden .lantern-svg .flame-outer,html.page-hidden .lantern-svg .flame-
 </div>
 <div class="egg-toast" id="egg-toast" role="status" aria-live="polite"></div>
 <div class="kind-note" id="kind-note" hidden role="dialog" aria-labelledby="kn-h"><p class="clabel" id="kn-h">A note tucked in the book</p><p>You don’t need the right words to begin. Starting can be small and a little messy. Being here and looking is already a step.</p><button class="btn ghost" type="button" data-close="kind-note">Tuck it back</button></div>
+<script src="ink-ritual.js?v=20261106f"></script>
+<script src="hearth.js?v=20261106f"></script>
 <script>(function(){
 'use strict';
 var H=document.documentElement,V=H.getAttribute('data-variant');
@@ -1323,6 +1327,7 @@ var book=$('#book'),pl=$('#pl'),pr=$('#pr'),leaf=$('#leaf'),lf=$('.front',leaf),
 var cur=0,busy=false,opened=H.classList.contains('opened');
 var calmBtns=$$('.calm-btn');
 function isCalm(){return H.classList.contains('calm')}
+function cueHearth(kind){if(window.obcHearth)window.obcHearth.cue(kind)}
 window.__vtRuns=0;function canVT(){return !!document.startViewTransition&&!isCalm()&&!rm.matches}
 var vtCur=null;
 function vt(dir,fn,done){H.setAttribute('data-vt',dir);window.__vtRuns++;var t;try{t=document.startViewTransition(fn)}catch(e){H.removeAttribute('data-vt');fn();if(done)done();return}
@@ -1369,7 +1374,7 @@ function turnTo(to,opts){
  opts=opts||{};
  if(typeof to==='string')to=ids.indexOf(to);
  if(to<0||to>N||(to===N&&!opts.secret))return;
- if(!desk.matches){if(to===N){if(!opened)openBook(true);return}if(!opened){cur=to;openBook(true);return}if(to===cur)return;var mf=to>cur,useVT=canVT();cur=to;pageCurl(mf);
+ if(!desk.matches){if(to===N){if(!opened)openBook(true);return}if(!opened){cur=to;openBook(true);return}if(to===cur)return;var mf=to>cur,useVT=canVT();cur=to;pageCurl(mf);cueHearth('turn');
   var mswap=function(){chaps.forEach(function(c,k){c.classList.toggle('active',k===to);c.classList.remove('mt-f','mt-b')});arm(chaps[to]);if(!isCalm()&&!rm.matches&&!useVT){void chaps[to].offsetWidth;chaps[to].classList.add(mf?'mt-f':'mt-b')}
   updateUI();try{history.replaceState(null,'','#'+ids[to])}catch(e){}window.scrollTo(0,0);refit();var hd=$('.ctitle',chaps[to])||chaps[to];if(!hd.hasAttribute('tabindex'))hd.setAttribute('tabindex','-1');hd.focus({preventScroll:true})};
   if(useVT){vt(mf?'f':'b',mswap)}else mswap();return}
@@ -1379,9 +1384,9 @@ function turnTo(to,opts){
  try{history.replaceState(null,'','#'+ids[to])}catch(e){}
  if(isCalm()){
   paint(to);[pl,pr].forEach(function(p){p.classList.remove('fade');void p.offsetWidth;p.classList.add('fade')});
-  showBody(to,false);return;
+  showBody(to,false);cueHearth('turn');return;
  }
- busy=true;var fwd=to>from;
+ busy=true;var fwd=to>from;cueHearth('turn');
  if(canVT()){busy=false;vt(fwd?'f':'b',function(){paint(to);fresh(pr);warm(pl);showBody(to,false)},function(){fitHots(pl);fitHots(pr)});return}
  pr.classList.remove('fresh');
  if(fwd){pl.classList.remove('warm');pl.innerHTML=L(from);pr.innerHTML=R(to);lf.innerHTML=R(from);lb.innerHTML=L(to);fresh(pr)}
@@ -1400,7 +1405,7 @@ function openBook(instant){
  try{sessionStorage.setItem('obcSbOpen','1')}catch(e){}
  paint(cur);fresh(pr);warm(pl);showBody(cur,false);updateUI();armOpeners();if(!desk.matches)chaps.forEach(arm);
  if(instant||isCalm()){H.classList.remove('closed');H.classList.add('opened');afterOpen(instant);return}
- H.classList.add('opening');H.classList.remove('closed');
+ H.classList.add('opening');H.classList.remove('closed');cueHearth('open');
  setTimeout(function(){cover.classList.add('gone')},1150);
  setTimeout(function(){H.classList.remove('opening');H.classList.add('opened');afterOpen(false)},1650);
 }
@@ -1425,10 +1430,10 @@ function warm(p){p.classList.remove('warm');void p.offsetWidth;p.classList.add('
 if(aw)$$('.ctitle',aw).forEach(inkWords);
 var ghosts=$$('.gleaf');
 /* rewrite band: tap to (re)write a line; the band writes itself once when it scrolls into view */
-function rwPlay(el){el.classList.remove('done');void el.offsetWidth;el.classList.add('done')}
-$$('.rw').forEach(function(b){b.addEventListener('click',function(){if(isCalm())return;rwPlay(b)})});
+function rwPlay(el){if(window.obcInk&&!el.classList.contains('rw-line')){window.obcInk.play(el);return}el.classList.remove('done');void el.offsetWidth;el.classList.add('done')}
+$$('.rw').forEach(function(b){b.addEventListener('click',function(){rwPlay(b)})});
 var band=$('.rewrite');
-if(band){var rws=$$('.rw',band);if(!('IntersectionObserver' in window)){rws.forEach(function(b){b.classList.add('done')})}else{var bio=new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting)return;bio.disconnect();rws.forEach(function(b,k){setTimeout(function(){b.classList.add('done')},isCalm()?0:500+k*900)})})},{threshold:.35});bio.observe(band)}}
+if(band){var rws=$$('.rw',band);if(!('IntersectionObserver' in window)){rws.forEach(function(b){rwPlay(b)})}else{var bio=new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting)return;bio.disconnect();rws.forEach(function(b,k){setTimeout(function(){rwPlay(b)},isCalm()?0:500+k*900)})})},{threshold:.35});bio.observe(band)}}
 /* the small rewrite line on the Prologue page cycles through the same pairs, only while that page is showing */
 var PAIRS=$$('.rw').map(function(b){var o=b.querySelector('.rw-old').cloneNode(true),n=b.querySelector('.rw-new').cloneNode(true);$$('.sr',o).concat($$('.sr',n)).forEach(function(x){x.remove()});return[o.textContent.trim(),n.innerHTML]}),rwK=0;
 function rwLine(){var l=$('.rw-line',pr);if(!l||!PAIRS.length)return null;return l}
@@ -1466,7 +1471,7 @@ document.addEventListener('pointerdown',function(e){if(isCalm())return;var sc=e.
  function build(a,b){while(card.firstChild)card.removeChild(card.firstChild);var s=document.createElement('s');s.className='rw-old';var s1=document.createElement('span');s1.className='sr';s1.textContent='Old line: ';s.appendChild(s1);s.appendChild(document.createTextNode(a));
   var w=document.createElement('span');w.className='rw-new';var s2=document.createElement('span');s2.className='sr';s2.textContent='Rewritten: ';w.appendChild(s2);w.appendChild(document.createTextNode(b));card.appendChild(s);card.appendChild(w);inkWords(w)}
  function go(){var a=o.value.trim(),b=n.value.trim();msg.textContent='';if(!a){msg.textContent='Write an old line first.';o.focus();return}if(!b){msg.textContent='Now write a new line.';n.focus();return}
-  build(a,b);card.hidden=false;card.classList.remove('done');if(isCalm()||rm.matches){card.classList.add('done')}else{void card.offsetWidth;requestAnimationFrame(function(){card.classList.add('done')})}}
+  build(a,b);card.hidden=false;card.classList.remove('done');if(window.obcInk){window.obcInk.play(card)}else if(isCalm()||rm.matches){card.classList.add('done')}else{void card.offsetWidth;requestAnimationFrame(function(){card.classList.add('done')})}}
  $('.rw-go').addEventListener('click',go);
  [o,n].forEach(function(el){el.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();if(el===o&&!n.value.trim())n.focus();else go()}})});
  $('.rw-erase').addEventListener('click',function(){o.value='';n.value='';msg.textContent='';while(card.firstChild)card.removeChild(card.firstChild);card.hidden=true;card.classList.remove('done');o.focus()});
@@ -1703,7 +1708,7 @@ window.addEventListener('keydown',function(ev){
 window.__eggs={find:find,openSky:openSky,showAfterword:showAfterword,openNote:openNote};
 })();
 </script>
-<script src="atmosphere.js?v=20261106c"></script><script src="theme-config.js?v=20261106"></script><script src="../shared/data.js?v=20261106"></script><script src="quiet-shared.js?v=20261106b"></script><script src="match-ritual.js?v=20261106b"></script><script src="../shared/coping.js?v=20261106"></script>
+<script src="atmosphere.js?v=20261106c"></script><script src="theme-config.js?v=20261106"></script><script src="../shared/data.js?v=20261106"></script><script src="charm-ritual.js?v=20261106f"></script><script src="quiet-shared.js?v=20261106f"></script><script src="match-ritual.js?v=20261106b"></script><script src="../shared/coping.js?v=20261106"></script>
 <script>(function(){var c=document.querySelector(".crisis");if(!c)return;function f(){document.documentElement.style.setProperty("--crisis-h",c.offsetHeight+"px")}f();if(window.ResizeObserver)new ResizeObserver(f).observe(c);else addEventListener("resize",f)})();</script>
 </body>
 </html>
