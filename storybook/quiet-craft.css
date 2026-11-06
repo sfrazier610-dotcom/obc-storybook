@@ -1,0 +1,403 @@
+/* Quiet Library — Phase 1 atmosphere shell + Phase 2 chapter polish.
+   Legacy magic.js / motion.js / sound.js stay unwired. */
+
+/* --- room: grain, vignette, dust canvas (hard off in calm / reduced motion) --- */
+.stage::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:1;
+  background:radial-gradient(ellipse 72% 68% at 50% 46%, transparent 42%, rgba(5,10,12,.5) 100%);
+}
+.stage::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:1;
+  opacity:.16;
+  mix-blend-mode:soft-light;
+  background-image:url(img/film-grain.webp);
+  background-size:220px 220px;
+}
+.atmo-canvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+  z-index:4;
+}
+.calm .stage::before,
+.calm .stage::after,
+.calm .atmo-canvas,
+html.atmo-off .atmo-canvas{
+  display:none!important;
+}
+@media (prefers-reduced-motion:reduce){
+  .stage::before,.stage::after,.atmo-canvas,#page-curl{display:none!important}
+}
+html.paused .lt{animation-play-state:paused}
+
+/* --- parchment: higher-res fiber + warm sand / wine wash --- */
+.pg,.leaf .face,.story{
+  background-color:#f3e4c6;
+  background-image:
+    radial-gradient(ellipse 85% 55% at 0% 0%, rgba(255,250,236,.5), transparent 48%),
+    radial-gradient(ellipse 70% 60% at 100% 100%, rgba(110,31,36,.05), transparent 46%),
+    url(img/paper-fiber.webp);
+  background-repeat:no-repeat,no-repeat,repeat;
+  background-size:auto,auto,560px;
+}
+.story{background-size:auto,auto,680px}
+.kind-note,.pups{
+  background-color:#f3e4c6;
+  background-image:url(img/paper-fiber.webp);
+  background-size:480px;
+}
+.v-quiet .pg::after,.v-quiet .leaf .face::before{opacity:.1}
+.v-quiet .story::before{opacity:.08}
+
+/* --- spine glow + reading wash, follows --px / --py --- */
+.v-quiet .gutter{
+  width:78px;
+  left:calc(50% - 39px);
+  background:
+    linear-gradient(90deg,
+      transparent 8%,
+      rgba(255,214,150,.05) 30%,
+      rgba(255,228,186,.34) calc(50% + var(--px,0) * 6%),
+      rgba(255,214,150,.05) 70%,
+      transparent 92%),
+    linear-gradient(90deg, transparent, rgba(43,29,16,.2) 42%, rgba(43,29,16,.42) 50%, rgba(43,29,16,.2) 58%, transparent);
+}
+.v-quiet .gutter::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:calc(42% + var(--py,0) * 10%);
+  width:160%;
+  height:42%;
+  transform:translate(-50%,-50%);
+  background:radial-gradient(ellipse at center, rgba(255,232,190,.55), transparent 68%);
+  mix-blend-mode:screen;
+  pointer-events:none;
+}
+.v-quiet .pl::before{
+  background:
+    linear-gradient(90deg, transparent 62%, rgba(255,220,170,calc(.1 + (var(--px,0) + 1) * .04)) 100%),
+    radial-gradient(ellipse 30% 22% at 0 100%, rgba(140,95,40,.14), transparent),
+    radial-gradient(ellipse 26% 20% at 100% 0, rgba(140,95,40,.1), transparent);
+}
+.v-quiet .pr::before{
+  background:
+    linear-gradient(270deg, transparent 62%, rgba(255,220,170,calc(.1 + (1 - var(--px,0)) * .04)) 100%),
+    radial-gradient(ellipse 30% 22% at 100% 100%, rgba(140,95,40,.12), transparent),
+    radial-gradient(ellipse 26% 20% at 0 0, rgba(140,95,40,.1), transparent);
+}
+.v-quiet .light{
+  background:radial-gradient(circle 340px at var(--mx,50%) var(--my,40%), rgba(255,236,196,.55), transparent 70%);
+}
+
+/* --- cover: gilt pass, halo breath, one dust burst is painted by atmosphere.js --- */
+.cv-halo{
+  width:70%;
+  background:
+    radial-gradient(closest-side, rgba(255,224,150,.48), rgba(255,190,90,.16) 46%, transparent 72%),
+    radial-gradient(closest-side, transparent 52%, rgba(240,215,154,.35) 63%, transparent 71%);
+}
+.js:not(.calm) .cv-halo{animation:haloBreath 5.4s ease-in-out infinite alternate}
+.js:not(.calm).closed .cover-glint{animation:giltPass 7.4s ease-in-out infinite}
+.js:not(.calm).opening .cv-halo{animation:haloOpen 1.35s var(--ease-out) both}
+.js:not(.calm).opening .cover-glint{animation:giltOpen 1.15s var(--ease-out) both}
+.closed .cover:hover .cover-glint{animation:none}
+@keyframes haloBreath{
+  from{opacity:.62;transform:scale(.94)}
+  to{opacity:1;transform:scale(1.07)}
+}
+@keyframes haloOpen{
+  0%{opacity:.45;transform:scale(.88)}
+  40%{opacity:1;transform:scale(1.14)}
+  100%{opacity:.8;transform:scale(1)}
+}
+@keyframes giltPass{
+  0%,58%{transform:translateX(-130%)}
+  78%,100%{transform:translateX(130%)}
+}
+@keyframes giltOpen{
+  from{transform:translateX(-120%)}
+  to{transform:translateX(120%)}
+}
+
+/* --- margin illuminations (painterly spots read as ink, not stickers) --- */
+.spot.illum{
+  width:74px;
+  opacity:.94;
+  mix-blend-mode:multiply;
+  -webkit-mask-image:radial-gradient(ellipse 70% 44% at 50% 48%, #000 60%, transparent 82%);
+  mask-image:radial-gradient(ellipse 70% 44% at 50% 48%, #000 60%, transparent 82%);
+}
+svg.spot.spot-lantern{
+  width:54px;
+  height:auto;
+  opacity:.92;
+  mix-blend-mode:normal;
+  -webkit-mask-image:none;
+  mask-image:none;
+  filter:drop-shadow(0 8px 10px rgba(60,30,10,.22));
+}
+.js:not(.calm) svg.spot.spot-lantern{animation:marginLantern 4.8s ease-in-out infinite alternate}
+@keyframes marginLantern{
+  from{filter:drop-shadow(0 8px 8px rgba(60,30,10,.2)) brightness(.94)}
+  to{filter:drop-shadow(0 8px 14px rgba(255,196,110,.45)) brightness(1.06)}
+}
+.calm svg.spot.spot-lantern{animation:none!important}
+
+/* dropcap illumination from the unused frame */
+.dropcap.has-illum::first-letter{
+  float:none;
+  font-size:inherit;
+  line-height:inherit;
+  margin:0;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:none;
+  color:inherit;
+  text-shadow:none;
+}
+.cap-frame{
+  float:left;
+  width:4.7em;
+  height:4.7em;
+  margin:.04em .32em .08em 0;
+  position:relative;
+  background:url(img/dropcap.webp) center/contain no-repeat;
+  mix-blend-mode:multiply;
+}
+.cap-letter{
+  position:absolute;
+  inset:18%;
+  display:grid;
+  place-items:center;
+  font:600 1.35em/1 var(--display);
+  color:var(--wine);
+}
+
+/* --- plate lights shaped like the painted sources --- */
+.sc-glow,.glow,.sc-map,.lt{pointer-events:none}
+.sc-map{position:absolute;inset:0;z-index:1}
+.lt{
+  position:absolute;
+  translate:-50% -50%;
+  mix-blend-mode:screen;
+  pointer-events:none;
+  border-radius:50%;
+}
+.lt-candle{
+  width:8%;
+  aspect-ratio:.42;
+  background:
+    radial-gradient(ellipse 46% 22% at 50% 16%, rgba(255,248,220,.95), rgba(255,170,60,.45) 42%, transparent 72%),
+    radial-gradient(ellipse 90% 40% at 50% 70%, rgba(255,120,40,.28), transparent 70%);
+  animation:ltFlick 2.7s linear infinite;
+}
+.lt-torch{
+  width:11%;
+  aspect-ratio:.5;
+  background:
+    radial-gradient(ellipse 40% 28% at 50% 18%, rgba(255,236,190,.95), rgba(255,140,40,.5) 40%, transparent 70%),
+    radial-gradient(ellipse 100% 50% at 50% 78%, rgba(255,90,20,.22), transparent 72%);
+  animation:ltFlick 2.2s linear infinite;
+}
+.lt-moon{
+  width:11%;
+  aspect-ratio:1;
+  background:radial-gradient(circle at 38% 38%, rgba(248,252,255,.9), rgba(186,206,255,.4) 42%, transparent 70%);
+  animation:ltBreath 8s ease-in-out infinite alternate;
+}
+.lt-lantern{
+  width:10%;
+  aspect-ratio:.62;
+  border-radius:18% 18% 30% 30%;
+  background:
+    radial-gradient(ellipse 42% 36% at 50% 58%, rgba(255,240,200,.92), rgba(255,180,80,.28) 52%, transparent 74%),
+    linear-gradient(90deg, transparent 32%, rgba(31,111,107,.2) 50%, transparent 68%);
+  animation:ltBreath 4.6s ease-in-out infinite alternate;
+}
+.lt-portal{
+  width:9%;
+  aspect-ratio:.7;
+  border-radius:46% 46% 12% 12%;
+  background:radial-gradient(ellipse 62% 70% at 50% 62%, rgba(255,224,160,.8), rgba(255,190,90,.16) 58%, transparent 76%);
+  animation:ltBreath 6.2s ease-in-out infinite alternate;
+}
+.lt-hearth{
+  width:20%;
+  aspect-ratio:1.35;
+  background:radial-gradient(ellipse 70% 55% at 50% 62%, rgba(255,150,60,.5), rgba(255,90,30,.12) 55%, transparent 76%);
+  animation:ltFlick 3.1s linear infinite;
+}
+.lt-book{
+  width:18%;
+  aspect-ratio:1.25;
+  border-radius:8%;
+  background:radial-gradient(ellipse 58% 48% at 50% 54%, rgba(255,230,176,.62), rgba(255,200,110,.12) 60%, transparent 78%);
+  animation:ltBreath 7s ease-in-out infinite alternate;
+}
+.lt-pen{width:7%;aspect-ratio:1.8;background:radial-gradient(ellipse at center, rgba(255,220,150,.55), transparent 70%);animation:ltBreath 5s ease-in-out infinite alternate}
+.lt-jar{
+  width:6.5%;
+  aspect-ratio:.72;
+  border-radius:40%;
+  background:radial-gradient(circle at 50% 42%, rgba(255,240,210,.85), rgba(120,190,170,.22) 48%, transparent 72%);
+  animation:ltBreath 5.4s ease-in-out infinite alternate;
+}
+.lt-chest{
+  width:26%;
+  aspect-ratio:1.15;
+  background:radial-gradient(ellipse 48% 40% at 48% 52%, rgba(255,214,120,.78), rgba(255,160,50,.16) 56%, transparent 76%);
+  animation:ltBreath 5s ease-in-out infinite alternate;
+}
+.lt-sun{
+  width:24%;
+  aspect-ratio:1;
+  background:radial-gradient(circle, rgba(255,236,196,.5), rgba(255,210,140,.1) 48%, transparent 72%);
+  animation:ltBreath 9s ease-in-out infinite alternate;
+}
+.lt-aurora{
+  width:58%;
+  aspect-ratio:4.2;
+  border-radius:40%;
+  opacity:.8;
+  filter:blur(1.5px);
+  background:linear-gradient(90deg, transparent, rgba(120,230,190,.32), rgba(190,160,255,.26), rgba(255,220,160,.14), transparent);
+  animation:ltAurora 16s ease-in-out infinite alternate;
+}
+.lt-seal{
+  width:8%;
+  aspect-ratio:1;
+  background:radial-gradient(circle at 40% 38%, rgba(255,120,90,.75), rgba(140,30,28,.25) 55%, transparent 74%);
+  animation:ltBreath 6s ease-in-out infinite alternate;
+}
+.scene[data-scene="ch-treasury"] .glow.g-gold{opacity:1}
+.scene[data-scene="ch-locations"] .glow.g-aurora{opacity:1;filter:saturate(1.12) brightness(1.04)}
+@keyframes ltFlick{
+  0%,100%{opacity:.78;transform:scale(1) translateY(0)}
+  30%{opacity:.55;transform:scale(.96,.98) translateY(1%)}
+  55%{opacity:.95;transform:scale(1.04,1.06) translateY(-1%)}
+  78%{opacity:.66;transform:scale(.98)}
+}
+@keyframes ltBreath{from{opacity:.5;transform:scale(.96)}to{opacity:.95;transform:scale(1.06)}}
+@keyframes ltAurora{from{opacity:.45;transform:translateX(-3%)}to{opacity:.85;transform:translateX(3%)}}
+.calm .lt{animation:none!important}
+
+/* --- mobile page-turn surrogate: a short curl and an ink rule, no heavy 3D --- */
+#page-curl{display:none}
+@media (max-width:899px){
+  #page-curl.on{
+    display:block;
+    position:fixed;
+    z-index:35;
+    pointer-events:none;
+    left:0;right:0;
+    top:calc(var(--crisis-h, 28px) + 54px);
+    bottom:74px;
+    overflow:hidden;
+  }
+  #page-curl.on::before{
+    content:"";
+    position:absolute;
+    top:0;bottom:0;
+    width:46%;
+    background:
+      linear-gradient(180deg, rgba(255,236,200,.5), transparent 16%),
+      linear-gradient(90deg, rgba(251,243,225,0), rgba(255,248,230,.82) 58%, rgba(43,29,16,.5));
+    box-shadow:-18px 0 28px rgba(20,10,4,.28);
+    animation:curlPeel 460ms cubic-bezier(.4,.05,.2,1) both;
+  }
+  #page-curl.f::before{right:0;transform-origin:left center;border-radius:70% 0 0 70% / 10% 0 0 10%}
+  #page-curl.b::before{
+    left:0;
+    transform-origin:right center;
+    border-radius:0 70% 70% 0 / 0 10% 10% 0;
+    background:
+      linear-gradient(180deg, rgba(255,236,200,.5), transparent 16%),
+      linear-gradient(270deg, rgba(251,243,225,0), rgba(255,248,230,.82) 58%, rgba(43,29,16,.5));
+    box-shadow:18px 0 28px rgba(20,10,4,.28);
+    animation-name:curlPeelB;
+  }
+  #page-curl.on::after{
+    content:"";
+    position:absolute;
+    left:10%;right:10%;
+    top:0;
+    height:2px;
+    background:linear-gradient(90deg, transparent, rgba(110,31,36,.45), rgba(200,155,60,.85), transparent);
+    transform-origin:left center;
+    animation:inkRule 420ms ease both;
+  }
+}
+@keyframes curlPeel{
+  0%{transform:translateX(12%);opacity:0}
+  18%{opacity:1}
+  100%{transform:translateX(110%);opacity:0}
+}
+@keyframes curlPeelB{
+  0%{transform:translateX(-12%);opacity:0}
+  18%{opacity:1}
+  100%{transform:translateX(-110%);opacity:0}
+}
+@keyframes inkRule{from{transform:scaleX(.05);opacity:.15}to{transform:scaleX(1);opacity:0}}
+@keyframes mtF{from{opacity:0;transform:translateX(12px) rotate(.4deg)}to{opacity:1;transform:none}}
+@keyframes mtB{from{opacity:0;transform:translateX(-12px) rotate(-.4deg)}to{opacity:1;transform:none}}
+.calm #page-curl{display:none!important}
+
+/* --- Hall of Counselors: lamp warmth on the seal, portraits stay put --- */
+.bookplate.guide{
+  background:
+    radial-gradient(90% 70% at 0% 0%, rgba(255,210,140,.16), transparent 46%),
+    var(--card);
+}
+.js:not(.calm) .bookplate.guide:hover,
+.js:not(.calm) .bookplate.guide:focus-within{
+  box-shadow:
+    0 2px 0 rgba(255,255,255,.5) inset,
+    0 18px 36px rgba(20,12,6,.22),
+    0 0 28px rgba(255,186,90,.2);
+}
+.js:not(.calm) .bookplate.guide:hover .seal.has-photo,
+.js:not(.calm) .bookplate.guide:focus-within .seal.has-photo{
+  box-shadow:
+    0 0 0 3px #fff6e4,
+    0 0 0 6px #e2b34a,
+    0 0 28px 8px rgba(255,176,70,.9);
+}
+
+/* --- Charm Library: gilt edge, and a moth only when motion is allowed --- */
+#coping .skill.open{
+  box-shadow:
+    inset 0 0 0 1px rgba(240,215,154,.95),
+    0 0 0 1px rgba(200,155,60,.88),
+    0 0 0 5px rgba(251,243,225,.92),
+    0 0 0 6px rgba(200,155,60,.4),
+    0 12px 26px rgba(20,12,6,.16);
+}
+.js:not(.calm) #coping .skill.open::after{
+  content:"";
+  position:absolute;
+  width:28px;
+  height:15px;
+  right:14px;
+  top:12px;
+  z-index:5;
+  pointer-events:none;
+  background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 16'><path fill='%239A4A2E' d='M18 8C13 1.5 4 1 1.5 6.2 6 8 12 8.6 18 8z'/><path fill='%239A4A2E' opacity='.55' d='M18 9C14 14 6 16 2.5 13.5 8 12 13 10.5 18 9z'/><path fill='%239A4A2E' d='M18 8C23 1.5 32 1 34.5 6.2 30 8 24 8.6 18 8z'/><path fill='%239A4A2E' opacity='.55' d='M18 9C22 14 30 16 33.5 13.5 28 12 23 10.5 18 9z'/><ellipse cx='18' cy='8.2' rx='1.15' ry='3.1' fill='%2316323A'/></svg>") center/contain no-repeat;
+  animation:charmMoth 1.75s ease-in both;
+}
+@keyframes charmMoth{
+  0%{opacity:0;transform:translate(8px,14px) rotate(14deg)}
+  28%{opacity:.9}
+  100%{opacity:0;transform:translate(-16px,-26px) rotate(-18deg)}
+}
