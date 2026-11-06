@@ -1,5 +1,7 @@
-/* Quiet Library — Phase 1 atmosphere shell + Phase 2 chapter polish.
-   Legacy magic.js / motion.js / sound.js stay unwired. */
+/* Quiet Library — Phase 1 atmosphere, Phase 2 chapter polish, Phase 3 rituals.
+   Legacy magic.js / motion.js / sound.js stay unwired.
+   Phase 3 scripts: ink-ritual.js, charm-ritual.js, hearth.js.
+   Hearth preference key: obcSbHearth (off until chosen; silent in Calm). */
 
 /* --- room: grain, vignette, dust canvas (hard off in calm / reduced motion) --- */
 .stage::before{
@@ -400,4 +402,121 @@ svg.spot.spot-lantern{
   0%{opacity:0;transform:translate(8px,14px) rotate(14deg)}
   28%{opacity:.9}
   100%{opacity:0;transform:translate(-16px,-26px) rotate(-18deg)}
+}
+
+/* --- Phase 3: rewrite ink ritual (quill, strike, flourish). Calm is instant. --- */
+.rw-line,.rw-own-card{position:relative}
+.ink-veil{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  overflow:visible;
+  pointer-events:none;
+  z-index:4;
+}
+.ink-veil .strike,.ink-veil .flour{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.ink-veil .strike{stroke:#6e1f24;stroke-width:2.05}
+.ink-veil .flour{stroke:#c89b3c;stroke-width:1.8}
+.ink-veil .quill path{fill:#4a2418}
+.ink-veil .quill .nib{fill:#f0d79a;stroke:#6e1f24;stroke-width:.6}
+.ink-veil.rest{opacity:0;transition:opacity 520ms ease}
+.rw:has(.ink-veil) .rw-old::after,
+.rw-line:has(.ink-veil) .rw-old::after,
+.rw-own-card:has(.ink-veil) .rw-old::after{opacity:0;transform:scaleX(1)}
+.rw:has(.ink-veil.rest) .rw-old::after,
+.rw-line:has(.ink-veil.rest) .rw-old::after,
+.rw-own-card:has(.ink-veil.rest) .rw-old::after{opacity:1;transition:opacity 520ms ease}
+.inked .rw-new::after{display:none!important}
+.ink-drop{
+  position:absolute;
+  width:3.5px;
+  height:3.5px;
+  margin:-1.75px 0 0 -1.75px;
+  border-radius:50%;
+  background:#3a1814;
+  pointer-events:none;
+  z-index:5;
+  animation:inkDrop 900ms ease forwards;
+}
+.ink-drop.fine{width:2px;height:2px;margin:-1px 0 0 -1px;background:#6e1f24}
+@keyframes inkDrop{
+  0%{opacity:.9;transform:scale(.75)}
+  35%{opacity:.65}
+  100%{opacity:0;transform:scale(.3) translateY(3px)}
+}
+.calm .ink-veil,.calm .ink-drop{display:none!important}
+.calm .rw-new,
+.calm .rw-new .w,
+.calm .rw-old,
+.calm .rw-old::after{
+  opacity:1!important;
+  transform:none!important;
+  transition:none!important;
+  animation:none!important;
+}
+
+/* --- Phase 3: charm draw. Lantern and path, then the existing turn. --- */
+.js:not(.calm) #coping .skill.opening{
+  box-shadow:
+    0 0 0 1px rgba(200,155,60,.75),
+    0 0 22px rgba(255,196,120,.32),
+    0 10px 22px rgba(20,12,6,.12);
+}
+.js:not(.calm) #coping .skill.opening .cf-seal{
+  box-shadow:
+    0 0 0 3px rgba(255,220,160,.4),
+    0 0 16px rgba(255,186,90,.8);
+}
+.charm-front>*:not(.charm-rite){position:relative;z-index:1}
+.charm-rite{position:absolute;inset:0;z-index:0;pointer-events:none}
+.rite-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.rite-path,.rite-swash{fill:none;stroke-linecap:round}
+.rite-path{stroke:#c89b3c;stroke-width:2.1;stroke-dasharray:160;stroke-dashoffset:160}
+.rite-swash{stroke:#7f5517;stroke-width:1.35;stroke-dasharray:70;stroke-dashoffset:70}
+.rite-gem{fill:#1f5a5e;opacity:0}
+.rite-lantern{
+  position:absolute;
+  right:8px;
+  top:8px;
+  width:36px;
+  height:55px;
+  opacity:0;
+  filter:drop-shadow(0 0 8px rgba(255,196,110,.85)) drop-shadow(0 6px 8px rgba(80,40,10,.28));
+}
+.charm-rite.go .rite-lantern{animation:riteLamp 380ms ease forwards}
+.charm-rite.go .rite-path{animation:riteDraw 720ms cubic-bezier(.6,.04,.3,1) 60ms forwards}
+.charm-rite.go .rite-swash{animation:riteDraw 380ms cubic-bezier(.6,.04,.3,1) 560ms forwards}
+.charm-rite.go .rite-gem{animation:riteGem 280ms ease 700ms forwards}
+@keyframes riteLamp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes riteDraw{to{stroke-dashoffset:0}}
+@keyframes riteGem{to{opacity:1}}
+.calm .charm-rite,.calm #coping .skill.open::after{display:none!important}
+
+/* --- Phase 3: hearth control. Off until chosen. --- */
+.hearth-btn{
+  font:400 16px/1 var(--sc);
+  letter-spacing:.04em;
+  color:#f3e6c6;
+  background:transparent;
+  border:1px solid rgba(200,155,60,.45);
+  border-radius:999px;
+  padding:9px 16px;
+  cursor:pointer;
+  min-height:40px;
+}
+.hearth-btn:hover,.hearth-btn:focus-visible{background:rgba(200,155,60,.14);border-color:var(--gold)}
+.hearth-btn[aria-pressed="true"]{background:rgba(200,155,60,.22);border-color:var(--gold)}
+.hearth-btn:disabled{opacity:.55;cursor:default}
+.hs-short{display:none}
+@media (max-width:899px){
+  .top-hearth{min-height:44px;padding:6px 12px;font-size:15px;line-height:1.15;white-space:nowrap}
+}
+@media (max-width:560px){
+  .top-hearth{max-width:6.8em;padding:4px 10px;font-size:14px;text-align:center;white-space:normal}
+  .hs-long{display:none}
+  .hs-short{display:inline}
+}
+@media (prefers-reduced-motion:reduce){
+  .ink-veil,.ink-drop,.charm-rite,#coping .skill.open::after{display:none!important}
 }

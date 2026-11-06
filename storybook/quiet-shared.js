@@ -184,6 +184,26 @@ document.addEventListener('DOMContentLoaded',function(){var root=document.getEle
   f.setAttribute('aria-label',('Open the charm: '+(cat?cat.textContent+' ':'')+h.textContent+' Turn over to open').replace(/\s+/g,' '));
   f.innerHTML='<span class="cf-seal" aria-hidden="true"></span><span class="cf-cat">'+(cat?cat.textContent:'')+'</span> <span class="cf-name">'+h.innerHTML+'</span> <span class="cf-open">Turn over to open</span>';
   f.style.setProperty('--i',i%6);c.classList.add('closed-charm');c.appendChild(f);
-  f.addEventListener('click',function(){c.classList.add('open');c.classList.remove('closed-charm');f.setAttribute('tabindex','-1');f.setAttribute('aria-hidden','true');h.setAttribute('tabindex','-1');setTimeout(function(){h.focus({preventScroll:true})},60);setTimeout(function(){f.remove()},900)});
+  f.addEventListener('click',function(){
+    if(c.classList.contains('open'))return;
+    if(c.classList.contains('opening')){if(performance.now()-(c._armed||0)>650&&c._reveal)c._reveal();return}
+    var calm=document.documentElement.classList.contains('calm')||matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var ran=false;
+    function reveal(){
+      if(ran)return;ran=true;
+      c.classList.remove('opening');c._reveal=null;
+      c.classList.add('open');
+      if(!calm && !document.documentElement.classList.contains('calm') && !matchMedia('(prefers-reduced-motion: reduce)').matches)c.classList.add('rited');
+      c.classList.remove('closed-charm');
+      f.setAttribute('tabindex','-1');f.setAttribute('aria-hidden','true');h.setAttribute('tabindex','-1');
+      setTimeout(function(){h.focus({preventScroll:true})},calm?0:40);
+      setTimeout(function(){if(f.parentNode)f.remove()},calm?0:900);
+    }
+    c._reveal=reveal;
+    if(calm||!window.obcCharm){reveal();return}
+    c._armed=performance.now();
+    c.classList.add('opening');
+    window.obcCharm.draw(c,f,reveal);
+  });
  });
 });
