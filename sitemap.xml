@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://www.openbooktherapist.com/</loc></url>
   <url><loc>https://www.openbooktherapist.com/professional/</loc></url>
-  <url><url><loc>https://www.openbooktherapist.com/professional/about.html</loc></url>
+  <url><loc>https://www.openbooktherapist.com/professional/about.html</loc></url>
   <url><loc>https://www.openbooktherapist.com/professional/contact.html</loc></url>
   <url><loc>https://www.openbooktherapist.com/professional/services/</loc></url>
   <url><loc>https://www.openbooktherapist.com/professional/services/individual.html</loc></url>
@@ -13,6 +13,12 @@
   <url><loc>https://www.openbooktherapist.com/professional/services/anxiety-depression.html</loc></url>
   <url><loc>https://www.openbooktherapist.com/professional/services/telehealth.html</loc></url>
   <url><loc>https://www.openbooktherapist.com/professional/team.html</loc></url>
+  <url><loc>https://www.openbooktherapist.com/professional/team/amber-frazier.html</loc></url>
+  <url><loc>https://www.openbooktherapist.com/professional/team/scott-frazier.html</loc></url>
+  <url><loc>https://www.openbooktherapist.com/professional/team/shanna-manjang.html</loc></url>
+  <url><loc>https://www.openbooktherapist.com/professional/team/amanda-lloyd.html</loc></url>
+  <url><loc>https://www.openbooktherapist.com/professional/team/aspen-johnson.html</loc></url>
+  <url><loc>https://www.openbooktherapist.com/professional/team/abby-locke.html</loc></url>
   <url><loc>https://www.openbooktherapist.com/professional/policies-faq.html</loc></url>
   <url><loc>https://www.openbooktherapist.com/professional/intake.html</loc></url>
   <url><loc>https://www.openbooktherapist.com/professional/resources.html</loc></url>
@@ -20,8 +26,14 @@
   <url><loc>https://www.openbooktherapist.com/professional/resources/trauma-talk.html</loc></url>
   <url><loc>https://www.openbooktherapist.com/professional/resources/people-pleasers-and-codependents.html</loc></url>
   <url><loc>https://www.openbooktherapist.com/professional/careers/</loc></url>
+  <url><loc>https://www.openbooktherapist.com/professional/fees-insurance.html</loc></url>
+  <url><loc>https://www.openbooktherapist.com/professional/locations/</loc></url>
+  <url><loc>https://www.openbooktherapist.com/professional/locations/draper.html</loc></url>
+  <url><loc>https://www.openbooktherapist.com/professional/locations/bountiful.html</loc></url>
+  <url><loc>https://www.openbooktherapist.com/professional/get-started.html</loc></url>
+  <url><loc>https://www.openbooktherapist.com/professional/match.html</loc></url>
+  <url><loc>https://www.openbooktherapist.com/professional/request-appointment.html</loc></url>
+  <url><loc>https://www.openbooktherapist.com/professional/approaches/</loc></url>
+  <url><loc>https://www.openbooktherapist.com/crisis/</loc></url>
   <url><loc>https://www.openbooktherapist.com/storybook/</loc></url>
-  <url><loc>https://www.openbooktherapist.com/storybook/resources/</loc></url>
-  <url><loc>https://www.openbooktherapist.com/storybook/resources/trauma-talk.html</loc></url>
-  <url><loc>https://www.openbooktherapist.com/storybook/resources/people-pleasers-and-codependents.html</loc></url>
 </urlset>
