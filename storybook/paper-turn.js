@@ -58,7 +58,7 @@ function play(opts){
   var host=opts.host;
   if(!host){if(opts.onDone)opts.onDone();return}
   var mobile=!!opts.mobile,fwd=!!opts.fwd,spread=!mobile;
-  var dur=2500;
+  var dur=1000;
   var box=host.getBoundingClientRect();
   var width,height,top=0,left=0,originRight=!spread&&!fwd;
   if(spread){
