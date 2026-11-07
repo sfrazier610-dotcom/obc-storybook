@@ -1107,7 +1107,7 @@ html.page-hidden .lantern-svg .flame-outer,html.page-hidden .lantern-svg .flame-
 /* fix22: counselor photos back in the Hall seals (as in 4fb29aa, reusing professional/img/team). Initials stay underneath as the fallback. */.seal.has-photo{position:relative;width:88px;height:88px;overflow:hidden;padding:0}.seal.has-photo .seal-photo{position:absolute;inset:3px;width:calc(100% - 6px);height:calc(100% - 6px);border-radius:50%;object-fit:cover;aspect-ratio:1/1}.bookplate:hover .seal.has-photo{transform:none}@media(max-width:600px){.seal.has-photo{width:72px;height:72px}}
 </style>
 <link rel="stylesheet" href="quiet-craft.css?v=20261106g">
-<link rel="stylesheet" href="paper-turn.css?v=20261106q">
+<link rel="stylesheet" href="paper-turn.css?v=20261107b">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
@@ -1316,7 +1316,7 @@ html.page-hidden .lantern-svg .flame-outer,html.page-hidden .lantern-svg .flame-
 </div>
 <div class="egg-toast" id="egg-toast" role="status" aria-live="polite"></div>
 <div class="kind-note" id="kind-note" hidden role="dialog" aria-labelledby="kn-h"><p class="clabel" id="kn-h">A note tucked in the book</p><p>You don’t need the right words to begin. Starting can be small and a little messy. Being here and looking is already a step.</p><button class="btn ghost" type="button" data-close="kind-note">Tuck it back</button></div>
-<script src="paper-turn.js?v=20261106q"></script>
+<script src="paper-turn.js?v=20261107b"></script>
 <script src="ink-ritual.js?v=20261106g"></script>
 <script src="hearth.js?v=20261106g"></script>
 <script>(function(){
@@ -1376,14 +1376,15 @@ function turnTo(to,opts){
  opts=opts||{};
  if(typeof to==='string')to=ids.indexOf(to);
  if(to<0||to>N||(to===N&&!opts.secret))return;
- if(!desk.matches){if(to===N){if(!opened)openBook(true);return}if(!opened){cur=to;openBook(true);return}if(to===cur)return;var mf=to>cur,fromI=cur,useVT=canVT()&&!(window.obcPaper&&!isCalm()&&!rm.matches);cur=to;cueHearth('turn');
-  var mswap=function(){chaps.forEach(function(c,k){c.classList.toggle('active',k===to);c.classList.remove('mt-f','mt-b')});arm(chaps[to]);if(!isCalm()&&!rm.matches&&!useVT&&!(window.obcPaper)){void chaps[to].offsetWidth;chaps[to].classList.add(mf?'mt-f':'mt-b')}
-  updateUI();try{history.replaceState(null,'','#'+ids[to])}catch(e){}window.scrollTo(0,0);refit();var hd=$('.ctitle',chaps[to])||chaps[to];if(!hd.hasAttribute('tabindex'))hd.setAttribute('tabindex','-1');hd.focus({preventScroll:true})};
-  if(window.obcPaper&&!isCalm()&&!rm.matches){var op=function(i){var el=src(i),o=el&&el.querySelector('.opener');return o?o.innerHTML:''};H.classList.add('paper-turning');mswap();window.obcPaper.play({fwd:mf,mobile:true,host:document.getElementById('story'),frontHTML:op(fromI),backHTML:op(to),onDone:function(){H.classList.remove('paper-turning')}});return}
+ if(!desk.matches){if(to===N){if(!opened)openBook(true);return}if(!opened){cur=to;openBook(true);return}if(to===cur||busy)return;var mf=to>cur,fromI=cur,useVT=canVT()&&!(window.obcPaper&&!isCalm()&&!rm.matches);cur=to;cueHearth('turn');
+  var mswap=function(focus){chaps.forEach(function(c,k){c.classList.toggle('active',k===to);c.classList.remove('mt-f','mt-b')});arm(chaps[to]);if(!isCalm()&&!rm.matches&&!useVT&&!(window.obcPaper)){void chaps[to].offsetWidth;chaps[to].classList.add(mf?'mt-f':'mt-b')}
+  if(focus===false)return;updateUI();try{history.replaceState(null,'','#'+ids[to])}catch(e){}window.scrollTo(0,0);refit();var hd=$('.ctitle',chaps[to])||chaps[to];if(!hd.hasAttribute('tabindex'))hd.setAttribute('tabindex','-1');hd.focus({preventScroll:true})};
+  if(window.obcPaper&&!isCalm()&&!rm.matches){var op=function(i){var el=src(i),o=el&&el.querySelector('.opener');return o?o.innerHTML:''};busy=true;H.classList.add('paper-turning');window.obcPaper.play({fwd:mf,mobile:true,host:document.getElementById('story'),frontHTML:op(fromI),backHTML:op(to),onCover:function(){mswap(false);var shown=chaps[to]&&chaps[to].querySelector('.opener');if(shown){shown.classList.add('in','shown');shown.querySelectorAll('img').forEach(function(img){img.loading='eager';img.decoding='sync'})}},onDone:function(){var shown=chaps[to]&&chaps[to].querySelector('.opener');if(shown)shown.classList.add('in','shown');H.classList.remove('paper-turning');busy=false;mswap()}});return}
   pageCurl(mf);if(useVT){vt(mf?'f':'b',mswap)}else mswap();return}
  if(!opened){cur=to;openBook(false);return}
  if(busy||to===cur)return;
- var from=cur;cur=to;updateUI();
+ var from=cur;cur=to;var usePaper=!!(window.obcPaper&&!isCalm());
+ if(!usePaper)updateUI();
  try{history.replaceState(null,'','#'+ids[to])}catch(e){}
  if(isCalm()){
   paint(to);[pl,pr].forEach(function(p){p.classList.remove('fade');void p.offsetWidth;p.classList.add('fade')});
@@ -1392,12 +1393,11 @@ function turnTo(to,opts){
  busy=true;var fwd=to>from;cueHearth('turn');
  if(window.obcPaper){
   pr.classList.remove('fresh');pl.classList.remove('warm');
-  if(fwd){pl.innerHTML=L(from);pr.innerHTML=R(to)}
-  else{pl.innerHTML=L(to);pr.innerHTML=R(from)}
   book.classList.add('turning');
   var landed=false;
-  function land(){if(landed)return;landed=true;if(fwd){pl.innerHTML=L(to);warm(pl)}else{pr.innerHTML=R(to)}showBody(to,true)}
-  window.obcPaper.play({fwd:fwd,mobile:false,host:book,frontHTML:fwd?R(from):R(to),backHTML:fwd?L(to):L(from),onMid:land,onDone:function(){
+  function land(){if(landed)return;landed=true;var side=fwd?pl:pr;side.innerHTML=fwd?L(to):R(to);side.classList.remove('warm','fresh');side.querySelectorAll('img').forEach(function(img){img.loading='eager';img.decoding='sync'});updateUI();showBody(to,false)}
+  function cover(){if(fwd){pl.innerHTML=L(from);pr.innerHTML=R(to)}else{pl.innerHTML=L(to);pr.innerHTML=R(from)}}
+  window.obcPaper.play({fwd:fwd,mobile:false,host:book,frontHTML:fwd?R(from):R(to),backHTML:fwd?L(to):L(from),onCover:cover,onMid:land,onDone:function(){
     land();book.classList.remove('turning');busy=false;fitHots(pl);fitHots(pr);
   }});
   return;
