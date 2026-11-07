@@ -1134,7 +1134,7 @@ function office(){if(B||!officeOpen())return;
  panel('<h2>Welcome to the Open Book Office</h2><p>'+esc(S.hero.name||"Wanderer")+', you and '+esc(petName())+' calmed '+nBeat()+' of 8 bosses. Your satchel holds: '+S.loot.map(esc).join(", ")+'.</p>'+
  '<p class="w-code">Your prize code: <b id="w-code">'+esc(S.code)+'</b></p>'+
  '<div class="w-rules"><h3>Prize rules</h3><ul><li>Anyone who beats the game can get one free fidget stress ring at an Open Book Counseling office.</li><li>One ring per person per year, while supplies last.</li><li>Show this code at the front desk.</li><li>The code is saved on this device. Write it down or take a screenshot.</li></ul></div>'+
- '<div class="w-gj-end"><h3>Want to keep going with a real person?</h3><p>Open Book Counseling offers a free 15-minute consultation. The counselors you met are real clinicians on our team.</p><p><a class="w-btn pri" href="https://www.openbooktherapist.com/professional/intake.html" target="_blank" rel="noopener">Start the intake form</a></p></div>'+
+ '<div class="w-gj-end"><h3>Want to keep going with a real person?</h3><p>Open Book Counseling offers a free 15-minute consultation. The counselors you met are real clinicians on our team.</p><p><a class="w-btn pri" href="/professional/request-appointment.html">Request an appointment</a></p></div>'+
  '<p><a class="w-btn" href="../#team">Meet the real team</a></p>',"Open Book Office");ENDP=1}
 /* ---------- hero creator ---------- */
 function creator(){cancelAnimationFrame(raf);stage=null;var h=S.hero,dirs=0;

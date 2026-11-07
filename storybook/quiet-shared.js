@@ -78,7 +78,7 @@ function toolsHtml(){
  return `<div class="match-tools"><button type="button" class="btn ghost sm" data-match-act="retake">Retake</button><button type="button" class="btn ghost sm" data-match-act="adjust">Adjust answers</button></div>`;
 }
 function ctas(first){
- return `<div class="match-ctas"><a class="btn sm" href="/professional/intake.html">Begin with ${esc(first)}</a><a class="btn ghost sm" href="tel:3855246665">Call (385) 524-6665</a><a class="btn ghost sm" href="#team">Meet in the Hall</a></div>`;
+ return `<div class="match-ctas"><a class="btn sm" href="/professional/request-appointment.html">Request an appointment with ${esc(first)}</a><a class="btn ghost sm" href="tel:3855246665">Call (385) 524-6665</a><a class="btn ghost sm" href="#team">Meet in the Hall</a></div>`;
 }
 function softCopy(a){
  const bits=['age','format'];
