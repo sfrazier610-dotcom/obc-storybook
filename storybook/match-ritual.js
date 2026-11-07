@@ -212,7 +212,6 @@ function isOffice(i){return fs[i] && stepName(fs[i])==='office';}
 function stepOk(i){
  var f=fs[i];
  if(!f || !f.querySelector('input[type="radio"]')) return true;
- if(stepName(f)==='office') return true;
  return !!f.querySelector('input[type="radio"]:checked');
 }
 function nextIndex(from){
@@ -330,6 +329,14 @@ booted=true;
 
 quiz.addEventListener('submit', function(e){
  if(window.obcMatchForce) return;
+ if(!stepOk(qi)){
+  e.preventDefault();
+  e.stopImmediatePropagation();
+  setHint('Choose one to turn the page.');
+  var leg=fs[qi].querySelector('legend');
+  if(leg){leg.setAttribute('tabindex','-1'); try{leg.focus();}catch(err){}}
+  return;
+ }
  if(qi<fs.length-1){e.preventDefault(); e.stopImmediatePropagation(); go(qi+1,1);}
 }, true);
 quiz.addEventListener('keydown', function(e){
@@ -350,11 +357,9 @@ window.obcMatchGoto=function(n){
 };
 window.obcMatchRetake=function(){
  Array.prototype.forEach.call(quiz.querySelectorAll('input[type="checkbox"]'), function(inp){inp.checked=false;});
- setRadio('age','adult');
- setRadio('format','individual');
- setRadio('setting','either');
- setRadio('office','either');
- setRadio('gender','any');
+ ['age','format','setting','office','gender'].forEach(function(name){
+  Array.prototype.forEach.call(quiz.querySelectorAll('input[name="'+name+'"]'), function(inp){inp.checked=false;});
+ });
  if(typeof window.obcMatchOnAnswersReset==='function') window.obcMatchOnAnswersReset();
   reached=0; lastEdit=0; qi=0;
   var results=document.getElementById('results');

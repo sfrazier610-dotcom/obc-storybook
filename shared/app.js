@@ -7,6 +7,7 @@ const D=window.OBC,$=s=>document.querySelector(s),C=D.concernLabels,M=D.modLabel
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 // nav
 const mb=$('.menu');mb.addEventListener('click',()=>{const o=mb.getAttribute('aria-expanded')==='true';mb.setAttribute('aria-expanded',!o);$('#nav').classList.toggle('open',!o);});
+document.addEventListener('keydown',e=>{if(e.key!=='Escape'||mb.getAttribute('aria-expanded')!=='true')return;mb.setAttribute('aria-expanded','false');$('#nav').classList.remove('open');mb.focus();});
 // quiz chips
 $('#q-concerns').innerHTML=Object.entries(C).map(([k,v])=>`<label><input type="checkbox" name="concern" value="${k}">${esc(v)}</label>`).join('');
 $('#q-mods').innerHTML=Object.entries(M).map(([k,v])=>`<label><input type="checkbox" name="mod" value="${k}">${esc(v)}</label>`).join('');
@@ -22,7 +23,8 @@ function score(c,a){let pts=0,max=0,why=[],gaps=[];
  return {c,pts,max,pct:Math.round(100*pts/max),why,gaps};}
 window.obcScore=score;
 $('#quiz').addEventListener('submit',e=>{e.preventDefault();const f=new FormData(e.target);
- const a={concerns:f.getAll('concern'),age:f.get('age'),format:f.get('format'),mods:f.getAll('mod'),setting:f.get('setting'),office:f.get('office')||'either'};
+ const a={concerns:f.getAll('concern'),age:f.get('age'),format:f.get('format'),mods:f.getAll('mod'),setting:f.get('setting'),office:f.get('office')};
+ if(!a.age||!a.format||!a.setting||!a.office){$('#results').innerHTML='<p class="note" role="status">Choose who the story is about, who will be in the room, where to meet, and an office. Either is a choice.</p>';return;}
  if(a.age==='under8'&&!D.clinicians.some(c=>c.ages&&c.ages.includes('under8'))){$('#results').innerHTML='<div class="card under8-note" role="status"><p>For children under 8, please call us at <a href="tel:3855246665">(385) 524-6665</a> and we\'ll help you find the right fit or a trusted referral.</p></div>';$('#results').scrollIntoView&&$('#results').focus&&0;return;}
  const r=D.clinicians.filter(c=>a.age!=='under8'||!c.ages||c.ages.includes('under8')).map(c=>score(c,a)).sort((x,y)=>y.pct-x.pct||y.pts-x.pts);
  const setNote=a.setting==='either'?'':`<p class="note">You chose ${a.setting==='inperson'?'in person':'telehealth'}.</p>`;
@@ -30,7 +32,7 @@ $('#quiz').addEventListener('submit',e=>{e.preventDefault();const f=new FormData
  <div class="bar" role="img" aria-label="${x.pct} percent"><span style="width:${x.pct}%"></span></div>
  <p><strong>Why:</strong></p><ul>${x.why.map(w=>`<li>${esc(w)}</li>`).join('')||'<li>No overlap with your selections</li>'}</ul>
  ${x.gaps.length?`<p class="gaps"><strong>Not listed:</strong> ${esc(x.gaps.join('; '))}</p>`:''}
- <a class="btn sm" href="/professional/intake.html">${(window.THEME&&window.THEME.reqWord)||'Request'} ${esc(x.c.name.split(' ')[0])}</a></li>`).join('')+`</ol><p class="note">Scores reflect publicly listed specialties only, not quality. Feeling understood in the first sessions matters most. You can switch clinicians within the practice anytime.</p>`;
+ <a class="btn sm" href="/professional/request-appointment.html">${(window.THEME&&window.THEME.reqWord)||'Request'} ${esc(x.c.name.split(' ')[0])}</a></li>`).join('')+`</ol><p class="note">Scores reflect publicly listed specialties only, not quality. Feeling understood in the first sessions matters most. You can switch clinicians within the practice anytime.</p>`;
  $('#results').scrollIntoView({behavior:'smooth'});});
 // team
 const fc=$('#f-concern'),fm=$('#f-mod');

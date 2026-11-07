@@ -513,7 +513,7 @@ svg.spot.spot-lantern{
   .top-hearth{min-height:44px;padding:6px 12px;font-size:15px;line-height:1.15;white-space:nowrap}
 }
 @media (max-width:560px){
-  .top-hearth{max-width:6.8em;padding:4px 10px;font-size:14px;text-align:center;white-space:normal}
+  .top-hearth{max-width:none;padding:4px 10px;font-size:14px;text-align:center;white-space:normal}
   .hs-long{display:none}
   .hs-short{display:inline}
 }

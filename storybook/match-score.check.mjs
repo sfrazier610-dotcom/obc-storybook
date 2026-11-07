@@ -97,7 +97,9 @@ assert.match(empty.html, /City Weekly Best of Utah 2026: Best Experiential Thera
 assert.match(empty.html, /City Weekly Best of Utah 2026: Best Psychotherapist\/Counselor, 3rd place/);
 assert.match(empty.html, /Call \(385\) 524-6665/);
 assert.match(empty.html, /Meet in the Hall/);
-assert.match(empty.html, /Begin with Scott/);
+assert.match(empty.html, /Request an appointment with Scott/);
+assert.match(empty.html, /\/professional\/request-appointment\.html/);
+assert.doesNotMatch(empty.html, /intake\.html/);
 assert.match(empty.html, /href="#team"/);
 assert.match(empty.html, /Retake/);
 
