@@ -976,31 +976,42 @@ html.page-hidden .lantern-svg .flame-outer,html.page-hidden .lantern-svg .flame-
 .calm .ctitle .w{animation:none!important;opacity:1!important;transform:none!important}
 .calm .ctitle::after{display:none}
 
-/* page turn: a real curl (mid-turn lift and bend), a light sweep across the paper, two trailing leaves, a deeper cast */
+/* Flat page flip. One card, rotateY only, one second from click to rest.
+   No curl, no skew bend, no soft-fold mesh. The ten accents live inside that second. */
+.gleaf,.curl,#page-curl{display:none!important}
 .leaf.go{transition:none}
-.leaf.fwd.go{animation:turnF var(--d-page) var(--ease-page) both}
-.leaf.bwd.go{animation:turnB var(--d-page) var(--ease-page) both}
-@keyframes turnF{0%{transform:rotateY(0)}22%{transform:rotateY(-24deg) translateZ(10px) skewY(-1.6deg)}50%{transform:rotateY(-90deg) translateZ(22px) skewY(-1deg)}100%{transform:rotateY(-180deg)}}
-@keyframes turnB{0%{transform:rotateY(-180deg)}50%{transform:rotateY(-90deg) translateZ(22px) skewY(1deg)}78%{transform:rotateY(-156deg) translateZ(10px) skewY(1.6deg)}100%{transform:rotateY(0)}}
-.curl{position:absolute;inset:0 -60%;z-index:9;pointer-events:none;opacity:0;background:linear-gradient(90deg,transparent 38%,rgba(255,248,228,.0) 42%,rgba(255,248,228,.6) 48%,rgba(70,45,18,.30) 55%,rgba(70,45,18,.0) 64%,transparent)}
-.leaf.fwd.go .front .curl{animation:curlA calc(var(--d-page) * .55) var(--ease-page) both}
-.leaf.fwd.go .back .curl{animation:curlB calc(var(--d-page) * .5) var(--ease-out) calc(var(--d-page) * .5) both}
-.leaf.bwd.go .back .curl{animation:curlA calc(var(--d-page) * .55) var(--ease-page) both}
-.leaf.bwd.go .front .curl{animation:curlB calc(var(--d-page) * .5) var(--ease-out) calc(var(--d-page) * .5) both}
-@keyframes curlA{0%{opacity:0;transform:translateX(30%)}30%{opacity:1}100%{opacity:.9;transform:translateX(-18%)}}
-@keyframes curlB{0%{opacity:.8;transform:translateX(-18%)}100%{opacity:0;transform:translateX(-36%)}}
-.leaf .back .curl{transform:scaleX(-1)}
-.gleaf{position:absolute;left:50%;top:.6%;width:49.4%;height:98.8%;transform-origin:left center;visibility:hidden;border-radius:0 3px 3px 0;background:#efe1bf;box-shadow:inset 0 0 0 1px rgba(127,85,23,.22),inset -26px 0 34px -26px rgba(60,40,15,.4)}
-.gleaf.g1{--gd:70ms}.gleaf.g2{--gd:140ms;background:#eadbb6}
-.gleaf.on{visibility:visible}
-.gleaf.fwd.go{animation:ghostF calc(var(--d-page) - var(--gd)) var(--ease-page) var(--gd) both}
-.gleaf.bwd.go{animation:ghostB calc(var(--d-page) - var(--gd)) var(--ease-page) var(--gd) both}
-@keyframes ghostF{0%{opacity:0;transform:rotateY(0)}12%{opacity:.85}50%{transform:rotateY(-86deg) translateZ(8px)}88%{opacity:.7}100%{opacity:0;transform:rotateY(-180deg)}}
-@keyframes ghostB{0%{opacity:0;transform:rotateY(-180deg)}12%{opacity:.85}50%{transform:rotateY(-94deg) translateZ(8px)}88%{opacity:.7}100%{opacity:0;transform:rotateY(0)}}
-@keyframes castA{0%{opacity:0}40%{opacity:.95}100%{opacity:0}}
-.book.turning .gutter{animation:gutterIn var(--d-page) var(--ease-page) both}
-@keyframes gutterIn{0%,100%{opacity:1}45%{opacity:.55}}
-.calm .gleaf,.calm .curl{display:none}
+.leaf .face{background-color:#f4e6c8}
+.leaf .front{box-shadow:inset -5px 0 0 rgba(88,58,28,.32),inset 0 0 0 1px rgba(255,248,230,.4)}
+.leaf .back{box-shadow:inset 5px 0 0 rgba(88,58,28,.32),inset 0 0 0 1px rgba(255,248,230,.35)}
+.leaf .front::after,.leaf .back::after{
+  background-image:linear-gradient(90deg,rgba(43,29,16,.08),rgba(255,236,200,.12) 42%,rgba(43,29,16,.4)),url(img/paper-fiber.webp);
+  background-size:auto,460px;
+}
+.leaf.fwd.go{animation:flatF 1000ms cubic-bezier(.42,.02,.18,1) both}
+.leaf.bwd.go{animation:flatB 1000ms cubic-bezier(.42,.02,.18,1) both}
+@keyframes flatF{0%{transform:rotateY(0)}14%{transform:rotateY(-4deg)}86%{transform:rotateY(-184deg)}100%{transform:rotateY(-180deg)}}
+@keyframes flatB{0%{transform:rotateY(-180deg)}14%{transform:rotateY(-176deg)}86%{transform:rotateY(4deg)}100%{transform:rotateY(0)}}
+.nick{position:absolute;z-index:6;right:10px;bottom:14px;width:34px;height:34px;pointer-events:none;opacity:0;background:linear-gradient(135deg,transparent 42%,rgba(255,248,230,.98) 48% 58%,rgba(110,72,34,.45) 60%,transparent 70%);box-shadow:-3px -3px 6px rgba(40,20,8,.2)}
+.leaf.go .nick{animation:nickLift 1000ms linear both}
+@keyframes nickLift{0%{opacity:0;transform:none}4%{opacity:1;transform:translate(-6px,-4px)}14%{opacity:1;transform:translate(-6px,-4px)}22%{opacity:0}100%{opacity:0}}
+.cast.go{animation:castStack 1000ms cubic-bezier(.42,.02,.18,1) both}
+@keyframes castStack{0%{opacity:0}14%{opacity:.42}52%{opacity:.7}100%{opacity:0}}
+.book.turning .gutter{animation:spineSh 1000ms ease-in-out both}
+@keyframes spineSh{0%,100%{opacity:.8;filter:brightness(1)}48%{opacity:1;filter:brightness(.72)}}
+.opened .book.turning{animation:bookTilt 1000ms ease-in-out both}
+@keyframes bookTilt{0%,100%{transform:rotate(0)}38%{transform:rotate(-.4deg)}72%{transform:rotate(.22deg)}}
+.stage:has(.book.turning) .scenery,.stage:has(.story.flat-turn) .scenery{animation:sceneDrift 1000ms ease-in-out both}
+@keyframes sceneDrift{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(-8px,3px,0)}}
+.book.turning .blend,.book.turning .blend-g{animation:none!important;opacity:0!important}
+.opener.shown .plate-frame img,.opener.shown .plate-frame .scene,.opener.shown .scene{clip-path:none!important;transition:none!important;animation:none!important}
+.opener.shown .ptext>*{opacity:1!important;transform:none!important;animation:none!important}
+.calm .nick,.calm .book.turning,.calm .scenery{animation:none!important}
+@media (max-width:899px){
+ .js:not(.calm) .chap.mt-f,.js:not(.calm) .chap.mt-b{box-shadow:0 16px 28px rgba(20,10,4,.16);animation:flatSlideF 1000ms cubic-bezier(.42,.02,.18,1) both}
+ .js:not(.calm) .chap.mt-b{animation-name:flatSlideB}
+}
+@keyframes flatSlideF{0%{transform:translateX(64px)}14%{transform:translateX(52px)}88%{transform:translateX(-4px)}100%{transform:translateX(0)}}
+@keyframes flatSlideB{0%{transform:translateX(-64px)}14%{transform:translateX(-52px)}88%{transform:translateX(4px)}100%{transform:translateX(0)}}
 
 /* ===== Rewrite your story: a struck line, rewritten in ink (both stay in the DOM) ===== */
 .rewrite{max-width:820px;margin:38px auto 30px;text-align:center}
@@ -1107,7 +1118,6 @@ html.page-hidden .lantern-svg .flame-outer,html.page-hidden .lantern-svg .flame-
 /* fix22: counselor photos back in the Hall seals (as in 4fb29aa, reusing professional/img/team). Initials stay underneath as the fallback. */.seal.has-photo{position:relative;width:88px;height:88px;overflow:hidden;padding:0}.seal.has-photo .seal-photo{position:absolute;inset:3px;width:calc(100% - 6px);height:calc(100% - 6px);border-radius:50%;object-fit:cover;aspect-ratio:1/1}.bookplate:hover .seal.has-photo{transform:none}@media(max-width:600px){.seal.has-photo{width:72px;height:72px}}
 </style>
 <link rel="stylesheet" href="quiet-craft.css?v=20261106g">
-<link rel="stylesheet" href="paper-turn.css?v=20261107f">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
@@ -1316,7 +1326,6 @@ html.page-hidden .lantern-svg .flame-outer,html.page-hidden .lantern-svg .flame-
 </div>
 <div class="egg-toast" id="egg-toast" role="status" aria-live="polite"></div>
 <div class="kind-note" id="kind-note" hidden role="dialog" aria-labelledby="kn-h"><p class="clabel" id="kn-h">A note tucked in the book</p><p>You don’t need the right words to begin. Starting can be small and a little messy. Being here and looking is already a step.</p><button class="btn ghost" type="button" data-close="kind-note">Tuck it back</button></div>
-<script src="paper-turn.js?v=20261107g"></script>
 <script src="ink-ritual.js?v=20261106g"></script>
 <script src="hearth.js?v=20261106g"></script>
 <script>(function(){
@@ -1376,42 +1385,32 @@ function turnTo(to,opts){
  opts=opts||{};
  if(typeof to==='string')to=ids.indexOf(to);
  if(to<0||to>N||(to===N&&!opts.secret))return;
- if(!desk.matches){if(to===N){if(!opened)openBook(true);return}if(!opened){cur=to;openBook(true);return}if(to===cur||busy)return;var mf=to>cur,fromI=cur,useVT=canVT()&&!(window.obcPaper&&!isCalm()&&!rm.matches);cur=to;cueHearth('turn');
-  var mswap=function(focus){chaps.forEach(function(c,k){c.classList.toggle('active',k===to);c.classList.remove('mt-f','mt-b')});arm(chaps[to]);if(!isCalm()&&!rm.matches&&!useVT&&!(window.obcPaper)){void chaps[to].offsetWidth;chaps[to].classList.add(mf?'mt-f':'mt-b')}
+ if(!desk.matches){if(to===N){if(!opened)openBook(true);return}if(!opened){cur=to;openBook(true);return}if(to===cur||busy)return;var mf=to>cur;cur=to;cueHearth('turn');
+  var mswap=function(focus){chaps.forEach(function(c,k){c.classList.toggle('active',k===to);c.classList.remove('mt-f','mt-b')});arm(chaps[to]);var shown=chaps[to]&&chaps[to].querySelector('.opener');if(shown){shown.classList.add('in','shown');shown.querySelectorAll('img').forEach(function(img){img.loading='eager'})}
   if(focus===false)return;updateUI();try{history.replaceState(null,'','#'+ids[to])}catch(e){}window.scrollTo(0,0);refit();var hd=$('.ctitle',chaps[to])||chaps[to];if(!hd.hasAttribute('tabindex'))hd.setAttribute('tabindex','-1');hd.focus({preventScroll:true})};
-  if(window.obcPaper&&!isCalm()&&!rm.matches){var op=function(i){var el=src(i),o=el&&el.querySelector('.opener');return o?o.innerHTML:''};busy=true;H.classList.add('paper-turning');window.obcPaper.play({fwd:mf,mobile:true,host:document.getElementById('story'),frontHTML:op(fromI),backHTML:op(to),onCover:function(){mswap(false);var shown=chaps[to]&&chaps[to].querySelector('.opener');if(shown){shown.classList.add('in','shown');shown.querySelectorAll('img').forEach(function(img){img.loading='eager';img.decoding='sync'})}},onDone:function(){var shown=chaps[to]&&chaps[to].querySelector('.opener');if(shown)shown.classList.add('in','shown');H.classList.remove('paper-turning');busy=false;mswap()}});return}
-  pageCurl(mf);if(useVT){vt(mf?'f':'b',mswap)}else mswap();return}
+  if(isCalm()||rm.matches){mswap();return}
+  busy=true;var story=$('#story');if(story)story.classList.add('flat-turn');mswap(false);var chap=chaps[to];if(chap){void chap.offsetWidth;chap.classList.add(mf?'mt-f':'mt-b')}
+  setTimeout(function(){if(chap)chap.classList.remove('mt-f','mt-b');if(story)story.classList.remove('flat-turn');busy=false;mswap()},1000);return}
  if(!opened){cur=to;openBook(false);return}
  if(busy||to===cur)return;
- var from=cur;cur=to;var usePaper=!!(window.obcPaper&&!isCalm());
- if(!usePaper)updateUI();
+ var from=cur;cur=to;updateUI();
  try{history.replaceState(null,'','#'+ids[to])}catch(e){}
- if(isCalm()){
+ if(isCalm()||rm.matches){
   paint(to);[pl,pr].forEach(function(p){p.classList.remove('fade');void p.offsetWidth;p.classList.add('fade')});
   showBody(to,false);cueHearth('turn');return;
  }
  busy=true;var fwd=to>from;cueHearth('turn');
- if(window.obcPaper){
-  pr.classList.remove('fresh');pl.classList.remove('warm');
-  book.classList.add('turning');
-  var landed=false;
-  function land(){if(landed)return;landed=true;var side=fwd?pl:pr;side.innerHTML=fwd?L(to):R(to);side.classList.remove('warm','fresh');side.querySelectorAll('img').forEach(function(img){img.loading='eager';img.decoding='sync'});updateUI();showBody(to,false)}
-  function cover(){if(fwd){pl.innerHTML=L(from);pr.innerHTML=R(to)}else{pl.innerHTML=L(to);pr.innerHTML=R(from)}}
-  window.obcPaper.play({fwd:fwd,mobile:false,host:book,frontHTML:fwd?R(from):R(to),backHTML:fwd?L(to):L(from),onCover:cover,onMid:land,onDone:function(){
-    land();book.classList.remove('turning');busy=false;fitHots(pl);fitHots(pr);
-  }});
-  return;
- }
- if(canVT()){busy=false;vt(fwd?'f':'b',function(){paint(to);fresh(pr);warm(pl);showBody(to,false)},function(){fitHots(pl);fitHots(pr)});return}
- pr.classList.remove('fresh');
- if(fwd){pl.classList.remove('warm');pl.innerHTML=L(from);pr.innerHTML=R(to);lf.innerHTML=R(from);lb.innerHTML=L(to);fresh(pr)}
- else{pl.innerHTML=L(to);pr.innerHTML=R(from);lf.innerHTML=R(to);lb.innerHTML=L(from);warm(pl)}
- lf.insertAdjacentHTML('beforeend','<i class="curl"></i>');lb.insertAdjacentHTML('beforeend','<i class="curl"></i>');
- leaf.className='leaf on '+(fwd?'fwd':'bwd');cast.className='cast '+(fwd?'fwd':'bwd');ghosts.forEach(function(g,k){g.className='gleaf g'+(k+1)+' on '+(fwd?'fwd':'bwd')});book.classList.add('turning');
+ pr.classList.remove('fresh');pl.classList.remove('warm');
+ lf.innerHTML=fwd?R(from):R(to);lb.innerHTML=fwd?L(to):L(from);
+ var nick=document.createElement('i');nick.className='nick';nick.setAttribute('aria-hidden','true');(fwd?lf:lb).appendChild(nick);
+ [lf,lb].forEach(function(face){face.querySelectorAll('img').forEach(function(img){img.loading='eager'})});
+ leaf.className='leaf on '+(fwd?'fwd':'bwd');cast.className='cast '+(fwd?'fwd':'bwd');
+ book.classList.add('turning');
  void leaf.offsetWidth;
- requestAnimationFrame(function(){leaf.classList.add('go');cast.classList.add('go');ghosts.forEach(function(g){g.classList.add('go')})});
- setTimeout(function(){showBody(to,true)},420);
- setTimeout(function(){if(fwd){pl.innerHTML=L(to);warm(pl)}else{pr.innerHTML=R(to)}leaf.className='leaf';cast.className='cast';ghosts.forEach(function(g,k){g.className='gleaf g'+(k+1)});book.classList.remove('turning');lf.innerHTML='';lb.innerHTML='';busy=false;fitHots(pl);fitHots(pr)},860);
+ if(fwd){pr.innerHTML=R(to)}else{pl.innerHTML=L(to)}
+ requestAnimationFrame(function(){leaf.classList.add('go');cast.classList.add('go')});
+ setTimeout(function(){var side=fwd?pl:pr;side.innerHTML=fwd?L(to):R(to);side.classList.remove('warm','fresh');side.querySelectorAll('img').forEach(function(img){img.loading='eager'});showBody(to,false)},650);
+ setTimeout(function(){leaf.className='leaf';cast.className='cast';book.classList.remove('turning');lf.innerHTML='';lb.innerHTML='';busy=false;fitHots(pl);fitHots(pr)},1000);
 }
 
 function pageCurl(fwd){if(desk.matches||isCalm()||rm.matches)return;var c=$('#page-curl');if(!c)return;c.classList.remove('on','f','b');void c.offsetWidth;c.classList.add('on',fwd?'f':'b');clearTimeout(pageCurl._t);pageCurl._t=setTimeout(function(){c.classList.remove('on','f','b')},520)}

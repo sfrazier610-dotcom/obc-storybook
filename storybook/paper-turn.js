@@ -1,4 +1,5 @@
-/* Soft fold for the Quiet Library, adapted from StPageFlip's HTML soft
+/* Not used by the storybook page. The turn is the flat flip in index.html.
+   Soft fold for the Quiet Library, adapted from StPageFlip's HTML soft
    page (MIT). One whole copy of the page is clipped to a moving polygon,
    translated, and rotated. A shadow rides the crease. It is a fold, not a
    curved sheet. Calm and reduced motion never build one. The copy is
