@@ -1,4 +1,4 @@
-/* One leaf, two faces. No sliced strips.
+/* One copied page, a moving clip, and a crease shadow.
    Calm and reduced motion never show it. */
 .paper-rig{
   position:absolute;
@@ -23,6 +23,28 @@
   background:linear-gradient(90deg, rgba(20,10,4,0), rgba(24,12,6,.55) 42%, rgba(24,12,6,.12) 78%, transparent);
   opacity:0;
 }
+.paper-rig.mirror{transform:scaleX(-1);transform-origin:center center}
+.paper-fold{
+  position:absolute;
+  left:0;
+  top:0;
+  transform-origin:0 0;
+  overflow:hidden;
+  background-color:#f3e4c6;
+  background-image:url(img/paper-fiber.webp);
+  background-size:520px;
+  z-index:2;
+}
+.paper-inn{position:absolute;inset:0}
+.paper-rig.mirror .paper-inn{transform:scaleX(-1);transform-origin:center center}
+.paper-shadow{
+  position:absolute;
+  left:0;
+  top:0;
+  pointer-events:none;
+  z-index:4;
+}
+.paper-dot{position:absolute;width:2px;height:2px;opacity:0;pointer-events:none}
 .paper-leaf{
   position:absolute;
   top:0;
