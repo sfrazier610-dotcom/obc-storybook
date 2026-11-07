@@ -1,3 +1,7 @@
+/* Skip target and sticky crisis offset. Runs first so a later widget error cannot skip it. */
+(function(){var main=document.getElementById('main');if(main&&!main.hasAttribute('tabindex'))main.setAttribute('tabindex','-1');
+var crisis=document.querySelector('.crisis');function fit(){var h=crisis?Math.ceil(crisis.getBoundingClientRect().height):0;document.documentElement.style.setProperty('--crisis-h',h+'px');}
+fit();if(crisis&&window.ResizeObserver)new ResizeObserver(fit).observe(crisis);else window.addEventListener('resize',fit);})();
 (function(){
 const D=window.OBC,$=s=>document.querySelector(s),C=D.concernLabels,M=D.modLabels;
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));

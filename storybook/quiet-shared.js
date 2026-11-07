@@ -99,7 +99,7 @@ function resultsHtml(a){
  if(a.setting==='telehealth') setNote='<p class="note">You chose telehealth, so office points were not used.</p>';
  else if(a.setting==='inperson') setNote='<p class="note">You chose in person.</p>';
  const tie=r.length>1&&r[0].pct===r[1].pct;
- const tieNote=tie?'<p class="note tie-note">Where the fit is the same, counselors stay in the order of the Hall.</p>':'';
+ const tieNote=tie?'<p class="note tie-note">Where the fit is the same, counselors stay in source-list order.</p>':'';
  const softNote=thin?`<p class="soft-note" role="status">${esc(softCopy(a))}</p>`:'';
  const tryGender=G?`<p class="note"><button type="button" class="btn ghost sm" data-match-act="clear-gender">Try without gender filter</button></p>`:'';
  const T=window.THEME||{};
