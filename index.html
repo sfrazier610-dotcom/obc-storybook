@@ -10,12 +10,13 @@
 @font-face{font-family:"Inter";src:url(professional/fonts/inter-latin-400-normal.woff2) format("woff2");font-weight:400;font-display:swap}
 @font-face{font-family:"Inter";src:url(professional/fonts/inter-latin-600-normal.woff2) format("woff2");font-weight:600 700;font-display:swap}
 @font-face{font-family:"Fraunces";src:url(professional/fonts/fraunces-latin-600-normal.woff2) format("woff2");font-weight:600 700;font-display:swap}
-*{box-sizing:border-box}html,body{margin:0}
+*{box-sizing:border-box}html,body{margin:0}html{scroll-padding-top:calc(var(--crisis-h, 4rem) + 8px)}
 body{font:17px/1.6 "Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#16323A;background:#F7F4EE;min-height:100vh;display:flex;flex-direction:column}
 a{color:#1F6F6B}:focus-visible{outline:3px solid #9A4A2E;outline-offset:3px}
 .skip{position:absolute;left:-999px;top:0;background:#fff;padding:8px 12px;z-index:20}.skip:focus{left:8px}
-.crisis{position:sticky;top:0;z-index:10;background:#0F2329;color:#fff;padding:10px 16px;font-size:15px;line-height:1.4;text-align:center}.crisis a{color:#F2C46B}
-main{flex:1;width:100%;max-width:1040px;margin:0 auto;padding:48px 20px 40px}
+.crisis{position:sticky;top:0;z-index:10;background:#0F2329;color:#fff;padding:10px 16px;font-size:15px;line-height:1.35;text-align:center}.crisis a{color:#F2C46B}
+@media(max-width:759px){.crisis{font-size:13.5px;line-height:1.3;padding:6px 10px}}
+main{flex:1;width:100%;max-width:1040px;margin:0 auto;padding:48px 20px 40px}main:focus{outline:3px solid #9A4A2E;outline-offset:0}
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 20px;background:#fff;border-bottom:1px solid #DDE5E3}.top .nm{display:inline-flex;align-items:center;gap:8px;font:600 18px "Fraunces",Georgia,serif;color:#16323A}.top .nm img{height:30px;width:auto}.top .tc{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:12px;background:#9A4A2E;color:#fff;font-weight:600;text-decoration:none;white-space:nowrap}.top .tc:hover{background:#7f3c24}
 h1{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:clamp(2rem,4.6vw,3rem);line-height:1.15;text-align:center;margin:0 0 .3em}
 .lead{text-align:center;color:#3E5560;font-size:1.15rem;max-width:44rem;margin:0 auto 32px}
@@ -54,7 +55,7 @@ footer{background:#0F2329;color:#C9D6D4;text-align:center;padding:16px 20px;font
 <a class="skip" href="#main">Skip to content</a>
 <div class="crisis" role="region" aria-label="Crisis resources"><strong>In crisis?</strong> Call or text <a href="tel:988">988</a> (Suicide &amp; Crisis Lifeline, 24/7) · Utah: <a href="https://safeut.org/">SafeUT</a> · Emergency: <a href="tel:911">911</a> · This site is not monitored for emergencies. · <a href="/crisis/">Crisis resources</a></div>
 <header class="top"><span class="nm"><img src="shared/img/logo.webp" alt="" width="30" height="30">Open Book Counseling</span><a class="tc" href="tel:3855246665">Call 385-524-6665</a></header>
-<main id="main">
+<main id="main" tabindex="-1">
 <h1>Open Book Counseling, PLLC</h1>
 <p class="lead">Trauma and mental health counseling in Draper and Bountiful, Utah, and online. Choose how you'd like to explore.</p>
 <div class="choices">
@@ -64,4 +65,5 @@ footer{background:#0F2329;color:#C9D6D4;text-align:center;padding:16px 20px;font
 <p class="call"><a href="tel:3855246665">Call 385-524-6665</a></p>
 </main>
 <footer>© Open Book Counseling, PLLC · Draper &amp; Bountiful, Utah</footer>
+<script>(function(){var c=document.querySelector('.crisis');function f(){document.documentElement.style.setProperty('--crisis-h',(c?Math.ceil(c.getBoundingClientRect().height):0)+'px')}f();if(c&&window.ResizeObserver)new ResizeObserver(f).observe(c);else addEventListener('resize',f)})();</script>
 </body></html>
