@@ -31,4 +31,6 @@ assert.equal(nav.includes("e.key!=='Escape'"), true);
 assert.equal(app.includes("e.key!=='Escape'"), true);
 assert.equal(app.includes('/professional/request-appointment.html'), true);
 assert.equal(app.includes('/professional/intake.html'), false);
+assert.match(story, /\.pro-link\{[^}]*min-height:44px/);
+assert.match(story, /\.read-on\{[^}]*min-height:44px/);
 console.log('a11y eight checks passed');
