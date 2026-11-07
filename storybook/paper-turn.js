@@ -13,10 +13,14 @@ function still(){
 }
 function clamp(v,a,b){return v<a?a:v>b?b:v}
 function ease(t){
+  /* The published curve raced through the arch, then faded the sheet
+     while it was still bent. Lift, linger on the bend, lay the page
+     flat, and only then let it fade. */
   t=clamp(t,0,1);
-  var s=t*t*t*(t*(t*6-15)+10);
-  var o=1-Math.pow(1-t,3);
-  return s*0.55+o*0.45;
+  if(t<0.12){var u=t/0.12;return u*u*0.28}
+  if(t<0.62)return 0.28+(t-0.12)/0.50*0.42;
+  if(t<0.88){var v=(t-0.62)/0.26;return 0.70+(1-(1-v)*(1-v))*0.30}
+  return 1;
 }
 function soften(html){
   var d=document.createElement('div');
@@ -32,8 +36,9 @@ function soften(html){
 }
 function thetaAt(x,sim){
   var lead=Math.pow(clamp(x,0,1),0.72);
-  var delay=(1-lead)*0.48;
-  var local=(sim-delay)/(1-delay*0.45);
+  var delay=(1-lead)*0.42;
+  var span=1-delay;
+  var local=span>0?(sim-delay)/span:sim;
   local=clamp(local,0,1);
   var sm=local*local*(3-2*local);
   return Math.PI*sm;
@@ -45,8 +50,7 @@ function play(opts){
   if(!host){if(opts.onDone)opts.onDone();return}
   var mobile=!!opts.mobile,fwd=!!opts.fwd,spread=!mobile;
   var n=mobile?1:36;
-  var curl=mobile?0.78:0.7;
-  var dur=mobile?1120:1360;
+  var dur=mobile?2400:2500;
   var box=host.getBoundingClientRect();
   var W,H,width,height,top=0,left=0,originRight=!spread&&!fwd;
   if(spread){
@@ -99,24 +103,26 @@ function play(opts){
   (spread?host:document.body).appendChild(rig);
   var t0=performance.now(),raf=0,finished=0,token={};
   running=token;
-  function pose(sim){
+  function pose(sim,t){
     if(mobile){
-      var bow=Math.min(1,sim/0.68);
-      var slide=Math.max(0,(sim-0.6)/0.4);
+      /* Clock time, not the desktop arch curve, so the sheet keeps moving. */
+      var bowT=Math.min(1,t/0.50);
+      bowT=Math.sin(bowT*Math.PI/2);
+      var slide=t<=0.40?0:Math.min(1,(t-0.40)/0.52);
       slide=slide*slide*(3-2*slide);
       var off=(originRight?1:-1)*slide*(W+48);
-      rig.style.opacity=sim>0.84?String(Math.max(0,1-(sim-0.84)/0.16)):'1';
+      rig.style.opacity=t>0.92?String(Math.max(0,1-(t-0.92)/0.08)):'1';
       for(var m=0;m<segs.length;m++){
         var sm=segs[m];
-        var ang=bow*0.5;
+        var ang=bowT*1.02;
         sm.front.style.visibility='visible';
         sm.back.style.visibility='hidden';
         sm.el.style.width=W+'px';
         sm.el.style.transformOrigin=originRight?'right center':'left center';
-        sm.el.style.transform='translate3d('+off.toFixed(2)+'px,0,'+(Math.sin(ang)*30).toFixed(2)+'px) rotateY('+((originRight?1:-1)*ang*180/Math.PI).toFixed(2)+'deg) skewY('+((originRight?1:-1)*bow*1.4).toFixed(2)+'deg)';
-        sm.shade.style.opacity=String(clamp(Math.sin(ang)*0.45,0,0.45));
+        sm.el.style.transform='translate3d('+off.toFixed(2)+'px,0,'+(Math.sin(ang)*36).toFixed(2)+'px) rotateY('+((originRight?1:-1)*ang*180/Math.PI).toFixed(2)+'deg) skewY('+((originRight?1:-1)*bowT*2.2).toFixed(2)+'deg)';
+        sm.shade.style.opacity=String(clamp(Math.sin(ang)*0.55,0,0.55));
       }
-      cast.style.opacity=String(clamp(bow*0.35,0,0.35));
+      cast.style.opacity=String(clamp(bowT*(1-slide*0.85)*0.72,0,0.72));
       cast.style.width=Math.round(W*0.55)+'px';
       cast.style.transform='translateX('+(originRight?W*0.15:W*0.35)+'px)';
       return;
@@ -144,7 +150,7 @@ function play(opts){
       x+=originRight?-step:step;
       z+=sw*Math.sin(mid);
     }
-    cast.style.opacity=String(clamp(peakZ/(W*0.28)*0.5,0,0.55));
+    cast.style.opacity=String(clamp(Math.sin(clamp(sim,0,1)*Math.PI)*0.7,0,0.7));
     cast.style.width=Math.round(W*0.5)+'px';
     cast.style.transform='translateX('+(peakX-W*0.22).toFixed(1)+'px)';
   }
@@ -155,9 +161,9 @@ function play(opts){
     if(still())t=1;
     var sim=ease(clamp(t,0,1));
     if(!fwd&&spread)sim=1-ease(clamp(t,0,1));
-    pose(sim);
-    if(!mobile)rig.style.opacity=t>0.72?String(clamp(1-(t-0.72)/0.22,0,1)):'1';
-    if(t>0.46&&opts.onMid){try{opts.onMid()}catch(e){}opts.onMid=null}
+    pose(sim,t);
+    if(!mobile)rig.style.opacity=t>0.91?String(clamp(1-(t-0.91)/0.09,0,1)):'1';
+    if(t>0.89&&opts.onMid){try{opts.onMid()}catch(e){}opts.onMid=null}
     if(t>=1&&hold==null){end();return}
     raf=requestAnimationFrame(frame);
   }
