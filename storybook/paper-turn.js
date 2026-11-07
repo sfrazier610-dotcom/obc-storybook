@@ -24,14 +24,33 @@ function soften(html){
   }
   return d.innerHTML;
 }
-/* 0–180 degrees. Most of the time is on a readable face.
-   The edge-on moment is a short pass, not a place the page sits. */
-function angleAt(t){
-  t=clamp(t,0,1);
-  if(t<0.40){var u=t/0.40;return (1-Math.pow(1-u,2))*68}
-  if(t<0.56)return 68+((t-0.40)/0.16)*44;
-  if(t<0.92){var v=(t-0.56)/0.36;return 112+(1-Math.pow(1-v,2))*68}
-  return 180;
+/* Map time to degrees so the fore-edge's measured on-screen path
+   moves at one speed. Starts flat, ends flat, no eased stages. */
+function paceFrom(sign, leaf, face, originRight){
+  var dot=document.createElement('i');
+  dot.style.cssText='position:absolute;top:50%;width:0;height:0;'+(originRight?'left:0':'right:0');
+  face.appendChild(dot);
+  var N=36, degs=[], xs=[], lens=[0], acc=0;
+  for(var i=0;i<=N;i++){
+    var d=180*i/N;
+    leaf.style.transform='rotateY('+(sign*d).toFixed(2)+'deg)';
+    var b=dot.getBoundingClientRect();
+    degs.push(d);
+    xs.push((b.left+b.right)/2);
+    if(i){acc+=Math.abs(xs[i]-xs[i-1]); lens.push(acc)}
+  }
+  dot.remove();
+  leaf.style.transform='none';
+  var total=acc||1;
+  return function(t){
+    var want=clamp(t,0,1)*total;
+    var lo=0, hi=N;
+    while(lo<hi){var mid=(lo+hi)>>1; if(lens[mid]<want)lo=mid+1; else hi=mid}
+    if(lo===0)return 0;
+    var span=lens[lo]-lens[lo-1]||1;
+    var f=(want-lens[lo-1])/span;
+    return degs[lo-1]+(degs[lo]-degs[lo-1])*f;
+  };
 }
 function play(opts){
   if(!opts||still()){if(opts&&opts.onDone)opts.onDone();return}
@@ -39,7 +58,7 @@ function play(opts){
   var host=opts.host;
   if(!host){if(opts.onDone)opts.onDone();return}
   var mobile=!!opts.mobile,fwd=!!opts.fwd,spread=!mobile;
-  var dur=mobile?2400:2500;
+  var dur=2500;
   var box=host.getBoundingClientRect();
   var width,height,top=0,left=0,originRight=!spread&&!fwd;
   if(spread){
@@ -84,9 +103,11 @@ function play(opts){
   leaf.appendChild(front);leaf.appendChild(back);leaf.appendChild(shade);
   rig.appendChild(leaf);
   (spread?host:document.body).appendChild(rig);
-  var t0=performance.now(),raf=0,finished=0,token={};
+  var raf=0,finished=0,token={};
   running=token;
   var sign=originRight?1:-1;
+  var angleAt=paceFrom(sign, leaf, front, originRight);
+  var t0=performance.now();
   function pose(t){
     var ang=angleAt(t);
     if(!fwd)ang=180-ang;
@@ -101,7 +122,6 @@ function play(opts){
       cast.style.width='55%';
       cast.style.transform='translateX('+(originRight?width*0.2:width*0.25)+'px)';
     }
-    rig.style.opacity=t>0.93?String(clamp(1-(t-0.93)/0.07,0,1)):'1';
   }
   function frame(now){
     if(running!==token)return;
