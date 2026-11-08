@@ -220,10 +220,11 @@ main{position:relative}
 .sc-name{font:600 22px/1.15 var(--display)}
 .sigil{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font:400 13px/1 var(--sc);color:var(--gold-ink);border:1px solid var(--gold);transition:transform 600ms var(--ease-out),background var(--d-base)}
 .sc-btn[aria-expanded="true"] .sigil{transform:rotate(360deg);background:rgba(200,155,60,.2)}
-.aw-list{list-style:none;margin:0 auto 10px;padding:0;display:grid;gap:12px;max-width:680px}
-.aw-list li{display:flex;gap:14px;align-items:center;background:var(--card);border:1px solid rgba(200,155,60,.5);border-radius:12px;padding:12px 16px}
-.aw-list b{display:block;font:600 21px/1.15 var(--display)}
-.aw-list small{font-size:15.5px;color:var(--muted)}
+.aw-list{list-style:none;margin:0 auto 10px;padding:0;display:grid;grid-template-columns:minmax(0,1fr);gap:12px;max-width:680px}
+.aw-list li{display:flex;gap:14px;align-items:center;min-width:0;background:var(--card);border:1px solid rgba(200,155,60,.5);border-radius:12px;padding:12px 16px}
+.aw-list li>span:last-child{min-width:0;flex:1 1 auto}
+.aw-list b{display:block;font:600 21px/1.15 var(--display);overflow-wrap:break-word}
+.aw-list small{display:block;font-size:15.5px;color:var(--muted);overflow-wrap:break-word}
 .medal{flex:none;width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font:400 14px/1 var(--sc);color:#3a2a0e;background:radial-gradient(circle at 35% 30%,#efe3c4,#c9b48a);box-shadow:0 0 0 2px #fff6e0,0 0 0 3px #b89a5e}
 .medal.gold{background:radial-gradient(circle at 35% 30%,#ffe9a8,#c89b3c);box-shadow:0 0 0 2px #fff6e0,0 0 0 3px var(--gold)}
 .awards .note{text-align:center}
@@ -891,7 +892,7 @@ html.page-hidden .lantern-svg .flame-outer,html.page-hidden .lantern-svg .flame-
 #coping label{display:block;font:500 14.5px/1.35 var(--sans);color:var(--muted);margin:8px 0}
 #coping input:not([type=checkbox]):not([type=radio]),#coping textarea,#coping select{display:block;width:100%;margin-top:4px;font:400 16px/1.4 var(--sans);color:var(--ink);background:#fffdf7;border:1px solid rgba(127,85,23,.35);border-radius:8px;padding:8px 10px}
 #coping textarea{min-height:64px;resize:vertical}
-#coping .row{display:flex;gap:8px;flex-wrap:wrap}#coping .row>*{width:auto!important;flex:1 1 120px;margin:0}
+#coping .row{display:flex;gap:8px;flex-wrap:wrap}#coping .row>*{width:auto!important;flex:1 1 120px;min-width:0;margin:0}
 #coping .trg{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:0 16px}
 #coping .chips label{display:inline-flex;margin:0}
 #coping blockquote{margin:10px 0 0;padding:10px 14px;border-left:3px solid var(--gold);background:#fffaf0;font:italic 400 17px/1.5 var(--serif)}
@@ -1214,7 +1215,7 @@ html.page-hidden .lantern-svg .flame-outer,html.page-hidden .lantern-svg .flame-
  <ul class="aw-list">
   <li data-r style="--i:0"><span class="medal" aria-hidden="true">3rd</span><span><b>Best Mental Health Treatment Center</b><small>3rd place</small></span></li>
   <li data-r style="--i:1"><span class="medal gold" aria-hidden="true">1st</span><span><b>Best Experiential Therapist</b><small>1st place: Scott Frazier</small></span></li>
-  <li data-r style="--i:2"><span class="medal" aria-hidden="true">3rd</span><span><b>Best Psychotherapist/Counselor</b><small>3rd place: Amber Frazier</small></span></li>
+  <li data-r style="--i:2"><span class="medal" aria-hidden="true">3rd</span><span><b>Best Psychotherapist/<wbr>Counselor</b><small>3rd place: Amber Frazier</small></span></li>
  </ul>
  <p class="note">Past award: 2025 Best of Utah Mental Health</p>
 </section>
