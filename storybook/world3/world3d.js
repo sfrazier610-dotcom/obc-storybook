@@ -20,7 +20,7 @@ var ROLE={hero:"mage",amber:"rogue",scott:"knight",shanna:"rogue_hooded",abby:"b
 var TINT={hero:0xffffff,amber:0xfff4ea,scott:0xe7eef8,shanna:0xf3ecff,abby:0xffe8d4,aspen:0xe5f6ea,amanda:0xffe0ea,makayla:0xfff6d8,villager:0xffffff};
 var MOOD={
  calm:{clip:"Idle",fx:"calm",tint:0xfff6c9,bone:"calm"},
- worried:{clip:"Idle",fx:"scribs",tint:0xc5d4e6,bone:"worried"},
+ worried:{clip:"Idle",fx:"scribs",tint:0xb7c6dc,bone:"worried"},
  overwhelmed:{clip:"Walking_A",fx:"pack",speed:.4,tint:0xf3e4d2,bone:"over"},
  withdrawn:{clip:"Idle",fx:"cloud",tint:0xb7b6c0,bone:"away",yaw:.28},
  panicked:{clip:"Idle",fx:"panic",speed:2.6,tint:0xfff8ee,bone:"panic"},
@@ -153,8 +153,12 @@ function boot(){
     var leaf=sphere(0x7fbf58,.06);leaf.scale.set(1.8,.45,.35);leaf.position.set(.5,1.48,.08);leaf.rotation.z=.6;calmFx.add(leaf);
     var worry=new THREE.Group();
     var drop=new THREE.Mesh(new THREE.SphereGeometry(.055,8,6),new THREE.MeshBasicMaterial({color:0x9fd4f0,transparent:true,opacity:.92}));
-    drop.scale.set(.7,1.2,.65);drop.position.set(.34,1.42,.26);
-    var drip=drop.clone();drip.scale.set(.4,.55,.4);drip.position.set(.34,1.3,.28);worry.add(drop,drip);
+    drop.scale.set(.7,1.2,.65);drop.position.set(.38,1.48,.3);
+    var drip=drop.clone();drip.scale.set(.4,.55,.4);drip.position.set(.38,1.34,.32);
+    var held=new THREE.Mesh(new THREE.BoxGeometry(.36,.46,.1),new THREE.MeshStandardMaterial({color:0xc43840,roughness:.55}));
+    held.position.set(0,.98,.42);
+    var pages=new THREE.Mesh(new THREE.BoxGeometry(.28,.36,.03),new THREE.MeshStandardMaterial({color:0xf6f1e6,roughness:.65}));
+    pages.position.set(0,.98,.48);worry.add(drop,drip,held,pages);
     var warm=new THREE.Group();
     var glow=new THREE.Mesh(new THREE.SphereGeometry(.55,14,10),new THREE.MeshBasicMaterial({color:0xffd898,transparent:true,opacity:.34,depthWrite:false}));
     glow.position.set(-.7,1.15,-.15);
@@ -635,40 +639,86 @@ function boot(){
       }
     });
     if(cliff){
-      var topH=2.7,faceZ=0.05,thick=.5,half=0.98;
-      function wall(x0,x1){
-        var w=x1-x0,cx=(x0+x1)/2,bands=[[.34,0x4a3022],[.32,0xc2ae86],[.34,0x6e4c34]],y0=0;
-        bands.forEach(function(b){
-          var bh=topH*b[0];
-          var m=new THREE.Mesh(new THREE.BoxGeometry(w,bh,thick),new THREE.MeshStandardMaterial({color:b[1],roughness:.95}));
-          m.position.set(cx,y0+bh/2,faceZ-thick/2);world.add(m);y0+=bh;
-        });
-        var foot=new THREE.Mesh(new THREE.BoxGeometry(w,.14,thick+.22),new THREE.MeshStandardMaterial({color:0x241c16,roughness:1}));
-        foot.position.set(cx,.07,faceZ+.08);world.add(foot);
-        var lip=new THREE.Mesh(new THREE.BoxGeometry(w,.18,thick+.62),new THREE.MeshStandardMaterial({color:0x6f9a58,roughness:.96}));
-        lip.position.set(cx,topH+.06,faceZ+.22);world.add(lip);
+      var topH=2.7,faceZ=0.05,half=0.98;
+      function cliffFace(x0,x1){
+        var nx=26,ny=11,pos=[],col=[],idx=[],i,j;
+        var c0=new THREE.Color(0x4a3426),c1=new THREE.Color(0xc4b498),c2=new THREE.Color(0x6a4632),c3=new THREE.Color(0x8a7560);
+        var dark=new THREE.Color(0x241c16),light=new THREE.Color(0xe4d6c0),moss=new THREE.Color(0x6a8a48);
+        function bumpAt(x,y,u,v){
+          var b=Math.sin(x*1.6+y*0.35)*0.07+Math.sin(x*3.7-y*1.2)*0.04+Math.sin(x*0.55)*0.035;
+          var end=Math.min(u,1-u);
+          if(end<0.07)b-=(0.07-end)*2.2;
+          if(v>0.9)b-=(v-0.9)*0.55;
+          var bx=Math.floor(u*7),by=Math.floor(v*4);
+          if((bx+by*3)%5===0&&v>0.12&&v<0.86&&end>0.1)b+=0.09;
+          else if((bx*2+by)%6===1&&end>0.1)b-=0.055;
+          return b;
+        }
+        for(j=0;j<=ny;j++)for(i=0;i<=nx;i++){
+          var u=i/nx,v=j/ny,x=x0+(x1-x0)*u,y=topH*v,b=bumpAt(x,y,u,v);
+          var w=v+Math.sin(x*1.25)*0.07+Math.sin(x*3.4+0.7)*0.035;
+          var c=c0.clone();
+          if(w<0.38)c.copy(c0).lerp(c1,smooth(0.18,0.4,w));
+          else if(w<0.68)c.copy(c1).lerp(c2,smooth(0.5,0.72,w));
+          else c.copy(c2).lerp(c3,smooth(0.7,0.92,w));
+          if(Math.abs(Math.sin(x*6.2+y*2.4))>0.9)c.lerp(dark,0.5);
+          if(Math.sin(x*2.2)*Math.sin(y*4.6)>0.5)c.lerp(light,0.4);
+          if(b>0.06)c.lerp(light,0.25);
+          if(b<0)c.lerp(dark,Math.min(0.55,-b*3));
+          if(y<0.4)c.lerp(dark,(0.4-y)/0.4*0.72);
+          if(Math.min(u,1-u)<0.08)c.lerp(dark,(0.08-Math.min(u,1-u))/0.08*0.5);
+          if(v>0.82&&Math.sin(x*4)>0.2)c.lerp(moss,0.35);
+          pos.push(x,y,faceZ+b);col.push(c.r,c.g,c.b);
+        }
+        for(j=0;j<ny;j++)for(i=0;i<nx;i++){
+          var a=j*(nx+1)+i;
+          idx.push(a,a+1,a+nx+1,a+1,a+nx+2,a+nx+1);
+        }
+        var g=new THREE.BufferGeometry();
+        g.setAttribute("position",new THREE.Float32BufferAttribute(pos,3));
+        g.setAttribute("color",new THREE.Float32BufferAttribute(col,3));
+        g.setIndex(idx);g.computeVertexNormals();
+        world.add(new THREE.Mesh(g,new THREE.MeshStandardMaterial({vertexColors:true,roughness:.97})));
+        var span=x1-x0;
+        for(var k=0;k<8;k++){
+          var x=x0+((k+0.5)/8)*span+Math.sin(k*2)*0.15;
+          var drip=new THREE.Mesh(new THREE.ConeGeometry(.08,.42,5),new THREE.MeshStandardMaterial({color:k%2?0x5e8a44:0x7da85a,roughness:.9}));
+          drip.position.set(x,topH-.12,faceZ+.16);drip.rotation.x=.7;world.add(drip);
+          if(k%2===0){
+            var vine=new THREE.Mesh(new THREE.CylinderGeometry(.02,.028,.55,5),new THREE.MeshStandardMaterial({color:0x6a5438,roughness:.85}));
+            vine.position.set(x+.12,topH-.28,faceZ+.08);vine.rotation.z=.25;vine.rotation.x=.4;world.add(vine);
+          }
+        }
+        var lip=new THREE.Mesh(new THREE.BoxGeometry(span,.16,.7),new THREE.MeshStandardMaterial({color:0x6f9a58,roughness:.95}));
+        lip.position.set((x0+x1)/2,topH+.05,faceZ+.18);world.add(lip);
       }
-      wall(-12.5,-half);wall(half,12.5);
+      cliffFace(-12.5,-half);cliffFace(half,12.5);
       var rise=topH/7,depth=.34,zSouth=1.62;
-      var treadM=new THREE.MeshStandardMaterial({color:0xc4b59a,roughness:.92});
-      var riserM=new THREE.MeshStandardMaterial({color:0x6d5844,roughness:.96});
-      var edgeM=new THREE.MeshStandardMaterial({color:0x7a6552,roughness:.94});
+      var stoneCols=[0xb7aa96,0xcabbA4,0xa89886,0xd2c4b0,0xb3a48e];
       for(var si=0;si<7;si++){
         var zc=zSouth-(si+.5)*depth,yTop=(si+1)*rise;
-        var tread=new THREE.Mesh(new THREE.BoxGeometry(1.7,.1,depth*.94),treadM);
-        tread.position.set(0,yTop-.05,zc);world.add(tread);
-        var riser=new THREE.Mesh(new THREE.BoxGeometry(1.7,rise*.9,.08),riserM);
-        riser.position.set(0,yTop-rise*.55,zc+depth*.48);world.add(riser);
+        var block=new THREE.Mesh(new THREE.BoxGeometry(1.55,rise*.78,depth*.88),new THREE.MeshStandardMaterial({color:stoneCols[si%stoneCols.length],roughness:.9}));
+        block.position.set(0,yTop-rise*.48,zc);world.add(block);
+        var cap=new THREE.Mesh(new THREE.BoxGeometry(1.38,.055,depth*.72),new THREE.MeshStandardMaterial({color:0xe0d2bc,roughness:.82}));
+        cap.position.set(0,yTop-.03,zc);world.add(cap);
+        var seam=new THREE.Mesh(new THREE.BoxGeometry(1.55,.03,depth*.9),new THREE.MeshStandardMaterial({color:0x5c5146,roughness:1}));
+        seam.position.set(0,yTop-rise+.01,zc);world.add(seam);
+        if(si%2===0){
+          var moss=new THREE.Mesh(new THREE.BoxGeometry(.22,.05,.16),new THREE.MeshStandardMaterial({color:0x6d9458,roughness:.9}));
+          moss.position.set(si%4?-.4:.35,yTop-.01,zc+.05);world.add(moss);
+        }
       }
       [-1,1].forEach(function(s){
-        var side=new THREE.Mesh(new THREE.BoxGeometry(.18,topH,7*depth+.2),edgeM);
-        side.position.set(s*(half-.02),topH/2,zSouth-7*depth/2);world.add(side);
+        var side=new THREE.Mesh(new THREE.BoxGeometry(.22,topH,7*depth+.15),new THREE.MeshStandardMaterial({color:0x9a9082,roughness:.94}));
+        side.position.set(s*(half-.04),topH/2,zSouth-7*depth/2);world.add(side);
+        var moss=new THREE.Mesh(new THREE.BoxGeometry(.24,.08,.35),new THREE.MeshStandardMaterial({color:0x6a8f50,roughness:.9}));
+        moss.position.set(s*(half-.04),topH*.72,zSouth-depth*2);world.add(moss);
       });
-      [[-3.4,.55],[-1.7,.75],[2.1,.6],[4.6,.5]].forEach(function(p,i){
-        var key=i%2?"rock2":"rock",m=rockMeshes[key];if(!m||m.count>=m.instanceMatrix.count)return;
-        var sc=fitH(key,.32);
+      [[-3.2,.62],[2.4,.55]].forEach(function(p,i){
+        var key=i?"rock2":"rock",m=rockMeshes[key];if(!m||m.count>=m.instanceMatrix.count)return;
+        var sc=fitH(key,.3);
         dummy.position.set(p[0],groundY(key,sc),faceZ+p[1]);
-        dummy.rotation.set(0,p[0],0);dummy.scale.set(sc,sc*.8,sc);dummy.updateMatrix();
+        dummy.rotation.set(0,p[0],0);dummy.scale.set(sc,sc*.75,sc);dummy.updateMatrix();
         m.setMatrixAt(m.count++,dummy.matrix);
       });
     }
@@ -777,7 +827,7 @@ function boot(){
     if(key==="glow"){on.leaves=1;on.halo=1}
     ["cloud","scribs","feet","split","pack","breath","leaves","halo","warm","wave","calm","worry"].forEach(function(k){fx[k].visible=!!on[k]});
     fx.cloud.scale.setScalar(0.62);
-    fx.scribs.scale.setScalar(key==="panic"?1.65:key==="pack"?1.15:.95);
+    fx.scribs.scale.setScalar(key==="panic"?1.7:key==="pack"?1.15:1.4);
     fx.pack.scale.setScalar(1.28);
     fx.split.scale.setScalar(1.55);
     if(!q&&on.scribs)fx.scribs.rotation.y=time*(key==="panic"?2.4:1);
@@ -789,7 +839,7 @@ function boot(){
   }
   var POSE={
     calm:{spine:[-.04,0,0],head:[-.08,0,0]},
-    worried:{spine:[.14,0,.02],head:[-.02,.06,0],armR:[.08,.04,-.22],armL:[-.04,-.02,.16]},
+    worried:{chest:[.2,0,0],head:[-.08,0,0],hat:-.5,hug:1,armR:[.15,.1,-.25],armL:[-.1,-.08,.22]},
     reach:{armR:[.22,.18,-.48],armL:[.05,-.1,.22],head:[-.04,-.12,0]},
     over:{head:[.06,0,0]},
     away:{head:[.14,.1,0]},
@@ -827,9 +877,22 @@ function boot(){
     add(map.head,spec.head,jit?16:(sway?7:0));
     add(map["upperarm.r"],spec.armR,0);
     add(map["upperarm.l"],spec.armL,0);
+    root.traverse(function(o){
+      if(!/spellbook/i.test(o.name||""))return;
+      if(o.userData.showBook==null)o.userData.showBook=o.visible;
+      o.visible=spec.hug?false:o.userData.showBook;
+    });
     add(map["lowerarm.r"],spec.foreR,0);
-    if(name==="worried")root.rotation.z=quiet?0.04:Math.sin(time*3.1)*0.045;
-    else root.rotation.z=0;
+    var hat=null;
+    root.traverse(function(o){if(o.name==="Mage_Hat")hat=o});
+    if(hat){
+      if(hat.userData.rx==null)hat.userData.rx=hat.rotation.x;
+      hat.rotation.x=hat.userData.rx+(spec.hat||0);
+    }
+    if(name==="worried"){
+      root.rotation.z=quiet?0.03:Math.sin(time*2.8)*0.05;
+      if(!quiet)root.position.x+=Math.sin(time*2.4)*0.045;
+    }else root.rotation.z=0;
     if(name==="panic"&&!quiet){
       root.position.x+=Math.sin(time*18)*.045;
       root.position.z+=Math.cos(time*14)*.03;
@@ -935,8 +998,8 @@ function boot(){
     if(state==="support"){
       var gid=GUIDE[(api.B&&api.B()&&api.B().id)||""]||"amber";
       var fknd=ROLE[gid]&&chars[ROLE[gid]]?ROLE[gid]:"rogue";
-      var pal=placeActor(fknd,ROLE[gid]?gid:"amber",P.x-26,P.y+6,0,{clip:"Idle",quiet:q,bone:"reach"},time);
-      pal.root.rotation.y=0.35;
+      var pal=placeActor(fknd,ROLE[gid]?gid:"amber",P.x-34,P.y+16,0,{clip:"Idle",quiet:q,bone:"reach"},time);
+      pal.root.rotation.y=0.42;
     }
     window.OBC_MOOD_NOW=state;
     (s.items||[]).forEach(function(o){
@@ -1012,7 +1075,7 @@ function boot(){
     if(key==="cloud"){put("cloud",.62);put("split",1.55)}
     else if(key==="pack"){put("pack",1.28);put("scribs",1.05)}
     else if(key==="panic"){put("scribs",1.65);put("feet",1)}
-    else if(key==="scribs"){put("scribs",.95);put("worry",1)}
+    else if(key==="scribs"){put("scribs",1.4);put("worry",1.2)}
     else if(key==="calm")put("calm",1);
     else if(key==="glow"){put("leaves",1);put("halo",1)}
     else if(key==="wave")put("wave",1.15);
