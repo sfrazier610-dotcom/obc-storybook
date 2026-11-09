@@ -318,3 +318,4 @@ html.vista.art-ink .w-btn:not(.w-sw){background:#fff8e6!important;color:#214028!
 html.vista.art-ink .w-btn.pri,html.vista.art-ink .w-btn[aria-pressed="true"]{background:#e8c56a!important;color:#214028!important}
 html.vista.art-ink .w-say,html.vista.art-ink .w-pan,html.vista.art-ink .w-bhud,html.vista.art-ink .w-bbot,html.vista.art-ink .w-pause>div{background:#fff8e6!important;color:#214028!important;border:3px solid #214028!important;border-radius:16px!important;box-shadow:4px 4px 0 rgba(33,64,40,.35)!important}
 html.vista .w-foot{background:#145636;color:#f6ffe8}html.vista .w-foot a{color:#ffe08a}
+html.vista canvas{image-rendering:pixelated;image-rendering:crisp-edges}
