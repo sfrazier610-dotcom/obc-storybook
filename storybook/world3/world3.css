@@ -296,3 +296,70 @@ html.cozy-storybook .w-gcard{border-color:#c89b3c;box-shadow:inset 0 0 0 3px #fb
 html.cozy-storybook .w-copts fieldset{border-color:#c89b3c}
 /* swatches: 30px paint chip, 44px tap area (transparent border), same row rhythm */
 @media (max-width:820px),(pointer:coarse){html.cozy-storybook .w-sw{width:44px;height:44px;min-height:44px;margin:-4.5px -4.5px;border:7px solid transparent!important;background-clip:content-box!important;box-shadow:inset 0 0 0 2px #1a1410!important}html.cozy-storybook .w-sw[aria-pressed="true"]{outline-offset:-5px}html.cozy-storybook .w-sw:focus-visible{outline-offset:-5px}}
+
+/* Vista preview: chunky controls, a phone direction pad, and a pause card. */
+.w-top .w-btn,.w-act,.w-title-btns .w-btn,.w-open-btns .w-btn,.w-sk .w-btn,.w-pause .w-btn{min-height:44px;min-width:44px}
+.w-pad{display:none;position:absolute;left:8px;bottom:8px;z-index:8;width:140px;height:140px}
+.w-padb{position:absolute;width:44px;height:44px;min-width:44px;min-height:44px;border-radius:12px;border:2px solid #214028;background:#f4efe4;color:#214028;font-size:22px;line-height:1}
+.w-padb[data-dir=ArrowUp]{left:48px;top:0}.w-padb[data-dir=ArrowDown]{left:48px;bottom:0}.w-padb[data-dir=ArrowLeft]{left:0;top:48px}.w-padb[data-dir=ArrowRight]{right:0;top:48px}
+.w-padb[data-dir=ArrowUp]::before{content:"\2191"}.w-padb[data-dir=ArrowDown]::before{content:"\2193"}.w-padb[data-dir=ArrowLeft]::before{content:"\2190"}.w-padb[data-dir=ArrowRight]::before{content:"\2192"}
+@media (max-width:899px),(pointer:coarse){
+ .w-pad{display:block}
+ .w-act{left:auto;right:8px;transform:none;bottom:22px;max-width:calc(100% - 160px)}
+}
+.w-pause{position:absolute;inset:0;z-index:25;display:flex;align-items:center;justify-content:center;background:rgba(16,40,24,.45);text-align:center;padding:16px}
+.w-pause[hidden]{display:none}
+.w-pause>div{background:#f6ecd6;color:#214028;border:3px solid #214028;border-radius:16px;padding:16px 18px;max-width:360px}
+html.vista-still .w-bar b,html.vista-still .w-cast{animation:none!important}
+@media (max-width:760px){.w-sk .w-btn{min-height:44px;font-size:14px}}
+html.vista-tiles.art-ink .w-top{background:linear-gradient(#1c6b44,#145636)!important;border-bottom:4px solid #e8c56a!important;color:#f6ffe8!important}
+html.vista-tiles.art-ink .w-top h1,html.vista-tiles.art-ink .w-top .w-where{color:#f6ffe8!important}
+html.vista-tiles.art-ink .w-btn:not(.w-sw){background:#fff8e6!important;color:#214028!important;border:2px solid #214028!important;border-radius:12px!important;box-shadow:2px 2px 0 #214028!important}
+html.vista-tiles.art-ink .w-btn.pri,html.vista-tiles.art-ink .w-btn[aria-pressed="true"]{background:#e8c56a!important;color:#214028!important}
+html.vista-tiles.art-ink .w-say,html.vista-tiles.art-ink .w-pan,html.vista-tiles.art-ink .w-bhud,html.vista-tiles.art-ink .w-bbot,html.vista-tiles.art-ink .w-pause>div{background:#fff8e6!important;color:#214028!important;border:3px solid #214028!important;border-radius:16px!important;box-shadow:4px 4px 0 rgba(33,64,40,.35)!important}
+html.vista:not(.vista-tiles).art-ink .w-top{background:linear-gradient(#4a3018,#2a180e)!important;border-bottom:3px solid #e8c56a!important;box-shadow:inset 0 -3px 0 #6a4218!important;color:#fff6d8!important}
+html.vista:not(.vista-tiles).art-ink .w-top h1,html.vista:not(.vista-tiles).art-ink .w-top .w-where{color:#ffe7a8!important}
+html.vista:not(.vista-tiles).art-ink .w-btn:not(.w-sw){background:#fff6df!important;color:#3a2412!important;border:2px solid #a87420!important;border-radius:12px!important;box-shadow:inset 0 0 0 1px #f3d48a,0 2px 0 #6a4218!important}
+html.vista:not(.vista-tiles).art-ink .w-btn.pri,html.vista:not(.vista-tiles).art-ink .w-btn[aria-pressed="true"]{background:#e8c56a!important;color:#3a2412!important}
+html.vista:not(.vista-tiles).art-ink .w-say,html.vista:not(.vista-tiles).art-ink .w-pan,html.vista:not(.vista-tiles).art-ink .w-bbot,html.vista:not(.vista-tiles).art-ink .w-pause>div{background:#fff8e6!important;color:#3a2412!important;border:3px solid #a87420!important;border-radius:14px!important;box-shadow:inset 0 0 0 2px #f3d48a,0 6px 16px rgba(40,20,0,.35)!important}
+html.vista .w-foot{background:#2a180e;color:#fff6d8}html.vista .w-foot a{color:#ffe08a}
+html.vista-tiles canvas{image-rendering:pixelated;image-rendering:crisp-edges}
+.w-menu{display:contents}
+.w-menu-btn{display:none}
+.w-sheet{padding:12px 16px 24px;overflow:auto}
+.w-sheet p{margin:0 0 8px}
+.w-sheet canvas{max-width:100%;height:auto;image-rendering:pixelated;background:#cfe8b0;border-radius:12px}
+@media (max-width:420px){
+ html.vista:not(.vista-tiles) .w-top{position:relative;flex-wrap:nowrap;align-items:center}
+ html.vista:not(.vista-tiles) .w-top h1{font-size:16px;margin-right:6px}
+ html.vista:not(.vista-tiles) .w-where{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}
+ html.vista:not(.vista-tiles) .w-menu-btn{display:inline-flex;margin-left:auto}
+ html.vista:not(.vista-tiles) .w-menu{display:none;position:absolute;left:8px;right:8px;top:calc(100% + 4px);z-index:30;padding:8px;gap:6px;background:#2a180e;border:2px solid #e8c56a;border-radius:12px;box-shadow:0 8px 18px rgba(0,0,0,.35)}
+ html.vista:not(.vista-tiles) .w-menu.is-open{display:flex;flex-wrap:wrap}
+ html.vista:not(.vista-tiles) .w-menu .w-btn{min-height:44px;min-width:44px}
+}
+html.vista-kay #w-gl{position:absolute;inset:0;width:100%;height:100%;z-index:0;display:block;pointer-events:none}
+html.vista-kay #w-cv{background:transparent!important;z-index:1;image-rendering:auto!important}
+html.vista-kay .w-sheet canvas{image-rendering:auto!important}
+html.vista:not(.vista-tiles) #w-stage{background:#3eae4c}
+html.vista:not(.vista-tiles) #w-stage canvas{image-rendering:-moz-crisp-edges!important;image-rendering:pixelated!important}
+html.vista:not(.vista-tiles) .w-vista-hud .w-cm{background:#fff6d8!important;color:#3a2412!important;border:2px solid #a87420!important;opacity:1!important}
+html.vista:not(.vista-tiles) .w-vista-hud .w-cm.on{background:#e8c56a!important;color:#3a2412!important}
+html.vista:not(.vista-tiles) .w-vista-hud .w-combo,html.vista:not(.vista-tiles) .w-vista-hud .w-cml,html.vista:not(.vista-tiles) .w-vista-hud .w-watch,html.vista:not(.vista-tiles) .w-vista-hud .w-wn,html.vista:not(.vista-tiles) .w-vista-hud .w-bhint,html.vista:not(.vista-tiles) .w-vista-hud .w-miss,html.vista:not(.vista-tiles) .w-vista-hud .w-pick{color:#fff6d8!important}
+html.vista:not(.vista-tiles) .w-vista-hud{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;background:linear-gradient(#3a2412,#24160c)!important;color:#fff6d8!important;border:2px solid #e8c56a!important;border-radius:14px!important;box-shadow:inset 0 0 0 2px #6a4218,0 4px 0 rgba(0,0,0,.28)!important}
+html.vista:not(.vista-tiles) .w-vista-hud h2{color:#ffe7a8;font-size:16px;flex:1;min-width:0}
+html.vista:not(.vista-tiles) .w-jewel{display:flex;flex-direction:column;align-items:center;gap:2px;width:36px;flex:none}
+html.vista:not(.vista-tiles) .w-jewel span{font-size:9px;letter-spacing:.02em;max-width:44px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#ffe7a8}
+html.vista:not(.vista-tiles) .w-jewel i{position:relative;display:block;width:16px;height:58px;border-radius:8px;border:2px solid #e8c56a;background:#140e0a;overflow:hidden;box-shadow:inset 0 0 0 1px #6a4218}
+html.vista:not(.vista-tiles) .w-jewel b{position:absolute;left:0;right:0;bottom:0;width:100%;height:0;background:linear-gradient(#9a7bff,#3ecf8e);box-shadow:inset 0 0 6px rgba(255,255,255,.45)}
+html.vista:not(.vista-tiles) .w-jewel em{font-size:9px;font-style:normal;color:#ffe7a8}
+html.vista:not(.vista-tiles) .w-hud-mid{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+html.vista:not(.vista-tiles) .w-hearts{display:flex;flex-wrap:wrap;gap:1px 2px;max-width:100%}
+html.vista:not(.vista-tiles) .w-hearts i{width:13px;height:12px;background:#5a2030;clip-path:polygon(50% 92%,8% 48%,8% 28%,28% 8%,50% 28%,72% 8%,92% 28%,92% 48%);display:block}
+html.vista:not(.vista-tiles) .w-hearts i.on{background:linear-gradient(#ff8b98,#e0233a);box-shadow:0 0 0 1px #e8c56a}
+html.vista:not(.vista-tiles) .w-hope-ghost{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+html.vista:not(.vista-tiles) .w-vista-hud .w-bar.hope{min-width:0;flex:none;background:none;border:0;padding:0}
+@media (max-width:420px){
+ html.vista:not(.vista-tiles) .w-jewel i{height:46px}
+ html.vista:not(.vista-tiles) .w-vista-hud h2{font-size:14px}
+}
