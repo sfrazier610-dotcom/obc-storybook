@@ -59,7 +59,7 @@ function petName(){return PETS[S.hero.pet|0].n}
 
 /* ---------- save ---------- */
 var KEY="obc_world_v3";
-function def(){return{v:3,hero:{name:"",body:0,c1:0,hc:1,skin:1,pet:0},made:0,at:"hub",x:320,y:250,visited:["hub"],beaten:[],cleared:[],pick:{},loot:[],bag:{blanket:1,lantern:1,flowers:1},opened:[],found:[],safe:{kind:"",items:[]},code:"",pen:[]}}
+function def(){return{v:3,hero:{name:"",body:0,c1:0,hc:1,skin:1,pet:0},made:0,at:"hub",x:320,y:210,visited:["hub"],beaten:[],cleared:[],pick:{},loot:[],bag:{blanket:1,lantern:1,flowers:1},opened:[],found:[],safe:{kind:"",items:[]},code:"",pen:[]}}
 var S=def();
 try{var raw=JSON.parse(localStorage.getItem(KEY)||"null");if(raw&&raw.v===3)S=Object.assign(def(),raw);else{var o2=JSON.parse(localStorage.getItem("obc_world_v2")||"null");if(o2&&o2.hero){S.hero.name=o2.hero.name||"";S.hero.pet=o2.pv===2?(o2.hero.pet|0):(o2.hero.pet===0?0:1);S.pick=o2.pick||{}}}}catch(e){}
 if(!Array.isArray(S.pen))S.pen=S.beaten.slice();
@@ -103,12 +103,12 @@ var W=640,H=416;
 /* t: tree rock house sign lantern chest wall npc look find door  */
 var SC={
  hub:{n:"Hearthstead",sub:"Village",g:"town",at:[1,1],tone:"rgba(255,190,110,.10)",
-  p:[["house",110,150],["house",530,150,1],["tree",60,330],["tree",590,345],["lantern",250,170],["lantern",390,170],
+  p:[["house",210,186],["house",430,186,1],["tree",60,330],["tree",590,345],["lantern",250,170],["lantern",390,170],
    ["sign",250,345,"The signpost: West to Lantern Meadow. North to Whirligust Heights. East to the Crossroads and the Hall of Counselors. South to Fog Marsh. Every road is open."],
    ["npc",160,300,"vil2","Mara the lamplighter",["Welcome, wanderer. Every road out of Hearthstead is open to you.","Symptoms wander out there. Bump into one and you'll cast your skills right where you stand.","When it gets heavy, follow the lantern trail east of the well to your safe place."]],
    ["npc",470,300,"vil1","Tobin the baker",["Fresh bread and fresh starts here.","I hear the Crossroads east of here has a Hall where you can choose any counselor you like."]],
    ["chest",450,375,"bench"],["door",560,330,"safe"],
-   ["look",110,140,60,"Warm windows glow. Someone inside is humming."],["look",530,140,60,"A cottage with a garden of herbs by the door."]]},
+   ["look",210,176,60,"Warm windows glow. Someone inside is humming."],["look",430,176,60,"A cottage with a garden of herbs by the door."]]},
  cross:{n:"The Crossroads",sub:"Hall of Counselors",g:"town",at:[2,1],tone:"rgba(255,190,110,.08)",
   p:[["house",470,160,0,1.25,"hall"],["tree",120,140],["tree",160,340],["rock",560,340],["lantern",400,190],
    ["sign",250,180,"The Hall of Counselors: every counselor can walk with you in any region. Step inside to choose."],
@@ -242,9 +242,12 @@ var PAUSED=0,SOUND=0;
 function setPause(on){PAUSED=on?1:0;var p=document.getElementById("w-pause");if(p)p.hidden=!PAUSED;if(!PAUSED&&stage)stage.focus()}
 function beep(){if(!SOUND)return;try{var ac=beep.ac||(beep.ac=new AudioContext()),o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime;o.type="sine";o.frequency.value=523;g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.03,t+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t+0.16);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+0.18)}catch(e){}}
 function top(){return '<div class="w-top"><h1>Wanderer\'s Quest</h1><span class="w-where" id="w-where"></span>'+
+ '<button type="button" class="w-btn w-menu-btn" id="t-menu" aria-expanded="false" aria-controls="w-menu">Menu</button>'+
+ '<div class="w-menu" id="w-menu">'+
  '<button class="w-btn" id="t-look" title="L">Look around</button><button class="w-btn" id="t-bag" title="I">Satchel</button><button class="w-btn" id="t-jr" title="J">Journal</button><button class="w-btn" id="t-map" title="M">Map</button>'+
  '<button class="w-btn" id="t-safe">Safe place</button><button class="w-btn" id="t-hall">Hall of Counselors</button><button class="w-btn" id="t-hero">Hero</button>'+
- '<button class="w-btn" id="t-pause" aria-pressed="false">Pause</button><button class="w-btn" id="t-sound" aria-pressed="false">Sound off</button><a class="w-btn" id="t-quit" href="../">Back to the book</a></div>'}
+ '<button class="w-btn" id="t-pause" aria-pressed="false">Pause</button><button class="w-btn" id="t-sound" aria-pressed="false">Sound off</button><a class="w-btn" id="t-quit" href="../">Back to the book</a></div></div>'}
+function setMenu(on){var m=document.getElementById("w-menu"),b=document.getElementById("t-menu");if(!m||!b)return;m.classList.toggle("is-open",!!on);b.setAttribute("aria-expanded",on?"true":"false");if(on){var f=m.querySelector("button,a");if(f)f.focus()}else b.focus()}
 function play(){
  cancelAnimationFrame(raf);
  app.innerHTML=top()+'<div class="w-stage" id="w-stage" tabindex="0" role="application" aria-roledescription="game" aria-label="Play area. Arrow keys or WASD to walk in eight directions, E or Enter to interact. On a phone, use the direction pad. Pause and Back to the book are always in the bar. Escape leaves the game after closing an open note."><canvas id="w-cv" aria-hidden="true"></canvas><div class="w-sr" id="w-live" aria-live="polite"></div><button type="button" class="w-btn w-act" id="w-act" hidden></button>'+
@@ -256,6 +259,7 @@ function play(){
  document.getElementById("t-pause").onclick=function(){setPause(!PAUSED);this.setAttribute("aria-pressed",PAUSED?"true":"false")};
  document.getElementById("t-resume").onclick=function(){setPause(0);var b=document.getElementById("t-pause");if(b)b.setAttribute("aria-pressed","false")};
  document.getElementById("t-sound").onclick=function(){SOUND=SOUND?0:1;this.setAttribute("aria-pressed",SOUND?"true":"false");this.textContent=SOUND?"Sound on":"Sound off";if(SOUND)beep()};
+ var mb=document.getElementById("t-menu");if(mb)mb.onclick=function(){setMenu(!document.getElementById("w-menu").classList.contains("is-open"))};
  document.querySelectorAll(".w-padb").forEach(function(b){var k=b.getAttribute("data-dir");function up(){delete held[k]}b.addEventListener("pointerdown",function(e){e.preventDefault();held[k]=1;if(b.setPointerCapture)b.setPointerCapture(e.pointerId)});b.addEventListener("pointerup",up);b.addEventListener("pointercancel",up)});
  cv.addEventListener("pointerdown",pdown);cv.addEventListener("pointermove",pmove);addEventListener("pointerup",function(){drag=null});
  enter(S.at in SC?S.at:"hub",S.x,S.y,1);
@@ -454,7 +458,7 @@ function pdown(e){stage.focus();var p=toWorld(e);
 function pmove(e){if(drag&&DM&&DM.sel!=null){var p=toWorld(e),it=S.safe.items[DM.sel];if(it){it.x=Math.max(20,Math.min(W-20,p.x));it.y=Math.max(S.safe.kind==="beach"?140:80,Math.min(H-12,p.y));save()}}}
 var MV={ArrowLeft:1,ArrowRight:1,ArrowUp:1,ArrowDown:1,a:1,d:1,w:1,s:1};
 document.addEventListener("keydown",function(e){var ae=document.activeElement,k=e.key.length===1?e.key.toLowerCase():e.key;
- if(e.key==="Escape"){if(ae&&/INPUT|TEXTAREA|SELECT/.test(ae.tagName))return;if(stage&&document.body.contains(stage)){if(OV==="say"||OV==="pan"){closeOV();e.preventDefault();return}if(DM&&DM.sel!=null){DM.sel=null;decUI();e.preventDefault();return}if(B){stepBack();e.preventDefault();return}if(PAUSED){setPause(0);var pb=document.getElementById("t-pause");if(pb)pb.setAttribute("aria-pressed","false");e.preventDefault();return}}e.preventDefault();location.href="../";return}
+ if(e.key==="Escape"){if(ae&&/INPUT|TEXTAREA|SELECT/.test(ae.tagName))return;var menu=document.getElementById("w-menu");if(menu&&menu.classList.contains("is-open")){setMenu(0);e.preventDefault();return}if(stage&&document.body.contains(stage)){if(OV==="say"||OV==="pan"){closeOV();e.preventDefault();return}if(DM&&DM.sel!=null){DM.sel=null;decUI();e.preventDefault();return}if(B){stepBack();e.preventDefault();return}if(PAUSED){setPause(0);var pb=document.getElementById("t-pause");if(pb)pb.setAttribute("aria-pressed","false");e.preventDefault();return}}e.preventDefault();location.href="../";return}
  if(!stage||!document.body.contains(stage))return;
  if(ae!==stage&&ae!==document.body&&ae&&document.body.contains(ae)){if(k!=="e"||OV||/INPUT|TEXTAREA|SELECT/.test(ae.tagName)||!ae.closest(".w-top,#w-stage"))return}
  if(DM&&DM.sel!=null&&MV[k]){var it=S.safe.items[DM.sel],st=6;if(k==="ArrowLeft"||k==="a")it.x-=st;if(k==="ArrowRight"||k==="d")it.x+=st;if(k==="ArrowUp"||k==="w")it.y-=st;if(k==="ArrowDown"||k==="s")it.y+=st;it.x=Math.max(20,Math.min(W-20,it.x));it.y=Math.max(80,Math.min(H-12,it.y));save();e.preventDefault();return}
@@ -539,7 +543,7 @@ function ui(){
 function drain(weakHit){var d=B.d;if(B.fogHide>0)weakHit=1;var n=weakHit?1:2;if(d.twist==="gust")n+=weakHit?0:B.gust;if(d.twist==="echo"&&(B.turn+1)%3===0&&!weakHit)n*=2;if(!weakHit&&B.worries)n+=B.worries;return n}
 function act(k){
  if(B.busy||B.over)return;if(k!=="guide")B.cast=null;
- if(k==="guide"){photoCard();return}
+ if(k==="guide"){B.asking=1;photoCard();return}
  if(k==="check"){B.locks+=2;B.hope=Math.min(B.hmax,B.hope+1);castSay();boss(0);msg('You check one more time. Relief for a moment, and two new locks click shut.','Checking calms the worry briefly, then the urge comes back stronger.');ui();return}
  if(CFG.breath){B.busy=1;ui();breathCast(function(bonus){B.busy=0;resolve(k,bonus)})}else resolve(k,0);
 }
@@ -645,7 +649,7 @@ function photoCard(){if(!B||B.busy||B.over)return;var o=stage.querySelector(".w-
  d.querySelectorAll("[data-m]").forEach(function(b){b.onclick=function(){closeCard();castMethod(b.dataset.m)}});
  d.addEventListener("keydown",function(e){if(e.key==="Escape"){e.preventDefault();e.stopPropagation();closeCard()}else if(e.key==="Tab"){var f=[].slice.call(d.querySelectorAll("button:not([disabled])")),i=f.indexOf(document.activeElement);if(e.shiftKey&&i<=0){e.preventDefault();f[f.length-1].focus()}else if(!e.shiftKey&&i===f.length-1){e.preventDefault();f[0].focus()}}});
  (d.querySelector("#pc-sh:not([disabled])")||d.querySelector("[data-m]:not([disabled])")||d.querySelector("#pc-x")).focus();live(g.name+" counselor card open.")}
-function closeCard(){var d=stage.querySelector(".w-pc");if(d)d.remove();if(B){B.card=0;var gb=document.getElementById("b-guide");if(gb&&!gb.disabled)gb.focus();else{var f=app.querySelector("[data-s]");if(f)f.focus()}}}
+function closeCard(){var d=stage.querySelector(".w-pc");if(d)d.remove();if(B){B.card=0;B.asking=0;var gb=document.getElementById("b-guide");if(gb&&!gb.disabled)gb.focus();else{var f=app.querySelector("[data-s]");if(f)f.focus()}}}
 function castShield(){if(!B||B.gShield)return;B.gShield=1;B.shield=Math.max(B.shield,1);B.hope=Math.min(B.hmax,B.hope+2);fx("shield");
  msg(esc(B.g.name)+' casts a shield around you. It will block the next hit, and your hope rises.','Asking for help is a skill. A therapist can walk with you through hard seasons.');ui()}
 function castMethod(m){if(!B||B.gMod||B.busy||(B.g.mods||[]).indexOf(m)<0||!MX[m])return;var good=(MATCH[B.id]||[]).indexOf(m)>=0,line=MX[m];B.gMod=m;B.busy=1;B.log.push("explain:"+m);
@@ -1516,5 +1520,9 @@ function opening(done){cancelAnimationFrame(raf);stage=null;var opat=null;["map-
   if(k==="e"||k==="arrowright"||((k==="enter"||k===" ")&&(!ae||ae===document.body||ae.id==="o-h"))){e.preventDefault();next()}}
  document.addEventListener("keydown",kd);document.getElementById("o-next").onclick=next;document.getElementById("o-skip").onclick=end;
  show();if(rm)[250,700,1500].forEach(function(d){setTimeout(function(){if(!fin)draw(performance.now())},d)});document.getElementById("o-next").focus()}
-if(S.made)title();else creator();
+if(/[?&]states=1\b/.test(location.search))moodSheet();else if(S.made)title();else creator();
+function moodSheet(){cancelAnimationFrame(raf);stage=null;var names=["calm","worried","overwhelmed","withdrawn","panicked","exhausted","help","breath","support","recover"],labels=["Calm","Worried","Overwhelmed","Withdrawn","Panicked","Exhausted","Asking for help","Grounding","Receiving support","Recovering"];
+ app.innerHTML='<div class="w-top"><h1>Wanderer\'s Quest</h1><span class="w-where">Character states, preview</span></div><main class="w-sheet" id="w-sheet"><p>Ten moods for review. This page is not indexed. Nothing here is saved or sent.</p><canvas id="w-sheet-cv" width="1100" height="460" role="img" aria-label="Ten chibi moods in a row: calm, worried, overwhelmed, withdrawn, panicked, exhausted, asking for help, grounding, receiving support, and recovering."></canvas></main>';
+ var cv=document.getElementById("w-sheet-cv"),c=cv.getContext("2d"),draw=function(){if(!window.OBC_CHARS||!OBC_CHARS.moodDraw)return requestAnimationFrame(draw);c.setTransform(1,0,0,1,0,0);c.fillStyle="#cfe8b0";c.fillRect(0,0,cv.width,cv.height);names.forEach(function(n,i){var x=70+i%5*220,y=i<5?150:380;c.fillStyle="#3a2412";c.font="600 14px system-ui,sans-serif";c.textAlign="center";c.fillText(labels[i],x,y+78);OBC_CHARS.moodDraw(c,x,y,78,n)});c.textAlign="left"};
+ draw()}
 })();
