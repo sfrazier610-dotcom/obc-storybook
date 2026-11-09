@@ -1,6 +1,6 @@
 # Wanderer's Quest art licenses
 
-The default look is one 3D scene: KayKit land and KayKit adventurers, rendered in the browser with three.js. If WebGL is unavailable, the page falls back to the original canvas diorama. Nothing is traced from a reference screenshot. No Nintendo characters, names, symbols, or assets are used. Quaternius models are not used.
+The default look is one 3D scene: KayKit adventurers on continuous terrain, rendered in the browser with three.js. The ground is an original vertex-colored mesh (soft grass, sandy paths, earthen cliffs, water). Trees and grass tufts are from the KayKit Forest Nature Pack. Cottages, fences, rocks, barrels, crates, and the symptom cloud are from the KayKit Medieval Hexagon Pack. Bushes, flowers, pots, reeds, lily pads, and stairs are original meshes. If WebGL is unavailable, the page falls back to the original canvas diorama. Nothing is traced from a reference screenshot. No Nintendo characters, names, symbols, or assets are used. Quaternius models are not used.
 
 ## KayKit — Adventurers (1.0)
 
@@ -24,6 +24,28 @@ Shipped files are trimmed to the body mesh plus the clips the game plays. Weapon
 
 Clips kept from the shared rig: Idle, Walking_A, Running_A, Interact, Cheer, Sit_Floor_Idle, Lie_Idle, Hit_A, Spellcast_Raise.
 
+## KayKit — Forest Nature Pack (1.0, free subset)
+
+- Author: Kay Lousberg (KayKit)
+- Source page: https://kaylousberg.itch.io/kaykit-forest
+- Also: https://kaylousberg.com/game-assets/forest-nature-pack
+- License: Creative Commons Zero (CC0 1.0). The itch.io page lists the asset license as "Creative Commons Zero v1.0 Universal". The author's page says the pack is "Free for personal and commercial use, no attribution required. (CC0 Licensed)".
+- License file copied in: `models/kaykit/forest/LICENSE.txt` (the full CC0 1.0 legal text)
+- Files were fetched from the public mirror `https://szofttech.inf.elte.hu/hall-of-fame/kishaverok/-/tree/master/Assets/Nature/KayKit_Forest_Nature_Pack_1.0_FREE` because the itch download is a checkout flow. That mirror only contains a subset of the free pack. The shipped files are exactly these:
+
+| File | Used for |
+| --- | --- |
+| `models/kaykit/forest/gltf/Tree_2_C_Color1.gltf` + `.bin` | Rounded tree |
+| `models/kaykit/forest/gltf/Tree_4_A_Color1.gltf` + `.bin` | Tree |
+| `models/kaykit/forest/gltf/Tree_4_B_Color1.gltf` + `.bin` | Tree |
+| `models/kaykit/forest/gltf/Tree_4_C_Color1.gltf` + `.bin` | Taller tree |
+| `models/kaykit/forest/gltf/Grass_1_B_Color1.gltf` + `.bin` | Grass clump |
+| `models/kaykit/forest/gltf/Grass_2_C_Color1.gltf` + `.bin` | Grass clump |
+| `models/kaykit/forest/gltf/Grass_2_D_Color1.gltf` + `.bin` | Grass clump |
+| `models/kaykit/forest/gltf/forest_texture.png` | Shared gradient atlas. Each glTF names this file as its texture. |
+
+Bushes, rocks, and modular terrain from the full free zip are not in that mirror, so they are not shipped. Bushes and flowers are original meshes. Rocks come from the Medieval Hexagon pack below.
+
 ## KayKit — Medieval Hexagon Pack (1.0)
 
 - Author: Kay Lousberg (KayKit)
@@ -32,13 +54,15 @@ Clips kept from the shared rig: Idle, Walking_A, Running_A, Interact, Cheer, Sit
 - License file: `models/kaykit/medieval-LICENSE.txt`
 - Texture: `models/kaykit/hexagons_medieval.png`, copied beside each glTF so the relative URI resolves.
 
-Pieces used, each as a `.gltf` plus its `.bin` under `models/kaykit/med/`: `hex_grass`, `hex_water`, `hex_grass_sloped_high`, `hex_road_A`, `tree_single_A`, `tree_single_B`, `rock_single_A`, `rock_single_B`, `hill_single_A`, `cloud_small`, `cloud_big`, `waterplant_A`, `fence_wood_straight`, `building_home_A_blue`, `building_home_B_yellow`, `barrel`, `crate_A_small`.
+Pieces the scene loads, each as a `.gltf` plus its `.bin` under `models/kaykit/med/`: `rock_single_A`, `rock_single_B`, `cloud_big`, `waterplant_A`, `fence_wood_straight`, `building_home_A_blue`, `building_home_B_yellow`, `barrel`, `crate_A_small`.
+
+The hex ground tiles (`hex_grass`, `hex_water`, `hex_grass_sloped_high`, `hex_road_A`) and the older hex-pack trees are still in the folder from the previous scene. The default look does not load them. The ground is the original terrain mesh instead.
 
 `cloud_big` is the symptom creature. Its color shifts from cool gray to warm gold as calm rises. Two eyes and a small mouth are added in code so it stays friendly.
 
 ## Original 3D pieces
 
-Signs, lanterns, the cat, the dog, the halo ring, leaves, the breath ring, thought scribbles, footprint marks, the split shadow, and the backpack are simple meshes in `world3d.js`, colored to sit in the same light as the KayKit models. The cat and dog are original because these free KayKit packs do not include pets. License: CC0 1.0.
+The continuous ground (grass, sandy paths, pond basins, cliff colors), stair treads, knoll steps, rounded bushes, flowers, clay pots, reeds, lily pads, signs, lanterns, the cat, the dog, the halo ring, leaves, the breath ring, thought scribbles, footprint marks, the split shadow, and the backpack are simple meshes in `world3d.js`. The cat and dog are original because these free KayKit packs do not include pets. License: CC0 1.0.
 
 ## three.js
 
