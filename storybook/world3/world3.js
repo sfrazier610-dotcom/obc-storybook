@@ -3,6 +3,7 @@
 (function(){"use strict";
 var app=document.getElementById("w-app");
 var RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
+try{if(localStorage.getItem("obcSbCalm")==="1"){RM=true;window.OBC_STILL=true}}catch(e){}
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 /* ---------- painted images ---------- */
 var IM={};var INL=window.OBC_INLINE||{};/* offline preview only: pixel-read images inlined so file:// can read them */
@@ -237,15 +238,25 @@ var SIG={name:"Golden Hour",rl:"Stack two skills: a short walk outside while you
 /* ---------- play screen ---------- */
 var cur=null,stage,cv,cx,raf=0,last=0,held={},tgt=null,P={x:320,y:250,dir:0,ph:0,trail:[]},OV=null,DM=null,B=null,VIEW={s:1,ox:0,oy:0},fade=0,lastT=0;
 function scr(){return cur}
+var PAUSED=0,SOUND=0;
+function setPause(on){PAUSED=on?1:0;var p=document.getElementById("w-pause");if(p)p.hidden=!PAUSED;if(!PAUSED&&stage)stage.focus()}
+function beep(){if(!SOUND)return;try{var ac=beep.ac||(beep.ac=new AudioContext()),o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime;o.type="sine";o.frequency.value=523;g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.03,t+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t+0.16);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+0.18)}catch(e){}}
 function top(){return '<div class="w-top"><h1>Wanderer\'s Quest</h1><span class="w-where" id="w-where"></span>'+
  '<button class="w-btn" id="t-look" title="L">Look around</button><button class="w-btn" id="t-bag" title="I">Satchel</button><button class="w-btn" id="t-jr" title="J">Journal</button><button class="w-btn" id="t-map" title="M">Map</button>'+
- '<button class="w-btn" id="t-safe">Safe place</button><button class="w-btn" id="t-hall">Hall of Counselors</button><button class="w-btn" id="t-hero">Hero</button></div>'}
+ '<button class="w-btn" id="t-safe">Safe place</button><button class="w-btn" id="t-hall">Hall of Counselors</button><button class="w-btn" id="t-hero">Hero</button>'+
+ '<button class="w-btn" id="t-pause" aria-pressed="false">Pause</button><button class="w-btn" id="t-sound" aria-pressed="false">Sound off</button><a class="w-btn" id="t-quit" href="../">Back to the book</a></div>'}
 function play(){
  cancelAnimationFrame(raf);
- app.innerHTML=top()+'<div class="w-stage" id="w-stage" tabindex="0" role="application" aria-roledescription="game" aria-label="Play area. Arrow keys or WASD to walk, E or Enter to interact. Tap or click to walk."><canvas id="w-cv" aria-hidden="true"></canvas><div class="w-sr" id="w-live" aria-live="polite"></div><button type="button" class="w-btn w-act" id="w-act" hidden></button></div>';
+ app.innerHTML=top()+'<div class="w-stage" id="w-stage" tabindex="0" role="application" aria-roledescription="game" aria-label="Play area. Arrow keys or WASD to walk in eight directions, E or Enter to interact. On a phone, use the direction pad. Pause and Back to the book are always in the bar. Escape leaves the game after closing an open note."><canvas id="w-cv" aria-hidden="true"></canvas><div class="w-sr" id="w-live" aria-live="polite"></div><button type="button" class="w-btn w-act" id="w-act" hidden></button>'+
+ '<div class="w-pad" role="group" aria-label="Walk"><button type="button" class="w-padb" data-dir="ArrowUp" aria-label="Walk up"></button><button type="button" class="w-padb" data-dir="ArrowLeft" aria-label="Walk left"></button><button type="button" class="w-padb" data-dir="ArrowDown" aria-label="Walk down"></button><button type="button" class="w-padb" data-dir="ArrowRight" aria-label="Walk right"></button></div>'+
+ '<div class="w-pause w-par" id="w-pause" hidden role="dialog" aria-modal="true" aria-labelledby="w-pause-h"><div><h2 id="w-pause-h">Paused</h2><p>The world is still. Nothing is collected or sent.</p><p><button type="button" class="w-btn pri" id="t-resume">Resume</button> <a class="w-btn" href="../">Back to the book</a></p></div></div>';
  ACTK="";stage=document.getElementById("w-stage");cv=document.getElementById("w-cv");cx=cv.getContext("2d");
  document.getElementById("t-look").onclick=lookAround;document.getElementById("t-jr").onclick=journal;document.getElementById("t-bag").onclick=satchel;document.getElementById("t-map").onclick=mapPanel;
  document.getElementById("t-safe").onclick=goSafe;document.getElementById("t-hall").onclick=function(){hall()};document.getElementById("t-hero").onclick=function(){if(!B)creator()};
+ document.getElementById("t-pause").onclick=function(){setPause(!PAUSED);this.setAttribute("aria-pressed",PAUSED?"true":"false")};
+ document.getElementById("t-resume").onclick=function(){setPause(0);var b=document.getElementById("t-pause");if(b)b.setAttribute("aria-pressed","false")};
+ document.getElementById("t-sound").onclick=function(){SOUND=SOUND?0:1;this.setAttribute("aria-pressed",SOUND?"true":"false");this.textContent=SOUND?"Sound on":"Sound off";if(SOUND)beep()};
+ document.querySelectorAll(".w-padb").forEach(function(b){var k=b.getAttribute("data-dir");function up(){delete held[k]}b.addEventListener("pointerdown",function(e){e.preventDefault();held[k]=1;if(b.setPointerCapture)b.setPointerCapture(e.pointerId)});b.addEventListener("pointerup",up);b.addEventListener("pointercancel",up)});
  cv.addEventListener("pointerdown",pdown);cv.addEventListener("pointermove",pmove);addEventListener("pointerup",function(){drag=null});
  enter(S.at in SC?S.at:"hub",S.x,S.y,1);
  last=performance.now();raf=requestAnimationFrame(loop);stage.focus();
@@ -266,7 +277,7 @@ function busy(){return !!(OV||B)}
 /* frame-rate independent easing: k is the per-frame blend tuned at 60 fps */
 var FDT=1/60;function ez(k){return 1-Math.pow(1-k,Math.min(3,FDT*60))}
 function loop(t){if(!document.body.contains(cv))return;var dt=Math.min(.05,(t-last)/1000);last=t;lastT=t;FDT=dt;update(dt,t);render(t);window.OBC_DPRK=0;raf=requestAnimationFrame(loop)}
-function update(dt,t){var s=cur;if(fade>0)fade=Math.max(0,fade-dt*3);
+function update(dt,t){if(PAUSED)return;var s=cur;if(fade>0)fade=Math.max(0,fade-dt*3);
  var vx=0,vy=0;if(!busy()||(DM&&DM.sel==null&&!OVblock())){
   if(held.ArrowLeft||held.a)vx-=1;if(held.ArrowRight||held.d)vx+=1;if(held.ArrowUp||held.w)vy-=1;if(held.ArrowDown||held.s)vy+=1;
   if(vx||vy)tgt=null;else if(tgt){var dx=tgt.x-P.x,dy=tgt.y-P.y,dd=Math.hypot(dx,dy);var reach=tgt.o?44:4;if(dd<reach){var o=tgt.o;tgt=null;if(o)interact(o)}else{vx=dx/dd;vy=dy/dd}}}
@@ -339,7 +350,7 @@ function render(t){window.OBC_STAGE=CZ?(B?2:1):0;var r=stage.getBoundingClientRe
 var LBL=null,ACTK="";document.addEventListener("click",function(e){if(e.target&&e.target.closest&&e.target.closest("#w-act")){doAct();if(stage&&!OV)stage.focus()}});
 /* on-screen action button: same as pressing E, for touch and mouse players */
 function actBtn(n){var b=document.getElementById("w-act");if(!b)return;var k=n?verb(n).slice(3)+(n.name?" "+n.name:""):"";if(k===ACTK)return;ACTK=k;b.hidden=!n;b.textContent=n?k:"";b.setAttribute("aria-label",n?k+" (E)":"")}
-function doAct(){if(DM&&DM.pick){placeAt(P.x,P.y-28);return}if(!busy())interact(near())}
+function doAct(){if(DM&&DM.pick){placeAt(P.x,P.y-28);return}if(!busy()){beep();interact(near())}}
 /* visual-only spacing: nudge a standing guide sideways so the hero never stands inside them */
 function clr(x,y,sd){var dx=x-P.x,dy=Math.abs(P.y-y);if(dy>60)return x;var k=Math.min(1,1-Math.max(0,dy-40)/20);if(sd){if(sd*dx>=84)return x;return x+(P.x+sd*84-x)*k}var g=84-Math.abs(dx);if(g<=0)return x;return x+(dx>=0?1:-1)*g*k}
 function houseTag(c,o){c.font="600 12px Georgia,serif";c.textAlign="center";var lb=o.role==="hall"?"Hall of Counselors":"Open Book Office";var lw=c.measureText(lb).width+12;c.fillStyle="rgba(250,240,215,.9)";var ly=window.OBC_CHARS?(CZ&&CZ.name==="storybook"?o.y-64*o.sc:o.y+24):o.y-124*o.sc+1;c.fillRect(o.x-lw/2,ly-13,lw,17);c.fillStyle="#5a2e0e";c.fillText(lb,o.x,ly);c.textAlign="left"}
@@ -440,8 +451,9 @@ function pdown(e){stage.focus();var p=toWorld(e);
  var x=p.x,y=p.y,s=cur;if(x<24&&nb(s,"w"))x=-10;if(x>W-24&&nb(s,"e"))x=W+10;if(y<80&&nb(s,"n"))y=50;if(y>H-24&&nb(s,"s"))y=H+10;tgt={x:x,y:y}}
 function pmove(e){if(drag&&DM&&DM.sel!=null){var p=toWorld(e),it=S.safe.items[DM.sel];if(it){it.x=Math.max(20,Math.min(W-20,p.x));it.y=Math.max(S.safe.kind==="beach"?140:80,Math.min(H-12,p.y));save()}}}
 var MV={ArrowLeft:1,ArrowRight:1,ArrowUp:1,ArrowDown:1,a:1,d:1,w:1,s:1};
-document.addEventListener("keydown",function(e){if(!stage||!document.body.contains(stage))return;var ae=document.activeElement,k=e.key.length===1?e.key.toLowerCase():e.key;
- if(e.key==="Escape"){if(OV==="say"||OV==="pan"){closeOV();e.preventDefault()}else if(DM&&DM.sel!=null){DM.sel=null;decUI()}return}
+document.addEventListener("keydown",function(e){var ae=document.activeElement,k=e.key.length===1?e.key.toLowerCase():e.key;
+ if(e.key==="Escape"){if(ae&&/INPUT|TEXTAREA|SELECT/.test(ae.tagName))return;if(stage&&document.body.contains(stage)){if(OV==="say"||OV==="pan"){closeOV();e.preventDefault();return}if(DM&&DM.sel!=null){DM.sel=null;decUI();e.preventDefault();return}if(B){stepBack();e.preventDefault();return}if(PAUSED){setPause(0);var pb=document.getElementById("t-pause");if(pb)pb.setAttribute("aria-pressed","false");e.preventDefault();return}}e.preventDefault();location.href="../";return}
+ if(!stage||!document.body.contains(stage))return;
  if(ae!==stage&&ae!==document.body&&ae&&document.body.contains(ae)){if(k!=="e"||OV||/INPUT|TEXTAREA|SELECT/.test(ae.tagName)||!ae.closest(".w-top,#w-stage"))return}
  if(DM&&DM.sel!=null&&MV[k]){var it=S.safe.items[DM.sel],st=6;if(k==="ArrowLeft"||k==="a")it.x-=st;if(k==="ArrowRight"||k==="d")it.x+=st;if(k==="ArrowUp"||k==="w")it.y-=st;if(k==="ArrowDown"||k==="s")it.y+=st;it.x=Math.max(20,Math.min(W-20,it.x));it.y=Math.max(80,Math.min(H-12,it.y));save();e.preventDefault();return}
  if(DM&&(k==="Delete"||k==="Backspace")&&DM.sel!=null){putAway();e.preventDefault();return}
