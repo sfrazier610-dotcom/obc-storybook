@@ -62,7 +62,7 @@ The hex ground tiles (`hex_grass`, `hex_water`, `hex_grass_sloped_high`, `hex_ro
 
 ## Original 3D pieces
 
-The continuous ground (grass, sandy paths, pond basins, cliff colors), stair treads, knoll steps, rounded bushes, flowers, clay pots, reeds, lily pads, signs, lanterns, the cat, the dog, the halo ring, leaves, the breath ring, thought scribbles, footprint marks, the split shadow, and the backpack are simple meshes in `world3d.js`. The cat and dog are original because these free KayKit packs do not include pets. License: CC0 1.0.
+The continuous ground (grass, sandy paths, pond basins, cliff colors), stone stairs, knoll steps, layered bushes, flowers, clay pots, reeds, lily pads, path pebbles, fen stepping stones, signs, lanterns, the cat, the dog, the halo, the warm support light, leaves, the breath ring, thought scribbles, footprint marks, the split shadow, and the backpack are simple meshes in `world3d.js`. The Forest Nature mirror did not include bush files, and the itch.io zip is not a direct download, so the bushes are original: overlapping icospheres with vertex-color shading, berries, and flowers. The cat and dog are original because these free KayKit packs do not include pets. License: CC0 1.0.
 
 ## three.js
 

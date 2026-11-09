@@ -19,17 +19,18 @@ function hash(s){var n=2166136261;s=String(s||"x");for(var i=0;i<s.length;i++)n=
 var ROLE={hero:"mage",amber:"rogue",scott:"knight",shanna:"rogue_hooded",abby:"barbarian",aspen:"rogue",amanda:"mage",makayla:"rogue_hooded"};
 var TINT={hero:0xffffff,amber:0xfff4ea,scott:0xe7eef8,shanna:0xf3ecff,abby:0xffe8d4,aspen:0xe5f6ea,amanda:0xffe0ea,makayla:0xfff6d8,villager:0xffffff};
 var MOOD={
- calm:{clip:"Idle"},
- worried:{clip:"Idle",fx:"scribble"},
- overwhelmed:{clip:"Walking_A",fx:"pack",speed:.55},
- withdrawn:{clip:"Sit_Floor_Idle",fx:"cloud"},
- panicked:{clip:"Hit_A",fx:"scribble",speed:1.3},
- exhausted:{clip:"Lie_Idle",fx:"cloud"},
- help:{clip:"Interact",hold:.62},
- breath:{clip:"Idle",fx:"breath",speed:.35},
- support:{clip:"Cheer",fx:"leaves",hold:.55},
- recover:{clip:"Cheer",fx:"halo",hold:.72}
+ calm:{clip:"Idle",tint:0xfff1df,bone:"calm"},
+ worried:{clip:"Idle",fx:"scribs",tint:0xfff4e8,bone:"worried"},
+ overwhelmed:{clip:"Walking_A",fx:"pack",speed:.4,tint:0xf3e4d2,bone:"over"},
+ withdrawn:{clip:"Idle",fx:"cloud",tint:0xb7b6c0,bone:"away",yaw:.28},
+ panicked:{clip:"Idle",fx:"panic",speed:2.6,tint:0xfff8ee,bone:"panic"},
+ exhausted:{clip:"Sit_Floor_Idle",hold:.58,tint:0x8e8c98,bone:"slump"},
+  help:{clip:"Idle",fx:"wave",bone:"wave",tint:0xfff3e4},
+ breath:{clip:"Idle",fx:"breath",speed:.45,tint:0xfff6ea,bone:"breath"},
+ support:{clip:"Idle",fx:"warm",tint:0xfff6e8,bone:"calm",friend:1},
+ recover:{clip:"Cheer",fx:"glow",hold:.62,tint:0xfff2cc}
 };
+var GUIDE={anx:"amber",ptsd:"abby",rel:"shanna",ocd:"aspen",adhd:"aspen",ed:"scott",grief:"amanda",fog:"shanna"};
  var FOG={
  fog:{c:0xb7c3bf,n:18,f:34},
  anx:{c:0xd5e2ee,n:26,f:52},
@@ -109,6 +110,7 @@ function boot(){
       if(o.isMesh){o.castShadow=false;o.receiveShadow=false;o.frustumCulled=false}
     });
     var tint=TINT[role]||TINT.villager;
+    root.userData.roleTint=tint;
     if(tint!==0xffffff){
       root.traverse(function(o){
         if(!o.isMesh)return;
@@ -135,8 +137,20 @@ function boot(){
     roll.rotation.z=Math.PI/2;roll.position.set(.62,1.32,.02);
     var strap=new THREE.Mesh(new THREE.BoxGeometry(.08,.55,.06),new THREE.MeshStandardMaterial({color:0x3a2a1c,roughness:.8}));
     strap.position.set(.32,1.05,.12);strap.rotation.z=-.5;pack.add(sack,roll,strap);
-    var breath=new THREE.Mesh(new THREE.TorusGeometry(.34,.03,8,20),new THREE.MeshBasicMaterial({color:0x7fb87a,transparent:true,opacity:.9}));
-    breath.position.set(0,.92,.32);
+    var breath=new THREE.Mesh(new THREE.TorusGeometry(.82,.075,8,28),new THREE.MeshBasicMaterial({color:0x8fd48a,transparent:true,opacity:.92}));
+    breath.position.set(0,1.02,.48);
+    var wave=new THREE.Group();
+    var skin=new THREE.MeshStandardMaterial({color:0xf2c8a4,roughness:.55});
+    var sleeve=new THREE.MeshStandardMaterial({color:0x6a3058,roughness:.6});
+    var up=new THREE.Mesh(new THREE.CapsuleGeometry(.07,.42,3,6),sleeve);up.position.set(-.55,1.25,.45);up.rotation.z=1.05;
+    var fore=new THREE.Mesh(new THREE.CapsuleGeometry(.06,.3,3,6),skin);fore.position.set(-.95,1.55,.55);fore.rotation.z=.4;
+    var palm=new THREE.Mesh(new THREE.SphereGeometry(.13,8,6),skin);palm.position.set(-1.15,1.82,.62);
+    wave.add(up,fore,palm);
+    var warm=new THREE.Group();
+    var glow=new THREE.Mesh(new THREE.SphereGeometry(.62,14,10),new THREE.MeshBasicMaterial({color:0xffd898,transparent:true,opacity:.38,depthWrite:false}));
+    glow.position.set(.95,1.05,.2);
+    var disc=new THREE.Mesh(new THREE.CircleGeometry(.85,22),new THREE.MeshBasicMaterial({color:0xffc56a,transparent:true,opacity:.62,depthWrite:false}));
+    disc.rotation.x=-Math.PI/2;disc.position.set(.85,.05,.15);warm.add(glow,disc);
     var leaves=new THREE.Group();
     [[-.55,1.55,.05,.7],[.52,1.48,-.08,-.6],[-.2,2.05,.12,.3],[.28,2.12,-.02,-.2],[0,1.85,.2,.1]].forEach(function(p){var leaf=sphere(0x3f8f45,.11);leaf.scale.set(2.1,.55,.4);leaf.position.set(p[0],p[1],p[2]);leaf.rotation.z=p[3];leaves.add(leaf)});
     var halo=new THREE.Group();
@@ -144,8 +158,8 @@ function boot(){
     ring.rotation.x=-Math.PI/2;ring.position.y=.05;
     for(var k=0;k<6;k++){var sp=sphere(0xffe6a0,.07);var a=k/6*6.283;sp.position.set(Math.cos(a)*1.05,.28+(k%2)*.28,Math.sin(a)*1.05);sp.userData.a=a;sp.userData.r=1.05;halo.add(sp)}
     halo.add(ring);
-    [cloud,scribs,feet,split,pack,breath,leaves,halo].forEach(function(o){o.visible=false;g.add(o)});
-    return {group:g,cloud:cloud,scribs:scribs,feet:feet,split:split,pack:pack,breath:breath,leaves:leaves,halo:halo};
+    [cloud,scribs,feet,split,pack,breath,leaves,halo,warm,wave].forEach(function(o){o.visible=false;g.add(o)});
+    return {group:g,cloud:cloud,scribs:scribs,feet:feet,split:split,pack:pack,breath:breath,leaves:leaves,halo:halo,warm:warm,wave:wave};
   }
   function makePet(cat){
     var g=new THREE.Group();
@@ -239,20 +253,47 @@ function boot(){
   function ensureDecor(){
     if(decor)return decor;
     function merge(parts){
-      var pos=[],nor=[],idx=[],off=0;
+      var pos=[],nor=[],col=[],idx=[],off=0;
       parts.forEach(function(g){
-        var p=g.attributes.position,n=g.attributes.normal,ix=g.index;
-        for(var i=0;i<p.count;i++){pos.push(p.getX(i),p.getY(i),p.getZ(i));if(n)nor.push(n.getX(i),n.getY(i),n.getZ(i))}
+        var p=g.attributes.position,n=g.attributes.normal,c=g.attributes.color,ix=g.index;
+        for(var i=0;i<p.count;i++){
+          pos.push(p.getX(i),p.getY(i),p.getZ(i));
+          if(n)nor.push(n.getX(i),n.getY(i),n.getZ(i));
+          if(c)col.push(c.getX(i),c.getY(i),c.getZ(i));
+        }
         if(ix){for(var k=0;k<ix.count;k++)idx.push(ix.getX(k)+off)}
         off+=p.count;
       });
       var g=new THREE.BufferGeometry();
       g.setAttribute("position",new THREE.Float32BufferAttribute(pos,3));
       if(nor.length)g.setAttribute("normal",new THREE.Float32BufferAttribute(nor,3));
+      if(col.length)g.setAttribute("color",new THREE.Float32BufferAttribute(col,3));
       g.setIndex(idx);g.computeBoundingBox();return g;
     }
-    function puff(x,y,z,r){var g=new THREE.IcosahedronGeometry(r,2);g.translate(x,y,z);return g}
-    var bush=merge([puff(0,.48,0,.46),puff(-.34,.36,.1,.32),puff(.32,.34,-.08,.3),puff(.04,.66,.02,.26),puff(-.08,.4,-.22,.24)]);
+    function shade(g,c0,c1){
+      var p=g.attributes.position,col=new Float32Array(p.count*3),minY=1e9,maxY=-1e9,i;
+      for(i=0;i<p.count;i++){var y=p.getY(i);if(y<minY)minY=y;if(y>maxY)maxY=y}
+      var A=new THREE.Color(c0),B=new THREE.Color(c1),C=new THREE.Color();
+      for(i=0;i<p.count;i++){C.copy(A).lerp(B,(p.getY(i)-minY)/((maxY-minY)||1));col[i*3]=C.r;col[i*3+1]=C.g;col[i*3+2]=C.b}
+      g.setAttribute("color",new THREE.BufferAttribute(col,3));return g;
+    }
+    function ball(x,y,z,r,c0,c1){var g=new THREE.IcosahedronGeometry(r,1);g.translate(x,y,z);return shade(g,c0,c1)}
+    function bushOf(wide,bits){
+      var parts=[
+        ball(0,.58,0,wide?.52:.48,0x355e2e,0x97c86a),
+        ball(-.42,.46,.1,.36,0x2c5228,0x78aa50),
+        ball(.44,.44,-.06,.34,0x466e38,0xa4d478),
+        ball(.02,.86,.04,.28,0x5c8a44,0xc6e49a),
+        ball(-.1,.5,-.32,.3,0x314e2a,0x6a9848),
+        ball(.24,.66,.24,.26,0x4e7c3c,0xb0d880),
+        ball(0,.34,.02,.34,0x243e22,0x5a843c)
+      ];
+      if(wide)parts.push(ball(.62,.4,.16,.28,0x3a6230,0x8cbc60),ball(-.58,.38,-.1,.26,0x2e5428,0x70a048));
+      bits.forEach(function(b){var g=new THREE.SphereGeometry(b[3],6,5);g.translate(b[0],b[1],b[2]);parts.push(shade(g,b[4],b[4]))});
+      return merge(parts);
+    }
+    var bush=bushOf(false,[[.32,.78,.18,.07,0xc44858],[-.28,.7,.16,.06,0xe7c85a],[.06,.98,.02,.055,0xf4f1e4]]);
+    var bushWide=bushOf(true,[[.5,.62,.2,.065,0xe090b0],[-.46,.58,.08,.06,0xf2f0e8],[.1,.92,-.04,.05,0xf0d070]]);
     var blossom=new THREE.SphereGeometry(.09,8,6);blossom.translate(0,.34,0);
     var stem=new THREE.CylinderGeometry(.015,.02,.28,5);stem.translate(0,.14,0);
     var potPts=[new THREE.Vector2(.01,0),new THREE.Vector2(.16,0),new THREE.Vector2(.18,.06),new THREE.Vector2(.13,.26),new THREE.Vector2(.2,.32),new THREE.Vector2(.15,.34)];
@@ -260,11 +301,14 @@ function boot(){
     var reed=merge([ (function(){var c=new THREE.ConeGeometry(.035,.72,5);c.translate(0,.36,0);return c})(), (function(){var s=new THREE.SphereGeometry(.05,6,5);s.translate(0,.74,0);return s})() ]);
     decor={
       bush:bush,
+      bushWide:bushWide,
       blossom:blossom,
       stem:stem,
       pot:new THREE.Mesh(pot,new THREE.MeshStandardMaterial({color:0xc48a62,roughness:.78})),
       reed:reed,
-      bushMat:new THREE.MeshStandardMaterial({color:0xffffff,roughness:.9}),
+      pebble:new THREE.IcosahedronGeometry(.07,0),
+      step:new THREE.CylinderGeometry(.22,.26,.07,7),
+      bushMat:new THREE.MeshStandardMaterial({color:0xffffff,roughness:.86,vertexColors:true}),
       stemMat:new THREE.MeshStandardMaterial({color:0x5d8a48,roughness:.85}),
       bloomMat:new THREE.MeshStandardMaterial({color:0xffffff,roughness:.6}),
       reedMat:new THREE.MeshStandardMaterial({color:0x4e6a48,roughness:.8})
@@ -277,7 +321,15 @@ function boot(){
   }
   function pathsOf(s){
     var id=s.id,e=exitsOf(s),c=[320,220],list=[];
-    if(id==="hub")return [[[320,40],[320,220]],[[320,400],[320,220]],[[30,214],[320,220]],[[610,214],[320,220]],[[200,160],[260,200]],[[440,160],[380,200]]];
+    if(id==="hub")return [
+      [[230,150],[400,145],[490,210],[460,300],[320,345],[175,300],[145,215],[230,150]],
+      [[320,36],[300,148]],
+      [[320,400],[320,345]],
+      [[28,220],[145,230]],
+      [[612,214],[490,220]],
+      [[230,150],[214,188]],
+      [[400,145],[424,188]]
+    ];
     if(id==="fog1")return [[[320,30],[250,140],[230,280],[300,400]],[[20,220],[140,230],[230,200]]];
     if(e.n)list.push([[320,24],c]);if(e.s)list.push([[320,400],c]);if(e.w)list.push([[24,220],c]);if(e.e)list.push([[616,220],c]);
     if(!list.length)list.push([[180,200],[460,240]]);
@@ -302,14 +354,16 @@ function boot(){
         var dx=b[0]-a[0],dy=b[1]-a[1],len=Math.hypot(dx,dy)||1;
         var mag=((hash((s.id||"")+"p"+pi+"s"+i)%140)-70)*0.95;
         var c=[mx+(-dy/len)*mag, my+(dx/len)*mag];
-        var n=Math.max(8,Math.round(len/18)),prev=null;
+        var n=Math.max(10,Math.round(len/14)),prev=null;
+        var baseW=0.34+((hash((s.id||"")+"w"+pi+"s"+i)%100)/100)*0.62;
         for(var k=0;k<=n;k++){
           var t=k/n,u=1-t;
           var gx=u*u*a[0]+2*u*t*c[0]+t*t*b[0];
           var gy=u*u*a[1]+2*u*t*c[1]+t*t*b[1];
           var v=wp(gx,gy,0);
-          if(prev)segs.push([prev[0],prev[1],v.x,v.z]);
-          prev=[v.x,v.z];
+          var w=Math.max(0.26,baseW*(0.72+0.38*Math.sin(t*6.283+pi+i)));
+          if(prev)segs.push([prev[0],prev[1],v.x,v.z,(prev[2]+w)*0.5]);
+          prev=[v.x,v.z,w];
         }
       }
     });
@@ -319,15 +373,16 @@ function boot(){
       waters.push({x:1.4,z:-4.2,rx:1.8,rz:1.2});
       waters.push({x:6.4,z:0.2,rx:1.45,rz:1.0});
     }
-    function pathD(x,z){var best=99;for(var i=0;i<segs.length;i++){var d=segDist(x,z,segs[i][0],segs[i][1],segs[i][2],segs[i][3]);if(d<best)best=d}return best}
+    function pathInfo(x,z){var best=99,w=.5;for(var i=0;i<segs.length;i++){var sg=segs[i],d=segDist(x,z,sg[0],sg[1],sg[2],sg[3]);if(d<best){best=d;w=sg[4]||.5}}return {d:best,w:w}}
+    function pathD(x,z){return pathInfo(x,z).d}
     function waterE(x,z){var best=99;for(var i=0;i<waters.length;i++){var w=waters[i];best=Math.min(best,Math.hypot((x-w.x)/w.rx,(z-w.z)/w.rz))}return best}
     function height(x,z){
       var h=Math.sin(x*0.47)*0.035+Math.cos(z*0.36+x*0.18)*0.028;
       if(cliff){
-        if(Math.abs(x-0.15)<1.15)h+=(1-smooth(-4.15,-1.45,z))*1.62;
+        if(Math.abs(x-0.15)<1.05)h+=(1-smooth(-4.05,-1.4,z))*1.7;
         else {
-          var lip=(1-smooth(-2.02,-1.62,z))*1.05+(1-smooth(-3.25,-2.9,z))*0.72;
-          h+=lip*(1-smooth(13.2,16.2,Math.abs(x)));
+          var side=1-smooth(12.2,15.8,Math.abs(x));
+          h+=((1-smooth(-1.48,-1.18,z))*0.52+(1-smooth(-2.72,-2.42,z))*0.58+(1-smooth(-4.05,-3.75,z))*0.62)*side;
         }
       }else if(knoll){
         var d=Math.hypot((x+5.4)*0.82,z+2.5);
@@ -337,7 +392,8 @@ function boot(){
         h+=Math.sin(x*0.9)*0.02;
         h-=(1-smooth(1.2,3.4,Math.hypot(x-2.2,z+1.1)))*0.12;
       }
-      var pathT=1-smooth(0.16,0.62,pathD(x,z));
+      var info0=pathInfo(x,z);
+      var pathT=1-smooth(info0.w*0.28,info0.w*1.25,info0.d);
       h-=pathT*0.05;
       var we=waterE(x,z);
       if(we<1.25)h=Math.min(h,-0.03-Math.max(0,1.08-we)*0.46);
@@ -366,17 +422,28 @@ function boot(){
       var n=(n1*0.22+n2*0.16+n3*0.12)*0.5+0.5;
       var c=gA.clone().lerp(gB,Math.max(0,Math.min(1,n)));
       if(n3>0.55)c.lerp(gC,(n3-0.55)*0.35);
-      var pathT=1-smooth(0.18,0.7,pathD(x,z));
-      if(pathT>0)c.lerp(sand,Math.min(1,pathT*1.2));
+      var info=pathInfo(x,z);
+      var pathT=1-smooth(info.w*0.22,info.w*1.35,info.d);
+      if(pathT>0){
+        c.lerp(sand,Math.min(1,pathT*1.15));
+        if(info.d<info.w*0.28)c.lerp(new THREE.Color(marsh?0xb09a78:0xc4ae8c),0.28);
+      }
       var we=waterE(x,z);
       if(we<0.96)c.copy(waterC);
       else if(we<1.32)c.lerp(shore,1-smooth(0.96,1.32,we));
       var ny=nor.getY(i);
-      if(cliff&&ny<0.94&&y>0.08&&pathT<0.45&&we>1.2){
-        var steep=Math.min(1,(0.94-ny)/0.42);
-        var band=Math.sin(y*7.2)*0.5+0.5;
-        var earth=eHi.clone().lerp(eMid,band>0.45?0.9:0.1).lerp(eLo,steep*0.4);
-        c.lerp(earth,Math.min(1,0.72+steep*0.45));
+      if(cliff&&pathT<0.4&&we>1.2){
+        var north=height(x,z-0.42);
+        if(north>y+0.2)c.lerp(new THREE.Color(0x2c261f),Math.min(0.66,(north-y)*0.5));
+        if(ny<0.9&&y>0.06){
+          var tone=y<0.48?0x6a4830:y<1.02?0x8d6240:0xa88862;
+          c.lerp(new THREE.Color(tone),0.9);
+          if(ny>0.42&&ny<0.88)c.lerp(new THREE.Color(0x9a9186),0.42);
+        }
+        if(ny>0.9&&y>0.3){
+          c.lerp(gC,0.45);
+          if(height(x,z+0.32)+0.22<y)c.lerp(new THREE.Color(0x5e8a40),0.28);
+        }
       }else if(knoll&&ny<0.82&&y>0.16&&pathT<0.4&&we>1.2){
         var steepK=Math.min(1,(0.82-ny)/0.5);
         c.lerp(eMid,Math.min(0.85,steepK));
@@ -395,14 +462,15 @@ function boot(){
       }
     });
     if(cliff){
-      var treadM=new THREE.MeshStandardMaterial({color:0x8fb56e,roughness:.96});
-      var riserM=new THREE.MeshStandardMaterial({color:0x8a5a34,roughness:.92});
-      for(var si=0;si<8;si++){
-        var t=si/7,z=-4.05+t*2.5,y=height(0.15,z);
-        var tread=new THREE.Mesh(new THREE.BoxGeometry(1.9,.1,.42),treadM);
-        tread.position.set(0.15,y+0.07,z);
-        var riser=new THREE.Mesh(new THREE.BoxGeometry(1.9,.22,.1),riserM);
-        riser.position.set(0.15,y-0.05,z+0.2);
+      var treadM=new THREE.MeshStandardMaterial({color:0xb7a890,roughness:.94});
+      var riserM=new THREE.MeshStandardMaterial({color:0x6a5844,roughness:.96});
+      var lipM=new THREE.MeshStandardMaterial({color:0x8d8274,roughness:.9});
+      for(var si=0;si<7;si++){
+        var t=si/6,z=-3.95+t*2.45,y=0.1+t*1.58;
+        var tread=new THREE.Mesh(new THREE.BoxGeometry(1.55,.14,.5),si===6?lipM:treadM);
+        tread.position.set(0.15,y,z);
+        var riser=new THREE.Mesh(new THREE.BoxGeometry(1.55,.24,.16),riserM);
+        riser.position.set(0.15,y-0.14,z+0.24);
         world.add(tread,riser);
       }
     }else if(knoll){
@@ -417,11 +485,14 @@ function boot(){
     var D=ensureDecor();
     var bushCols=marsh?[0x4a6454,0x3c5346,0x5d7564,0x445e50]:[0x6e9a5c,0x5d8754,0x86a86e,0x4f7a48];
     var bloomCols=[0xe7a0b4,0xf0d48a,0xf7f1e4,0xcbb6e6,0xf0b07a];
-    var bushes=new THREE.InstancedMesh(D.bush,D.bushMat,70);
+    var bushes=new THREE.InstancedMesh(D.bush,D.bushMat,48);
+    var bushesW=new THREE.InstancedMesh(D.bushWide,D.bushMat,48);
+    var pebbles=new THREE.InstancedMesh(D.pebble,new THREE.MeshStandardMaterial({color:0xc4b49a,roughness:.95}),220);
+    var stones=new THREE.InstancedMesh(D.step,new THREE.MeshStandardMaterial({color:0xb7a890,roughness:.92}),80);
     var stems=new THREE.InstancedMesh(D.stem,D.stemMat,36);
     var blooms=new THREE.InstancedMesh(D.blossom,D.bloomMat,36);
     var reeds=new THREE.InstancedMesh(D.reed,D.reedMat,64);
-    [bushes,stems,blooms,reeds].forEach(function(m){m.count=0;m.frustumCulled=false;world.add(m)});
+    [bushes,bushesW,pebbles,stones,stems,blooms,reeds].forEach(function(m){m.count=0;m.frustumCulled=false;world.add(m)});
     function nearThing(gx,gy){
       var items=s.items||[];
       for(var i=0;i<items.length;i++){
@@ -436,7 +507,7 @@ function boot(){
       if(gx<28||gx>612||gy<40||gy>392)return false;
       if(nearThing(gx,gy))return false;
       var v=wp(gx,gy,0);
-      if(pathD(v.x,v.z)<0.78)return false;
+      if(pathD(v.x,v.z)<pathInfo(v.x,v.z).w*1.2)return false;
       if(waterE(v.x,v.z)<1.45)return false;
       if(Math.abs(height(v.x,v.z)-height(v.x+0.45,v.z))>0.32)return false;
       return true;
@@ -459,9 +530,9 @@ function boot(){
     treeKeys.forEach(function(k){var m=instMesh(k,16);if(m){treeMeshes[k]=m;world.add(m)}});
     var grassKeys=["fgrass","fgrass2","fgrass3"];
     var grassMeshes={};
-    grassKeys.forEach(function(k){var m=instMesh(k,40);if(m){grassMeshes[k]=m;world.add(m)}});
+    grassKeys.forEach(function(k){var m=instMesh(k,64);if(m){grassMeshes[k]=m;world.add(m)}});
     var rockMeshes={};
-    ["rock","rock2"].forEach(function(k){var m=instMesh(k,16);if(m){rockMeshes[k]=m;world.add(m)}});
+    ["rock","rock2"].forEach(function(k){var m=instMesh(k,48);if(m){rockMeshes[k]=m;world.add(m)}});
     function putKeyed(map,key,gx,gy,h,ry){
       var m=map[key];if(!m||!geo[key])return;
       var sc=fitH(key,h)*(0.86+ (hash(gx+gy)%20)/100);
@@ -486,7 +557,8 @@ function boot(){
         var gy=a[1]+((hash(seed+ai*19+b*3)%40)-20);
         if(!freeAt(gx,gy))continue;
         var v=wp(gx,gy,0);
-        putInst(bushes,v.x,v.z,hash(gx)%6,1.15+(hash(gy)%5)*0.08,bushCols[(ai+b)%bushCols.length]);
+        var mesh=b%2?bushesW:bushes;
+        putInst(mesh,v.x,v.z,hash(gx)%6,0.95+(hash(gy)%6)*0.08,0xffffff);
       }
       for(var g=0;g<3;g++){
         var gx=a[0]+((hash(seed+ai*9+g)%64)-32);
@@ -515,7 +587,7 @@ function boot(){
       var gx=320+Math.cos(ang)*rad,gy=214+Math.sin(ang)*rad*0.72;
       if(!freeAt(gx,gy))continue;
       var v=wp(gx,gy,0);
-      if(ring%3===0)putInst(bushes,v.x,v.z,ang,1.05+(hash(ring)%4)*0.08,bushCols[ring%bushCols.length]);
+      if(ring%3===0)putInst(ring%2?bushesW:bushes,v.x,v.z,ang,1.0+(hash(ring)%4)*0.07,0xffffff);
       else putKeyed(grassMeshes,grassKeys[ring%3],gx,gy,ring%3?0.55:0.38,ang);
     }
     (s.items||[]).forEach(function(o){
@@ -542,7 +614,48 @@ function boot(){
         }
       }
     });
-    [bushes,stems,blooms,reeds].concat(Object.keys(treeMeshes).map(function(k){return treeMeshes[k]}),Object.keys(grassMeshes).map(function(k){return grassMeshes[k]}),Object.keys(rockMeshes).map(function(k){return rockMeshes[k]})).forEach(function(m){
+    segs.forEach(function(sg,si){
+      if(si%2)return;
+      var dx=sg[2]-sg[0],dz=sg[3]-sg[1],len=Math.hypot(dx,dz)||1;
+      var nx=-dz/len,nz=dx/len,mx=(sg[0]+sg[2])/2,mz=(sg[1]+sg[3])/2,w=sg[4]||.5;
+      [-1,1].forEach(function(side,sii){
+        var x=mx+nx*w*(0.95+sii*.15),z=mz+nz*w*(0.95+sii*.15);
+        putInst(pebbles,x,z,si,0.7+(hash(si+sii)%5)*0.15,sii?0xd8cbb6:0xb7a48c);
+        if(si%3===0){
+          var gx=x/U+320,gy=z/U+208;
+          if(waterE(x,z)>1.2)putKeyed(grassMeshes,grassKeys[si%3],gx,gy,.42,si);
+        }
+      });
+      if(marsh&&waterE(mx,mz)<1.55){
+        putInst(stones,mx,mz,si,.9+(hash(si)%4)*.15,0xc4b49a);
+      }
+    });
+    if(cliff&&rockMeshes.rock){
+      [-1.28,-2.52,-3.85].forEach(function(lipZ,li){
+        for(var x=-10;x<=10;x+=1.2){
+          if(Math.abs(x-0.15)<1.35)continue;
+          var top=height(x,lipZ-0.25);
+          var key=li%2?"rock2":"rock";
+          var m=rockMeshes[key];if(!m||m.count>=m.instanceMatrix.count)continue;
+          var sc=fitH(key,0.28+(hash(x*3+li)%4)*0.04);
+          dummy.position.set(x,top+groundY(key,sc)*0.2,lipZ+0.12);
+          dummy.rotation.set(0,x,0);dummy.scale.set(sc,sc*.7,sc);dummy.updateMatrix();
+          m.setMatrixAt(m.count++,dummy.matrix);
+          var gk=grassKeys[li%3],gm=grassMeshes[gk];
+          if(gm&&gm.count<gm.instanceMatrix.count){
+            var gs=fitH(gk,.45);
+            dummy.position.set(x+0.15,top,lipZ+0.28);
+            dummy.rotation.set(.4,x,0);dummy.scale.set(gs,gs,gs);dummy.updateMatrix();
+            gm.setMatrixAt(gm.count++,dummy.matrix);
+          }
+        }
+      });
+      for(var bx=-9;bx<=9;bx+=1.6){
+        if(Math.abs(bx)<1.6)continue;
+        putKeyed(rockMeshes,bx%3?"rock":"rock2",bx/U+320,(-1.05)/U+208,.34,bx);
+      }
+    }
+    [bushes,bushesW,pebbles,stones,stems,blooms,reeds].concat(Object.keys(treeMeshes).map(function(k){return treeMeshes[k]}),Object.keys(grassMeshes).map(function(k){return grassMeshes[k]}),Object.keys(rockMeshes).map(function(k){return rockMeshes[k]})).forEach(function(m){
       m.instanceMatrix.needsUpdate=true;
       if(m.instanceColor)m.instanceColor.needsUpdate=true;
     });
@@ -598,6 +711,7 @@ function boot(){
       var root=cloneSkel(chars[kind]);
       root.traverse(function(o){if(o.isMesh){var list=[].concat(o.material).map(function(m){return m.clone()});o.material=list.length===1?list[0]:list}});
       dress(root,role||kind);
+      rememberRest(root);
       var mixer=new THREE.AnimationMixer(root);
       actors.add(root);
       var shade=new THREE.Mesh(new THREE.CircleGeometry(.42,14),new THREE.MeshBasicMaterial({color:0x3d4a2c,transparent:true,opacity:.28,depthWrite:false}));
@@ -613,6 +727,7 @@ function boot(){
     if(a.cur!==clip.name){a.mixer.stopAllAction();var act=a.mixer.clipAction(clip);act.play();a.cur=clip.name;a.clip=clip}
     var dur=a.clip.duration||1;
     var tt=hold!=null?Math.min(dur-0.001,dur*hold):(quiet?dur*0.2:(time%dur));
+    rewindBones(a.root);
     a.mixer.setTime(Math.max(0,tt));
   }
   function heroState(){
@@ -636,10 +751,75 @@ function boot(){
   function fxKey(name){return name==="scribble"?"scribs":name}
   function showFx(name,time,q){
     var key=fxKey(name);
-    ["cloud","scribs","feet","split","pack","breath","leaves","halo"].forEach(function(k){fx[k].visible=k===key||(key==="cloud"&&k==="split")||(key==="pack"&&k==="feet")});
-    if(!q&&key==="scribs")fx.scribs.rotation.y=time;
-    if(name==="breath"){var s=q?1:1+Math.sin(time*3)*.15;fx.breath.scale.set(s,s,s)}
-    if(!q&&name==="halo")fx.halo.children.forEach(function(ch){if(ch.userData.a==null)return;var a=ch.userData.a+time*.8,rad=ch.userData.r||1.05;ch.position.x=Math.cos(a)*rad;ch.position.z=Math.sin(a)*rad});
+    var on={};
+    if(key)on[key]=1;
+    if(key==="cloud")on.split=1;
+    if(key==="pack"){on.scribs=1;on.pack=1}
+    if(key==="panic"){on.scribs=1;on.feet=1}
+    if(key==="glow"){on.leaves=1;on.halo=1}
+    ["cloud","scribs","feet","split","pack","breath","leaves","halo","warm","wave"].forEach(function(k){fx[k].visible=!!on[k]});
+    fx.cloud.scale.setScalar(0.62);
+    fx.scribs.scale.setScalar(key==="panic"?1.65:key==="pack"?1.15:.68);
+    fx.pack.scale.setScalar(1.28);
+    fx.split.scale.setScalar(1.55);
+    if(!q&&on.scribs)fx.scribs.rotation.y=time*(key==="panic"?2.4:1);
+    if(!q&&on.feet){fx.feet.children.forEach(function(ch,i){ch.position.z=.35+((time*1.8+i)%3)*.28;ch.material.opacity=.35+.55*(i/3)})}
+    if(on.breath){var s=q?1.12:0.82+Math.sin(time*2.4)*.28;fx.breath.scale.set(s,s,s)}
+    if(!q&&on.halo)fx.halo.children.forEach(function(ch){if(ch.userData.a==null)return;var a=ch.userData.a+time*.8,rad=ch.userData.r||1.05;ch.position.x=Math.cos(a)*rad;ch.position.z=Math.sin(a)*rad});
+    if(on.warm){var p=q?1:.9+Math.sin(time*2)*.12;fx.warm.scale.set(p,p,p)}
+  }
+  var POSE={
+    calm:{spine:[.06,0,0],head:[-.05,0,0]},
+    worried:{spine:[.26,0,0],head:[.12,0,0],armR:[0,0,-.45]},
+    over:{head:[.06,0,0]},
+    away:{head:[.14,.1,0]},
+    panic:{head:[0,0,.08]},
+    slump:{spine:[.2,0,0],head:[.12,0,0]},
+    wave:{head:[-.02,-.06,0]},
+    breath:{chest:[.08,0,0]}
+  };
+  function boneMap(root){
+    if(root.userData.boneMap)return root.userData.boneMap;
+    var map={};root.traverse(function(o){if(o.isBone)map[o.name]=o});root.userData.boneMap=map;return map;
+  }
+  function rememberRest(root){
+    root.traverse(function(o){if(o.isBone&&!o.userData.restQ)o.userData.restQ=o.quaternion.clone()});
+  }
+  function captureClip(root){
+    root.traverse(function(o){if(!o.isBone)return;if(!o.userData.clipQ)o.userData.clipQ=new THREE.Quaternion();o.userData.clipQ.copy(o.quaternion)});
+  }
+  function rewindBones(root){
+    root.traverse(function(o){if(o.isBone&&o.userData.restQ)o.quaternion.copy(o.userData.restQ)});
+  }
+  function applyPose(root,name,time,quiet){
+    var spec=POSE[name];if(!spec)return;
+    var map=boneMap(root);
+    function add(bone,eul,wob){
+      if(!bone||!bone.userData.clipQ||!eul)return;
+      var e=eul.slice();
+      if(wob&&!quiet){e[0]+=Math.sin(time*wob)*.05;e[2]+=Math.cos(time*wob*1.2)*.04}
+      bone.quaternion.copy(bone.userData.clipQ).multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(e[0],e[1],e[2])));
+    }
+    var jit=name==="panic"&&!quiet?14:0;
+    add(map.spine,spec.spine,jit);
+    add(map.chest,spec.chest,0);
+    add(map.head,spec.head,jit?16:0);
+    add(map["upperarm.r"],spec.armR,name==="wave"&&!quiet?8:0);
+    add(map["lowerarm.r"],spec.foreR,name==="wave"&&!quiet?9:0);
+    if(name==="panic"&&!quiet){
+      root.position.x+=Math.sin(time*18)*.045;
+      root.position.z+=Math.cos(time*14)*.03;
+    }
+  }
+  function moodTint(root,hex){
+    var mood=new THREE.Color(hex||0xffffff),role=new THREE.Color(root.userData.roleTint||0xffffff);
+    root.traverse(function(o){
+      if(!o.isMesh)return;
+      [].concat(o.material).forEach(function(m){
+        if(!m.userData.base)m.userData.base=m.color.clone();
+        m.color.copy(m.userData.base).multiply(role).multiply(mood);
+      });
+    });
   }
   function yawOf(dir){
     if(dir===1)return Math.PI;
@@ -657,8 +837,11 @@ function boot(){
     var p=wp(x,y,0);
     var h=Math.max(-0.02,landH(p.x,p.z));
     a.root.position.set(p.x,(a.baseY||0)+h,p.z);
-    a.root.rotation.y=yawOf(dir);
+    a.root.rotation.y=yawOf(dir)+(pose.yaw||0);
     play(a,pose.clip||"Idle",time*(pose.speed||1),pose.hold,pose.quiet);
+    captureClip(a.root);
+    applyPose(a.root,pose.bone,time,pose.quiet);
+    if(pose.tint)moodTint(a.root,pose.tint);
     return a;
   }
   function ensureClouds(){
@@ -717,11 +900,20 @@ function boot(){
     var q=still(),time=(t||0)/1000,state=heroState(),mood=MOOD[state]||MOOD.calm;
     var moving=!q&&window.obcWorld3&&obcWorld3.P&&obcWorld3.P.ph>0.15;
     var pose=Object.assign({quiet:q},mood);
-    if(moving&&state!=="withdrawn"&&state!=="exhausted"&&!pose.hold){pose.clip=state==="panicked"?"Running_A":"Walking_A";pose.speed=state==="panicked"?1:1}
+    if(moving&&state!=="withdrawn"&&state!=="exhausted"&&state!=="panicked"&&state!=="help"&&state!=="breath"&&!pose.hold){
+      if(state!=="overwhelmed")pose.clip="Walking_A";
+      pose.speed=state==="overwhelmed"?.42:1;
+    }
     var P=api.P,dirH=api.B&&api.B()? (api.B().e.x<P.x?3:2):P.dir;
     var hero=placeActor("mage","hero",P.x,P.y,dirH,pose,time);
     if(fx.group.parent!==hero.root)hero.root.add(fx.group);
     showFx(pose.fx,time,q);
+    if(state==="support"){
+      var gid=GUIDE[(api.B&&api.B()&&api.B().id)||""]||"amber";
+      var fknd=ROLE[gid]&&chars[ROLE[gid]]?ROLE[gid]:"rogue";
+      var pal=placeActor(fknd,ROLE[gid]?gid:"amber",P.x+36,P.y-8,2,{clip:"Idle",quiet:q},time);
+      pal.root.rotation.y=Math.atan2(hero.root.position.x-pal.root.position.x,hero.root.position.z-pal.root.position.z);
+    }
     window.OBC_MOOD_NOW=state;
     (s.items||[]).forEach(function(o){
       if(o.t==="npc"||o.t==="mentor"||o.t==="way"){
@@ -790,6 +982,17 @@ function boot(){
     c.restore();
     window.OBC_KAY._lbl={o:o,l:o.x-24,r:o.x+24,t:o.y-44,b:o.y-4};
   }
+  function addSheetFx(root,pose){
+    var key=fxKey(pose.fx);
+    function put(name,sc){var g=fxPiece(name);if(!g)return;if(sc)g.scale.setScalar(sc);root.add(g)}
+    if(key==="cloud"){put("cloud",.62);put("split",1.55)}
+    else if(key==="pack"){put("pack",1.28);put("scribs",1.05)}
+    else if(key==="panic"){put("scribs",1.65);put("feet",1)}
+    else if(key==="scribs"){put("scribs",.68)}
+    else if(key==="glow"){put("leaves",1);put("halo",1)}
+    else if(key==="wave")put("wave",1.15);
+    else if(key)put(key,key==="breath"?1.05:1);
+  }
   function showStates(){
     var sheet=document.getElementById("w-sheet"),cv=document.getElementById("w-sheet-cv");
     if(!sheet||!cv||!chars.mage)return;
@@ -801,18 +1004,29 @@ function boot(){
       var root=cloneSkel(chars.mage);
       dress(root,"hero");
       var col=i%5,row=i<5?0:1;
-      root.position.set((col-2)*2.72,0,row?5.1:0);
-      root.rotation.y=0.4;
-      group.add(root);
-      var mixer=new THREE.AnimationMixer(root);
       var pose=MOOD[st]||MOOD.calm;
+      root.position.set((col-2)*3.05,0,row?6.2:0);
+      root.rotation.y=0.42+(pose.yaw||0);
+      root.scale.multiplyScalar(1.24);
+      group.add(root);
+      rememberRest(root);
+      var mixer=new THREE.AnimationMixer(root);
       var clip=shared[pose.clip]||shared.Idle;
-      if(clip){var act=mixer.clipAction(clip);act.play();var markT=pose.hold!=null?pose.hold:(st==="panicked"?0.18:st==="exhausted"?0.62:0.35);mixer.setTime(Math.min(clip.duration-0.02,clip.duration*markT))}
-      cast.push({root:root,mixer:mixer,pose:pose,clip:clip,row:row});
-      var fxName=fxKey(pose.fx);
-      if(fxName==="cloud"){root.add(fxPiece("cloud"));root.add(fxPiece("split"))}
-      else if(fxName==="pack"){root.add(fxPiece("pack"));root.add(fxPiece("feet"))}
-      else {var mark=fxPiece(fxName);if(mark)root.add(mark)}
+      if(clip){var act=mixer.clipAction(clip);act.play();var markT=pose.hold!=null?pose.hold:(st==="overwhelmed"?0.22:st==="recover"?0.48:0.35);rewindBones(root);mixer.setTime(Math.min(clip.duration-0.02,clip.duration*markT))}
+      captureClip(root);
+      applyPose(root,pose.bone,0.4,true);
+      moodTint(root,pose.tint);
+      cast.push({root:root,mixer:mixer,pose:pose,clip:clip,row:row,home:root.position.clone()});
+      addSheetFx(root,pose);
+      if(st==="support"&&chars.rogue){
+        var pal=cloneSkel(chars.rogue);
+        dress(pal,"amber");
+        pal.position.set(root.position.x+1.55,0,root.position.z+0.2);
+        pal.rotation.y=2.15;
+        pal.scale.multiplyScalar(1.22);
+        group.add(pal);
+        if(shared.Idle){var pm=new THREE.AnimationMixer(pal);pm.clipAction(shared.Idle).play();pm.setTime(shared.Idle.duration*0.25)}
+      }
     });
     var pad=new THREE.Mesh(new THREE.PlaneGeometry(48,36),new THREE.MeshStandardMaterial({color:0xd7e4cc,roughness:1}));
     pad.rotation.x=-Math.PI/2;pad.position.set(0,-0.02,2);
@@ -825,8 +1039,13 @@ function boot(){
     var W=1700,H=980;
     function paint(now){
       if(!document.body.contains(cv))return;
-      cast.forEach(function(a){if(!still()&&a.clip&&a.pose.hold==null)a.mixer.setTime(((now||0)/1000*(a.pose.speed||1))%(a.clip.duration||1))});
-      sheetCam.fov=26;sheetCam.aspect=W/H;sheetCam.position.set(0,7.6,21.5);sheetCam.lookAt(0,0.35,2.3);sheetCam.updateProjectionMatrix();
+      cast.forEach(function(a){
+        if(a.home)a.root.position.copy(a.home);
+        if(!still()&&a.clip&&a.pose.hold==null){rewindBones(a.root);a.mixer.setTime(((now||0)/1000*(a.pose.speed||1))%(a.clip.duration||1));captureClip(a.root)}
+        applyPose(a.root,a.pose.bone,(now||0)/1000,still());
+        moodTint(a.root,a.pose.tint);
+      });
+      sheetCam.fov=30;sheetCam.aspect=W/H;sheetCam.position.set(0,9.6,23.5);sheetCam.lookAt(0,0.65,2.6);sheetCam.updateProjectionMatrix();
       renderer.setPixelRatio(1);renderer.setSize(W,H,false);renderer.setClearColor(0xd7e4cc,1);
       var old=scene.fog;scene.fog=null;
       renderer.render(holder,sheetCam);
