@@ -1,63 +1,55 @@
 # Wanderer's Quest art licenses
 
-The default Vista look keeps an original shaded diorama for the land (grass, cliffs, paths, cottages, shrubs). The people, pets, and symptom creatures are 3D models rendered in the browser with three.js, then drawn into that world and upscaled with nearest-neighbor. If WebGL is unavailable, the page falls back to the original canvas figures. Nothing is traced from a reference screenshot. No Nintendo characters, names, symbols, or assets are used.
+The default look is one 3D scene: KayKit land and KayKit adventurers, rendered in the browser with three.js. If WebGL is unavailable, the page falls back to the original canvas diorama. Nothing is traced from a reference screenshot. No Nintendo characters, names, symbols, or assets are used. Quaternius models are not used.
 
-## 3D cast (default look)
+## KayKit — Adventurers (1.0)
 
-Quaternius models, converted from the CC0 FBX packs to glTF binary. Animations stay on the hero file and are retargeted by bone name. Other character files keep the mesh and the skeleton only.
+- Author: Kay Lousberg (KayKit)
+- Source page: https://kaylousberg.itch.io/kaykit-adventurers
+- Also: https://kaylousberg.com/game-assets/characters-adventurers
+- Files used: the GitHub mirror https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0
+- License: Creative Commons Zero (CC0 1.0). The pack page says it is free for personal and commercial use, with no attribution required. The pack's own `LICENSE.txt` says "License: (Creative Commons Zero, CC0)".
+- License file: `models/kaykit/adventurers-LICENSE.txt`
+- Full CC0 legal text: `models/licenses/cc0.txt`
 
-- Author: Quaternius
-- License: Creative Commons Zero (CC0 1.0). Commercial use is allowed. Credit is not required.
-- License file: `models/licenses/cc0.txt`
-- License text: https://creativecommons.org/publicdomain/zero/1.0/legalcode.txt
+Shipped files are trimmed to the body mesh plus the clips the game plays. Weapons are hidden. The mage keeps the closed spellbook in hand.
 
-### Ultimate Animated Character Pack (November 2019)
-
-- Source page: https://quaternius.com/packs/ultimatedanimatedcharacter.html
-- Mirror used: https://opengameart.org/content/animated-characters-pack
-- What we ship, and the original FBX name:
-
-| File | Original model | Used for |
+| File | Original | Used for |
 | --- | --- | --- |
-| `models/hero.glb` | Casual_Male.fbx (mesh and all clips) | The hero, with an original book satchel mesh |
-| `models/amber.glb` | Casual_Female.fbx | Amber |
-| `models/scott.glb` | Suit_Male.fbx | Scott |
-| `models/shanna.glb` | Doctor_Female_Young.fbx | Shanna |
-| `models/abby.glb` | Worker_Female.fbx | Abby |
-| `models/aspen.glb` | Casual3_Female.fbx | Aspen |
-| `models/amanda.glb` | Casual2_Female.fbx | Amanda |
-| `models/makayla.glb` | Cowboy_Female.fbx | Makayla |
-| `models/villager_a.glb` | Casual_Bald.fbx | Villagers |
-| `models/villager_b.glb` | Worker_Male.fbx | Villagers |
-| `models/villager_c.glb` | Casual3_Male.fbx | Villagers |
-| `models/pug.glb` | Pug.fbx | Pets (Ragnar, Orion, and Kenneth) |
+| `models/kaykit/chars/mage.glb` | Mage.glb | Hero, and Amanda (warmer tint, hat hidden) |
+| `models/kaykit/chars/rogue.glb` | Rogue.glb | Amber, and Aspen (cooler tint) |
+| `models/kaykit/chars/knight.glb` | Knight.glb | Scott. Helmet hidden so the face stays visible |
+| `models/kaykit/chars/rogue_hooded.glb` | Rogue_Hooded.glb | Shanna, and Makayla |
+| `models/kaykit/chars/barbarian.glb` | Barbarian.glb | Abby, and some villagers |
 
-Clips in the hero file: Idle, Walk, Walk_Carry, SitDown, Defeat, RecieveHit, Victory, Punch, PickUp, Shoot_OneHanded, StandUp. There is no separate run clip and no wave clip. Run plays Walk faster. Asking for help plays Idle with the right arm raised.
+Clips kept from the shared rig: Idle, Walking_A, Running_A, Interact, Cheer, Sit_Floor_Idle, Lie_Idle, Hit_A, Spellcast_Raise.
 
-### Cute Animated Monsters (August 2020)
+## KayKit — Medieval Hexagon Pack (1.0)
 
-- Source page: https://quaternius.com/packs/cutemonsters.html
-- Mirror used: https://opengameart.org/content/textured-cute-monster-pack
-- `models/alien.glb` and `models/alien.png` from Alien.fbx. Boss symptoms, including the Heavy Cloud. The texture is tinted from storm gray to warm as calm rises. Clips include Idle, HitRecieve, and Yes.
-- `models/mushroom.glb` and `models/mushroom.png` from Mushroom.fbx. Smaller symptoms. This file's only clip is Idle.
+- Author: Kay Lousberg (KayKit)
+- Source: https://github.com/KayKit-Game-Assets/KayKit-Medieval-Hexagon-Pack-1.0
+- License: Creative Commons Zero (CC0 1.0), confirmed in the pack's `LICENSE.txt`.
+- License file: `models/kaykit/medieval-LICENSE.txt`
+- Texture: `models/kaykit/hexagons_medieval.png`, copied beside each glTF so the relative URI resolves.
 
-Skull, Demon, Cthulhu, and Dragon from that pack are not used.
+Pieces used, each as a `.gltf` plus its `.bin` under `models/kaykit/med/`: `hex_grass`, `hex_water`, `hex_grass_sloped_high`, `hex_road_A`, `tree_single_A`, `tree_single_B`, `rock_single_A`, `rock_single_B`, `hill_single_A`, `cloud_small`, `cloud_big`, `waterplant_A`, `fence_wood_straight`, `building_home_A_blue`, `building_home_B_yellow`, `barrel`, `crate_A_small`.
 
-### Original 3D pieces
+`cloud_big` is the symptom creature. Its color shifts from cool gray to warm gold as calm rises. Two eyes and a small mouth are added in code so it stays friendly.
 
-The hero's book, the pet tint, the halo ring, leaves, breath ring, thought scribbles, footprint marks, split shadow, and the backpack sack are meshes made for this game in `chars3d.js`. License: CC0 1.0, same as the other original game art.
+## Original 3D pieces
+
+Signs, lanterns, the cat, the dog, the halo ring, leaves, the breath ring, thought scribbles, footprint marks, the split shadow, and the backpack are simple meshes in `world3d.js`, colored to sit in the same light as the KayKit models. The cat and dog are original because these free KayKit packs do not include pets. License: CC0 1.0.
 
 ## three.js
 
-- What: `vendor/three/three.module.js` and the GLTFLoader addon, version 0.170.0.
+- What: `vendor/three/three.module.js`, GLTFLoader, and SkeletonUtils, version 0.170.0.
 - Author: three.js authors
 - Source: https://github.com/mrdoob/three.js and https://unpkg.com/three@0.170.0/
 - License: MIT. License file: `vendor/three/LICENSE`
 
+## Original diorama art (WebGL fallback only)
 
-## Original diorama art (the land, and the WebGL fallback)
-
-- What: grass fields, earthen cliff bands, sandy paths, ponds, shrubs, rocks, pottery, fences, cottages, signs, lanterns, chests, the hero (book satchel), counselors, villagers, pets, and symptom clouds.
+- What: grass fields, earthen cliff bands, sandy paths, ponds, shrubs, rocks, pottery, fences, cottages, signs, lanterns, chests, the hero, counselors, villagers, pets, and symptom clouds.
 - Author: drawn for this game as original code in `vista.js`.
 - License: CC0 1.0. The site authors waive copyright in these drawings to the extent allowed by law.
 

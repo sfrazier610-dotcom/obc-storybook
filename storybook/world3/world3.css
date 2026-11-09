@@ -338,6 +338,8 @@ html.vista-tiles canvas{image-rendering:pixelated;image-rendering:crisp-edges}
  html.vista:not(.vista-tiles) .w-menu.is-open{display:flex;flex-wrap:wrap}
  html.vista:not(.vista-tiles) .w-menu .w-btn{min-height:44px;min-width:44px}
 }
+html.vista-kay #w-gl{position:absolute;inset:0;width:100%;height:100%;z-index:0;display:block;pointer-events:none}
+html.vista-kay #w-cv{background:transparent!important;z-index:1;image-rendering:auto!important}
 html.vista:not(.vista-tiles) #w-stage{background:#3eae4c}
 html.vista:not(.vista-tiles) #w-stage canvas{image-rendering:-moz-crisp-edges!important;image-rendering:pixelated!important}
 html.vista:not(.vista-tiles) .w-vista-hud .w-cm{background:#fff6d8!important;color:#3a2412!important;border:2px solid #a87420!important;opacity:1!important}
