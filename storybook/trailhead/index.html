@@ -1103,10 +1103,10 @@ GAME_DATA.v3 = {
       what: 'The Gottman Method is a couples therapy based on research about relationships. It teaches things like starting hard talks gently and making "repair attempts" after an argument.',
       here: 'Start a hard talk gently instead of with blame. Blocks the Rift\'s next hit and knocks Size off.',
       ui: 'choice', prompt: 'How do you start a hard talk with a friend?', options: ['"I feel upset about what happened. Can we talk?"', '"I miss getting along with you."', '"Can we try that again, slower?"'], knock: 50 },
-    play: { who: 'bridges', name: 'Play It Out', approach: 'Play Therapy',
-      what: 'Play therapy uses toys, games, and pretend play, mostly with kids, because play is a natural way for kids to show feelings and practice new ways to act.',
-      here: 'Two puppets practice making up. Calm +10, your flow chain grows, and Size drops.',
-      ui: 'choice', prompt: 'Your two puppets just had a squabble. What do they do next?', options: ['Say sorry and share the snack', 'Take turns talking', 'Build something together'], knock: 40 },
+    story: { who: 'bridges', name: 'Check the Story', approach: 'Cognitive Behavioral Therapy (CBT)',
+      what: 'Notice the story you\'re telling about them, check it against the facts, and try a kinder read.',
+      here: 'Check the story you\'re telling about someone, then try a kinder read. Calm +10, your flow chain grows, and Size drops.',
+      ui: 'choice', prompt: 'A story pops up: "They did that on purpose." What\'s a kinder read?', options: ['I don\'t know their side yet.', 'Maybe they were having a hard day.', 'I can check the facts before I decide.'], knock: 40 },
     emdr: { who: 'burn', name: 'Side-to-Side Light', approach: 'EMDR (Eye Movement Desensitization and Reprocessing)',
       what: 'EMDR is a therapy for trauma and other hard experiences. With a trained therapist, a person follows side-to-side eye movements, taps, or tones while working on something hard. It is meant to help upsetting memories feel less stuck.',
       here: 'Follow a light moving side to side while the Smoke\'s alarm bell loses its charge. Its alarm stops ringing so loud, and Size drops a lot.',
@@ -1116,7 +1116,7 @@ GAME_DATA.v3 = {
       here: 'Follow the light, then swap the Smoke\'s next attack for a calmer picture you choose. That attack does nothing, and Size drops.',
       ui: 'rescript', pictures: ['a quiet lake at sunrise', 'a cozy blanket fort', 'a field of sunflowers'], knock: 50 }
   },
-  counselorPowers: { pines: ['cbt', 'mindful'], canyon: ['erp', 'act'], marsh: ['ipt', 'sfbt'], meadow: ['dbt', 'ifs'], bridges: ['gottman', 'play'], burn: ['emdr', 'art'] },
+  counselorPowers: { pines: ['cbt', 'mindful'], canyon: ['erp', 'act'], marsh: ['ipt', 'sfbt'], meadow: ['dbt', 'ifs'], bridges: ['gottman', 'story'], burn: ['emdr', 'art'] },
   leafThoughts: { pines: ['What if it goes wrong?', 'What if they laugh?', 'What if I mess up?'], canyon: ['Are you sure?', 'Check it again.', 'What if you missed one?'],
     marsh: ['Why bother?', 'Nothing will help.', 'Stay in the tent.'], meadow: ['Ooh, look over there!', 'Do it later.', 'Wait, what was I doing?'],
     bridges: ['They always do that.', 'Fire back!', 'It\'s all their fault.'], burn: ['Danger! Danger!', 'Stay on guard.', 'Don\'t feel anything.'] },
@@ -5804,7 +5804,7 @@ function finishPower(id, data) {
   else if (id === 'dbt') { F.bodyDouble = true; chips.push('Next skill: more time, lands harder'); }
   else if (id === 'ifs') { F.softNext = true; chips.push('Next attack softened'); }
   else if (id === 'gottman') { F.blockNext = true; chips.push('Next hit blocked'); }
-  else if (id === 'play') { S.calm = clamp(S.calm + 10, 0, 100); F.chain.push('power_play'); if (F.chain.length >= 3) { F.chainReady = true; F.chain = []; chips.push({ t: 'Flow chain ready! Next skill ×2', cls: 'steady' }); } else chips.push('Calm +10 · flow chain grows'); }
+  else if (id === 'story') { S.calm = clamp(S.calm + 10, 0, 100); F.chain.push('power_story'); if (F.chain.length >= 3) { F.chainReady = true; F.chain = []; chips.push({ t: 'Flow chain ready! Next skill ×2', cls: 'steady' }); } else chips.push('Calm +10 · flow chain grows'); }
   else if (id === 'emdr') { F.rot = F.rot.filter(function (x) { return x.twist !== 'drain'; }); if (F.next && F.next.twist === 'drain') F.next = chooseMove(); F.softNext = true; chips.push('The alarm loses its charge · next hit softer'); }
   else if (id === 'art') { F.next = Object.assign({}, F.next, { rescript: data.picture, fizzle: true }); chips.push('Next attack swapped for ' + data.picture); }
   chips.push(firstName(powerArea(id)) + ': "' + pick(V3.react.power) + '"');
