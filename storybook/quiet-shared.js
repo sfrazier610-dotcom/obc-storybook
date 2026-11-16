@@ -68,7 +68,7 @@ function humanWhy(lines){
  });
  return out.slice(0,3);
 }
-const PHOTOS={scott:'scott-frazier',amber:'amber-frazier',shanna:'shanna-manjang',amanda:'amanda-lloyd',aspen:'aspen-johnson',abby:'abby-locke'};
+const PHOTOS={scott:'scott-frazier',amber:'amber-frazier',shanna:'shanna-manjang',amanda:'amanda-lloyd',aspen:'aspen-johnson',abby:'abby-locke',steffani:'steffani-winter'};
 const AWARDS={
  scott:['<p class="award">City Weekly Best of Utah 2026: Best Experiential Therapist, 1st place</p><p class="award past">City Weekly Best of Utah 2025, 2nd place</p>'],
  amber:['<p class="award">City Weekly Best of Utah 2026: Best Psychotherapist/Counselor, 3rd place</p>']
@@ -88,12 +88,38 @@ function softCopy(a){
  const list=bits.length?bits.join(', ')+' and '+last:last;
  return `Soft match — based mainly on ${list}. These percentages can tie when the lantern has little to go on. Add a concern for a clearer light.`;
 }
+function medPerson(){return (D.medication&&D.medication[0])||null;}
+function medAgeOk(age){const s=medPerson();if(!s)return false;if(!age)return true;if(age==='under8')return false;return !s.ages||s.ages.includes(age);}
+const WRAP='For more than one concern, many people find a combination of therapy and medication support helpful. Your options for wraparound care:';
+const TOGETHER='Therapy and medication can work together. Steffani Winter is listed for medication management. The ranked names are counseling matches.';
+const AGE8='Medication management listed here is for ages 8 and up.';
+function medCard(s){
+ const file=PHOTOS[s.id];
+ const initials=esc(s.name.split(/\s+/).map(p=>p[0]).join(''));
+ return `<article class="card portrait-card med-card"><figure class="portrait-frame"><span class="portrait-fallback" aria-hidden="true">${initials}</span>${file?`<img class="portrait" src="../professional/img/team/${file}.webp" alt="" width="160" height="160" decoding="async">`:''}</figure><div class="portrait-body"><h4 class="who"><strong>${esc(s.name)}</strong>, ${esc(s.cred)}</h4><p>${esc(s.role)}</p><p>Ages 8+. Draper, Bountiful, and telehealth.</p><p>${esc(s.card)}</p>${ctas(s.name.split(' ')[0])}</div></article>`;
+}
+function medBlock(a){
+ const s=medPerson();
+ const n=(a.concerns||[]).length;
+ const med=!!a.medication;
+ if(n<2&&!med) return '';
+ if(!s) return '';
+ if(!medAgeOk(a.age)) return `<p class="note">${esc(AGE8)}</p>`;
+ const multi=n>1;
+ const note=multi?`<p>${esc(WRAP)}</p>`:(n||(a.mods&&a.mods.length))?`<p class="note">${esc(TOGETHER)}</p>`:'';
+ return `<section class="med-result"><h3>${multi?'Wraparound care':'Medication management'}</h3>${note}${medCard(s)}</section>`;
+}
 function resultsHtml(a){
  const G=(a.gender==='man'||a.gender==='woman')?a.gender:null;
  const tools=toolsHtml();
- if(a.age==='under8'&&!D.clinicians.some(c=>c.ages&&c.ages.includes('under8'))) return {magical:false,html:tools+'<div class="card under8-note" role="status" tabindex="-1"><p>For children under 8, please call us at <a href="tel:3855246665">(385) 524-6665</a> and we\'ll help you find the right fit or a trusted referral.</p></div>'};
- const r=D.clinicians.filter(c=>c.id!=='makayla').filter(c=>a.age!=='under8'||!c.ages||c.ages.includes('under8')).filter(c=>!G||c.gender===G).map(c=>score(c,a)).sort((x,y)=>y.pct-x.pct||y.pts-x.pts);
- if(G&&!r.length) return {magical:false,html:tools+'<div class="card" role="status" tabindex="-1"><p>None of our counselors who are '+(G==='man'?'men':'women')+' list this age group. You can choose No preference to see every counselor who does, or call us at <a href="tel:3855246665">(385) 524-6665</a> and we\'ll help you find the right fit.</p><p><button type="button" class="btn sm" data-match-act="clear-gender">Clear gender preference</button></p></div>'};
+ const block=medBlock(a);
+ const medOnly=!!a.medication&&!(a.concerns||[]).length&&!(a.mods||[]).length;
+ if(medOnly) return {magical:block.indexOf('med-card')>=0,html:tools+(block||`<p class="note">${esc(AGE8)}</p>`)};
+ if(a.age==='under8'&&!D.clinicians.some(c=>c.ages&&c.ages.includes('under8'))) return {magical:false,html:tools+block+'<div class="card under8-note" role="status" tabindex="-1"><p>For children under 8, please call us at <a href="tel:3855246665">(385) 524-6665</a> and we\'ll help you find the right fit or a trusted referral.</p></div>'};
+ const r=D.clinicians.filter(c=>c.id!=='makayla'&&c.id!=='steffani').filter(c=>a.age!=='under8'||!c.ages||c.ages.includes('under8')).filter(c=>!G||c.gender===G).map(c=>score(c,a)).sort((x,y)=>y.pct-x.pct||y.pts-x.pts);
+ if(G&&!r.length) return {magical:false,html:tools+block+'<div class="card" role="status" tabindex="-1"><p>None of our counselors who are '+(G==='man'?'men':'women')+' list this age group. You can choose No preference to see every counselor who does, or call us at <a href="tel:3855246665">(385) 524-6665</a> and we\'ll help you find the right fit.</p><p><button type="button" class="btn sm" data-match-act="clear-gender">Clear gender preference</button></p></div>'};
+ const multi=(a.concerns||[]).length>1;
+ const ranked=multi?r.slice(0,3):r;
  const thin=!a.concerns.length&&!a.mods.length;
  let setNote='';
  if(a.setting==='telehealth') setNote='<p class="note">You chose telehealth, so office points were not used.</p>';
@@ -103,7 +129,7 @@ function resultsHtml(a){
  const softNote=thin?`<p class="soft-note" role="status">${esc(softCopy(a))}</p>`:'';
  const tryGender=G?`<p class="note"><button type="button" class="btn ghost sm" data-match-act="clear-gender">Try without gender filter</button></p>`:'';
  const T=window.THEME||{};
- const cards=r.map((x,i)=>{const file=PHOTOS[x.c.id];const initials=esc(x.c.name.split(/\s+/).map(s=>s[0]).join(''));
+ const cards=ranked.map((x,i)=>{const file=PHOTOS[x.c.id];const initials=esc(x.c.name.split(/\s+/).map(s=>s[0]).join(''));
   const human=humanWhy(x.why);
   const first=x.c.name.split(' ')[0];
   return `<li class="card portrait-card${i===0?' is-lead':''}" style="--i:${i}"><figure class="portrait-frame"><span class="portrait-fallback" aria-hidden="true">${initials}</span>${file?`<img class="portrait" src="../professional/img/team/${file}.webp" alt="" width="160" height="160" decoding="async">`:''}</figure><div class="portrait-body"><div class="rhead"><span class="rank">#${i+1}</span><h4 class="who"><strong>${esc(x.c.name)}</strong>, ${esc(x.c.cred)}</h4><span class="pct">${x.pct}% ${thin?'soft fit':'fit'}</span></div>
@@ -113,8 +139,9 @@ function resultsHtml(a){
  <details class="score-details"><summary>Score details</summary><ul>${x.why.map(w=>`<li>${esc(w)}</li>`).join('')||'<li>No overlap with your selections</li>'}</ul></details>
  ${x.gaps.length?`<p class="gaps-label"><strong>Not listed</strong></p><ul class="gap-chips">${x.gaps.map(g=>`<li>${esc(g)}</li>`).join('')}</ul>`:''}
  ${ctas(first)}</div></li>`;}).join('');
- const title=`<h3 id="results-title" tabindex="-1">${T.resultsTitle||'Your ranked matches'} (${a.age==='under8'?r.length+' clinicians who see children under 8':G?r.length+' of '+D.clinicians.length+' clinicians, by your gender preference':'all '+r.length+' clinicians'})</h3>`;
- return {magical:true,html:tools+title+softNote+setNote+tieNote+tryGender+`<ol class="ranked${thin?' is-soft':''}">`+cards+`</ol><p class="note">Scores reflect publicly listed specialties only, not quality. Feeling understood in the first sessions matters most. You can switch clinicians within the practice anytime.</p><p class="note"><a href="#team">Read more in the Hall of Counselors</a></p><p class="note">If you want a next chapter, the <a href="#insurance">Treasury</a> and the <a href="#locations">Two Libraries</a> are open.</p>`};
+ const countLabel=multi?('top '+ranked.length+' counseling matches'):(a.age==='under8'?r.length+' clinicians who see children under 8':G?r.length+' of '+D.clinicians.filter(c=>c.id!=='steffani').length+' clinicians, by your gender preference':'all '+r.length+' clinicians');
+ const title=`<h3 id="results-title" tabindex="-1">${multi?'Wraparound care':(T.resultsTitle||'Your ranked matches')} (${countLabel})</h3>`;
+ return {magical:true,html:tools+block+title+softNote+setNote+tieNote+tryGender+`<ol class="ranked${thin?' is-soft':''}">`+cards+`</ol><p class="note">Scores reflect publicly listed specialties only, not quality. Feeling understood in the first sessions matters most. You can switch clinicians within the practice anytime.</p><p class="note"><a href="#team">Read more in the Hall of Counselors</a></p><p class="note">If you want a next chapter, the <a href="#insurance">Treasury</a> and the <a href="#locations">Two Libraries</a> are open.</p>`};
 }
 window.obcResultsHtml=resultsHtml;
 function showResults(root){const h=root.querySelector('h3,[role="status"]');if(h){if(!h.hasAttribute('tabindex'))h.setAttribute('tabindex','-1');try{h.focus({preventScroll:true})}catch(err){h.focus()}}
@@ -143,8 +170,8 @@ if(results) results.addEventListener('click',e=>{
  else if(act==='clear-gender'&&window.obcMatchClearGender) window.obcMatchClearGender();
 });
 $('#quiz').addEventListener('submit',e=>{e.preventDefault();const f=new FormData(e.target);
- const a={concerns:f.getAll('concern'),age:f.get('age'),format:f.get('format'),mods:f.getAll('mod'),setting:f.get('setting'),office:f.get('office')||'either',gender:f.get('gender')||'any'};
- if(!a.concerns.length&&!a.mods.length&&!allowThin){thin.hidden=false;if(thinBack){try{thinBack.focus();}catch(err){}}try{thin.scrollIntoView({behavior:'smooth',block:'nearest'});}catch(err){}return;}
+ const a={concerns:f.getAll('concern'),age:f.get('age'),format:f.get('format'),mods:f.getAll('mod'),setting:f.get('setting'),office:f.get('office')||'either',gender:f.get('gender')||'any',medication:f.get('medication')==='yes'};
+ if(!a.concerns.length&&!a.mods.length&&!a.medication&&!allowThin){thin.hidden=false;if(thinBack){try{thinBack.focus();}catch(err){}}try{thin.scrollIntoView({behavior:'smooth',block:'nearest'});}catch(err){}return;}
  allowThin=false;thin.hidden=true;
  const out=resultsHtml(a);
  const paint=animated=>{const root=$('#results');root.classList.toggle('is-reveal',!!animated&&out.magical);root.innerHTML=out.html;root.querySelectorAll('img.portrait').forEach(img=>img.addEventListener('error',()=>img.remove()));};

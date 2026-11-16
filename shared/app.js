@@ -20,15 +20,28 @@ function score(c,a){let pts=0,max=0,why=[],gaps=[];
  if(a.setting&&a.setting!=='either'){max+=2;const sl=a.setting==='inperson'?'in-person sessions':'telehealth';if(!c.settings){pts+=1;why.push(`${sl} not confirmed (+1, confirm)`);}else if(c.settings.includes(a.setting)){pts+=2;why.push(`Offers ${sl} (+2)`);}else gaps.push(c.settings.length===1&&c.settings[0]==='telehealth'?'Telehealth only':`No ${sl}`);}
  if(a.office!=='either'){max+=2;const on=a.office==='bountiful'?'Bountiful':'Draper';const ip=c.settings&&c.settings.includes('inperson');if(c.offices&&c.offices.includes(a.office)&&ip){pts+=2;why.push(`Sees clients in ${on} (+2)`);}else gaps.push(!ip?'Telehealth only':`Not in the ${on} office`);}
  a.mods.forEach(m=>{max+=1;if(c.mods.includes(m)){pts+=1;why.push(`Uses ${M[m]} (+1)`);}else gaps.push(`${M[m]} not listed`);});
- return {c,pts,max,pct:Math.round(100*pts/max),why,gaps};}
+ return {c,pts,max,pct:max?Math.round(100*pts/max):0,why,gaps};}
 window.obcScore=score;
+const WRAP='For more than one concern, many people find a combination of therapy and medication support helpful. Your options for wraparound care:';
+const TOGETHER='Therapy and medication can work together. Steffani Winter is listed for medication management. The ranked names are counseling matches.';
+const AGE8='Medication management listed here is for ages 8 and up.';
+function medPerson(){return (D.medication&&D.medication[0])||null;}
+function medAgeOk(age){const s=medPerson();if(!s)return false;if(!age)return true;if(age==='under8')return false;return !s.ages||s.ages.includes(age);}
+function medCard(s){return `<article class="card med-card"><img src="img/team/steffani-winter.webp" alt="" width="96" height="96" decoding="async"><h4><strong>${esc(s.name)}</strong>, ${esc(s.cred)}</h4><p>${esc(s.role)}</p><p>Ages 8+. Draper, Bountiful, and telehealth.</p><p>${esc(s.card)}</p><p><a class="btn sm" href="/professional/request-appointment.html">Request with ${esc(s.name.split(' ')[0])}</a></p></article>`;}
+function medBlock(a){const s=medPerson();const n=(a.concerns||[]).length;const med=!!a.medication;if(n<2&&!med)return '';if(!s)return '';if(!medAgeOk(a.age))return `<p class="note">${esc(AGE8)}</p>`;const multi=n>1;const note=multi?`<p>${esc(WRAP)}</p>`:(n||(a.mods&&a.mods.length))?`<p class="note">${esc(TOGETHER)}</p>`:'';return `<section class="med-result"><h3>${multi?'Wraparound care':'Medication management'}</h3>${note}${medCard(s)}</section>`;}
 $('#quiz').addEventListener('submit',e=>{e.preventDefault();const f=new FormData(e.target);
- const a={concerns:f.getAll('concern'),age:f.get('age'),format:f.get('format'),mods:f.getAll('mod'),setting:f.get('setting'),office:f.get('office')};
- if(!a.age||!a.format||!a.setting||!a.office){$('#results').innerHTML='<p class="note" role="status">Choose who the story is about, who will be in the room, where to meet, and an office. Either is a choice.</p>';return;}
- if(a.age==='under8'&&!D.clinicians.some(c=>c.ages&&c.ages.includes('under8'))){$('#results').innerHTML='<div class="card under8-note" role="status"><p>For children under 8, please call us at <a href="tel:3855246665">(385) 524-6665</a> and we\'ll help you find the right fit or a trusted referral.</p></div>';$('#results').scrollIntoView&&$('#results').focus&&0;return;}
- const r=D.clinicians.filter(c=>a.age!=='under8'||!c.ages||c.ages.includes('under8')).map(c=>score(c,a)).sort((x,y)=>y.pct-x.pct||y.pts-x.pts);
+ const a={concerns:f.getAll('concern'),age:f.get('age'),format:f.get('format'),mods:f.getAll('mod'),setting:f.get('setting'),office:f.get('office'),medication:f.get('medication')==='yes'};
+ const therapyNeeds=a.concerns.length||a.mods.length;
+ const medOnly=a.medication&&!therapyNeeds;
+ if(!medOnly&&(!a.age||!a.format||!a.setting||!a.office)){$('#results').innerHTML='<p class="note" role="status">Choose who the story is about, who will be in the room, where to meet, and an office. Either is a choice.</p>';return;}
+ if(medOnly){$('#results').innerHTML=medBlock(a)||`<p class="note">${esc(AGE8)}</p>`;$('#results').scrollIntoView({behavior:'smooth'});return;}
+ if(a.age==='under8'&&!D.clinicians.some(c=>c.ages&&c.ages.includes('under8'))){$('#results').innerHTML=medBlock(a)+'<div class="card under8-note" role="status"><p>For children under 8, please call us at <a href="tel:3855246665">(385) 524-6665</a> and we\'ll help you find the right fit or a trusted referral.</p></div>';$('#results').scrollIntoView({behavior:'smooth'});return;}
+ const r=D.clinicians.filter(c=>c.id!=='steffani').filter(c=>a.age!=='under8'||!c.ages||c.ages.includes('under8')).map(c=>score(c,a)).sort((x,y)=>y.pct-x.pct||y.pts-x.pts);
+ const ranked=a.concerns.length>1?r.slice(0,3):r;
  const setNote=a.setting==='either'?'':`<p class="note">You chose ${a.setting==='inperson'?'in person':'telehealth'}.</p>`;
- const T=window.THEME||{};$('#results').innerHTML=`<h3>${T.resultsTitle||'Your ranked matches'} (${a.age==='under8'?r.length+' clinicians who see children under 8':'all '+r.length+' clinicians'})</h3>${setNote}${a.age==='under8'?'<p class="note">For children under 8, you can also call us at <a href="tel:3855246665">(385) 524-6665</a> and we\'ll help you find the right fit.</p>':''}<ol class="ranked">`+r.map((x,i)=>`<li class="card"><div class="rhead"><span class="rank">#${i+1}</span><strong>${esc(x.c.name)}</strong>, ${esc(x.c.cred)}<span class="pct">${x.pct}% fit (${x.pts}/${x.max} pts)</span></div>
+ const T=window.THEME||{};
+ const heading=a.concerns.length>1?`Top ${ranked.length} counseling matches`:(T.resultsTitle||'Your ranked matches')+' ('+(a.age==='under8'?r.length+' clinicians who see children under 8':'all '+r.length+' clinicians')+')';
+ $('#results').innerHTML=medBlock(a)+`<h3>${heading}</h3>${setNote}${a.age==='under8'?'<p class="note">For children under 8, you can also call us at <a href="tel:3855246665">(385) 524-6665</a> and we\'ll help you find the right fit.</p>':''}<ol class="ranked">`+ranked.map((x,i)=>`<li class="card"><div class="rhead"><span class="rank">#${i+1}</span><strong>${esc(x.c.name)}</strong>, ${esc(x.c.cred)}<span class="pct">${x.pct}% fit (${x.pts}/${x.max} pts)</span></div>
  <div class="bar" role="img" aria-label="${x.pct} percent"><span style="width:${x.pct}%"></span></div>
  <p><strong>Why:</strong></p><ul>${x.why.map(w=>`<li>${esc(w)}</li>`).join('')||'<li>No overlap with your selections</li>'}</ul>
  ${x.gaps.length?`<p class="gaps"><strong>Not listed:</strong> ${esc(x.gaps.join('; '))}</p>`:''}
