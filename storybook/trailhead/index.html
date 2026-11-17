@@ -263,7 +263,10 @@ const LOOKS = {
     top: "#e4dccb", pants: "#4a3a3a", vest: true },
   amber: { source: "Site photo (team page)", traits: "Shoulder-length straight auburn hair with full bangs and lighter ends; fair skin; no glasses; no facial hair; slim build.",
     skin: "#f2cdb4", hair: "#8b4a2b", hairEnds: "#b0703f", hairStyle: "longBangs", part: "center", glasses: false, beard: false, build: "slim",
-    top: "#ece2cc", pants: "#3c3a48", vest: true }
+    top: "#ece2cc", pants: "#3c3a48", vest: true },
+  steffani: { source: "Site photo (team page, steffani-winter.webp)", traits: "Long straight hair, dark at the roots and magenta toward the ends, side part; fair warm skin; small nose stud; no glasses; no facial hair; average build; black top; warm smile.",
+    skin: "#f0c4a4", hair: "#2a1824", hairEnds: "#9a2f78", hairStyle: "long", part: "side", glasses: false, beard: false, build: "average",
+    top: "#1a1a1e", pants: "#2c2c34", vest: false, stud: "#d5d8dc", item: "lantern" }
 };
 </script>
 <script>
@@ -296,6 +299,7 @@ const GAME_DATA = {
   // Links used by buttons. These are the only outside pages the game links to.
   links: {
     request: "/professional/intake.html",
+    medication: "/professional/services/medication-management.html",
     team: "https://www.openbooktherapist.com/professional/team.html",
     match: "https://www.openbooktherapist.com/professional/match.html",
     storybook: "/storybook/",
@@ -340,6 +344,45 @@ const GAME_DATA = {
     stamp: "Chapter done! *stamp* That's a real skill in your book now.",
     toCampfire: "Six chapters. Head out to the campfire. Everyone wants to see you."
   },
+
+  // Steffani is not a counselor and does not fight. She waits by the lantern.
+  // Alternate names Scott can swap in (not shown in play): see potionAlts.
+  steffani: {
+    name: "Steffani Winter",
+    cred: "MSN, APRN, PMHNP-BC",
+    role: "Psychiatric Mental Health Nurse Practitioner",
+    look: LOOKS.steffani,
+    lines: [
+      "Hi. I'm Steffani Winter, MSN, APRN, PMHNP-BC, a psychiatric mental health nurse practitioner.",
+      "I offer medication management for ages 8 and up, in Draper, in Bountiful, and by telehealth.",
+      "You don't have to be a therapy client to meet with me.",
+      "Medication and therapy can work together when both are part of your care.",
+      "This lantern by the cabin is doing a very serious job. I respect it."
+    ]
+  },
+  potionNote: "Game potions aren't medical advice. Real medication decisions are made with a prescriber.",
+  // One infusion is offered per fight. It halves only the boss that stands for that concern.
+  // potionAlts are the second name for each, so Scott can pick. The game uses name.
+  potionAlts: {
+    Depression: "Soft Starlight Rekindling Infusion",
+    ADHD: "Kindled-Path Attention Phial",
+    Anxiety: "Pine-Quiet Settling Draught",
+    OCD: "Triple-Lantern Loosening Tonic"
+  },
+  potions: [
+    { id: "sunbeam", stands: "Depression", foe: "The Hollow",
+      name: "Selective Sunbeam Restoring Infusion",
+      desc: "A gold-light infusion for the Hollow, the foe that stands for depression. On that foe it removes half the power and leaves the rest. It does not put the foe out." },
+    { id: "trailspark", stands: "ADHD", foe: "The Whirlwind",
+      name: "Trail-Spark Attention Infusion",
+      desc: "A bright trail-spark infusion for the Whirlwind, the foe that stands for ADHD. On that foe it removes half the power and leaves the rest. It does not put the foe out." },
+    { id: "hearth", stands: "Anxiety", foe: "The Fogcaller",
+      name: "Hearth-Still Quieting Phial",
+      desc: "A calm hearth-still phial for the Fogcaller, the foe that stands for anxiety. On that foe it removes half the power and leaves the rest. It does not put the foe out." },
+    { id: "threering", stands: "OCD", foe: "The Tollkeeper",
+      name: "Three-Ring Dawn Infusion",
+      desc: "A three-ring dawn infusion for the Tollkeeper, the foe that stands for OCD. On that foe it removes half the power and leaves the rest. It does not put the foe out." }
+  ],
 
   // Lines the counselor says when Calm reaches zero (fight restarts at half Calm).
   restartLine: "Let's step back and try again.",
@@ -1497,6 +1540,7 @@ function portraitFor(o, expr) {
     P(42, 54, 12, 1, '#7a2a28'); P(41, 53, 1, 1, '#7a2a28'); P(54, 53, 1, 1, '#7a2a28');
     P(43, 55, 10, 2, '#f6efe6'); P(44, 57, 8, 1, '#b5524a');
   }
+  if (o.stud) P(54, 49, 1, 1, o.stud);
   } else portraitFace(x, P, E, o, st, fw, expr);
   if (o.facial || o.freckles || o.hat || o.hearing || o.glasses === 'round') portraitExtras(x, P, E, o, st, fw);
   if (o.aid) portraitAid(x, P, E, o, 'front');
@@ -1569,6 +1613,7 @@ function focusFirst(el) {
 }
 function speakerInfo(who, area) {
   if (who === 'makayla') return { name: D.makayla.name, cred: D.makayla.role, look: D.makayla.look };
+  if (who === 'steffani') return { name: D.steffani.name, cred: D.steffani.cred, look: D.steffani.look };
   if (who === 'guide' && area) return { name: area.guide.name, cred: area.guide.cred, look: area.guide.look };
   if (who === 'camper') return { name: S.name || 'Camper', look: camperLook() };
   if (who === 'boss' && area) return { name: area.boss.name, creature: area.boss.kind };
@@ -2307,6 +2352,7 @@ function fightScene() {
     if (mech === 'window') { g.globalAlpha = 0.18; R(0, 0, W, H, S.calm >= 35 ? '#16303a' : '#5f6468'); g.globalAlpha = 1; }
     // your side
     drawCritters(8, 148, t, -1);
+    person(52, 146, D.steffani.look, { expr: EXPR.steffani, dir: 'down', item: true });
     person(84, 140, a.guide.look, { expr: EXPR.guide, pose: POSE.guide, item: !POSE.guide, hop: HOP.guide, dir: 'down' });
     var csq = (T - (EN.camSq || -9)) / 0.4, camSq = csq >= 0 && csq < 1 ? Math.sin(csq * Math.PI) * 0.12 : 0;
     person(114, 142, camperLook(), { expr: EXPR.camper, pose: POSE.camper, hop: HOP.camper, squash: camSq, dir: 'right' });
@@ -2839,6 +2885,7 @@ function portraitFace(x, P, E, o, st, fw, expr) {
   else if (expr === 'surprise') { E(48, my + 1, 3, 3, lip); E(48, my + 1, 2, 2, '#4a1f1c'); P(47, my + 2, 2, 1, '#6e1f24'); }
   else if (expr === 'concern') { P(43, my + 1, 10, 1, lip); P(42, my + 2, 1, 1, lip); P(53, my + 2, 1, 1, lip); }
   else if (expr === 'determined') { P(42, my + 1, 12, 1, lip); P(41, my, 1, 1, lip); P(54, my, 1, 1, lip); }
+  if (o.stud) P(54, 49, 1, 1, o.stud);
 }
 // Creator extras: freckles, round glasses, facial hair, hats.
 function portraitExtras(x, P, E, o, st, fw) {
@@ -3200,6 +3247,7 @@ function cabinScene() {
     R(156, 103, 8, 8, '#1a120b'); R(157, 104, 6, 6, '#e9d8b4'); R(164, 105, 2, 3, '#e9d8b4'); R(158, 105, 4, 1, '#a86e46');
     for (var s = 0; s < 6; s++) { var k = ((reduce() ? s / 6 : t * 0.5 + s / 6) % 1); g.globalAlpha = (1 - k) * 0.8; R(160 + Math.sin(k * 6 + s) * 2, 102 - k * 14, 1, 2, '#f3e6c6'); } g.globalAlpha = 1;
     if (!behind) person(MK.x, MK.y, D.makayla.look, { mug: MK.seg >= 3, dir: MK.dir, walk: MK.walk, expr: EXPR.makayla });
+    person(108, 148, D.steffani.look, { expr: EXPR.steffani, dir: 'down', item: true });
     person(76, 150, camperLook(), { expr: EXPR.camper, pose: POSE.camper, hop: HOP.camper });
     drawCritters(52, 152, t, 1);
     stampOverlay(t);
@@ -3985,8 +4033,8 @@ function openSettings() {
 function galleryImg(c, label) { var e = h('canvas', { width: c.width, height: c.height, cls: 'gimg', role: 'img', 'aria-label': label }); e.getContext('2d').drawImage(c, 0, 0); return h('figure', { cls: 'gfig' }, e, h('figcaption', { text: label })); }
 function buildGallery(gal) {
   gal.appendChild(h('p', { text: 'Every picture in Trailhead is drawn in code, pixel by pixel, from one 48-color palette. No photos are used. The counselors\' looks are based on their photos on the Open Book Counseling team page, drawn in a friendly storybook style.' }));
-  gal.appendChild(h('p', { text: 'Made for Open Book Counseling, PLLC. Counselors: ' + AREAS.map(function (a) { return a.guide.name + ', ' + a.guide.cred; }).join('; ') + '. Trailhead host: ' + D.makayla.name + '.' }));
-  var people = [{ n: D.makayla.name, o: D.makayla.look }].concat(AREAS.map(function (a) { return { n: a.guide.name, o: a.guide.look }; }));
+  gal.appendChild(h('p', { text: 'Made for Open Book Counseling, PLLC. Counselors: ' + AREAS.map(function (a) { return a.guide.name + ', ' + a.guide.cred; }).join('; ') + '. Trailhead host: ' + D.makayla.name + '. Lantern rest stop: ' + D.steffani.name + ', ' + D.steffani.cred + '.' }));
+  var people = [{ n: D.makayla.name, o: D.makayla.look }, { n: D.steffani.name, o: D.steffani.look }].concat(AREAS.map(function (a) { return { n: a.guide.name, o: a.guide.look }; }));
   var names = { smile: 'smile', joy: 'joy', concern: 'concern', surprise: 'surprise', determined: 'determined' };
   gal.appendChild(h('h4', { text: 'Faces (five expressions each)' }));
   people.forEach(function (p) { var row = h('div', { cls: 'grow' }); EXPRS.forEach(function (e) { row.appendChild(galleryImg(portraitFor(p.o, e), p.n + ', ' + names[e])); }); gal.appendChild(row); });
@@ -4285,7 +4333,7 @@ function say(lines, done, opt) {
     var text = fill(L.text);
     if (j === 0) {
       var ex = exprFor(L.text);
-      if (L.who === 'guide' || L.who === 'makayla' || L.who === 'camper') mood(L.who, ex);
+      if (L.who === 'guide' || L.who === 'makayla' || L.who === 'camper' || L.who === 'steffani') mood(L.who, ex);
       if (/Calm dips|grew/.test(L.text)) mood('camper', 'concern', null, 2);
       L._ex = ex;
     }
@@ -4511,7 +4559,7 @@ function startFight(a, isBoss, m, resume) {
         kind: isBoss ? a.boss.kind : a.minion.kind, kinds: night ? [a.minion.kind, partner.minion.kind] : null,
         name: isBoss ? a.boss.name : a.minion.name, plural: night ? 'minions' : (a.minion.plural || a.minion.name + 's'),
         group: n, growNext: false, reflexJust: false, restarts: 0, parked: false, win: false, shrinkAnim: 0, lastPhase: 0,
-        chain: [], chainReady: false, firstHit: true, grades: [], reflexUsed: false, numb: false, assistStrong: false, blockNext: false, ignoreTwist: false, bodyDouble: false,
+        chain: [], chainReady: false, firstHit: true, grades: [], reflexUsed: false, numb: false, assistStrong: false, blockNext: false, ignoreTwist: false, bodyDouble: false, potionUsed: false,
         hard: hard, skills: knownIn(night ? [a, partner] : [a]), rot: [], next: null, pendingTwist: null, lastStrong: false };
   F.rot = movesFor(a, isBoss).concat(night ? movesFor(partner, false) : []);
   if (resume && resume.size != null) {           // Continue: same fight, same Size
@@ -4606,6 +4654,7 @@ function menu(chips) {
     var ab = B('Accept ' + a.guide.name.split(' ')[0] + '\'s help: ' + as.name, function () { useAssist(); }, { cls: 'skill', sub: as.desc, aria: 'Coach meter is full. Accept ' + a.guide.name + '\'s help: ' + as.name + '. ' + as.desc });
     grid.appendChild(ab);
   }
+  if (!F.potionUsed) grid.appendChild(B('Ask Steffani for an infusion', openSteffaniPotions, { cls: 'skill', sub: 'Once this fight. Only the matching foe.', aria: 'Ask Steffani Winter for one infusion. It halves only the foe it matches. A miss does not spend it.' }));
   grid.appendChild(B(a.reflex.name, useReflex, { cls: 'reflex', sub: a.reflex.desc, aria: 'Tempting reflex: ' + a.reflex.name + '. ' + a.reflex.desc + ', but it can backfire.' }));
   if (F.restarts >= 2) grid.appendChild(B('Skip this fight', function () { winFight(true); }, { cls: 'ghost', sub: 'No shame in it', aria: 'Skip this fight and keep going' }));
   kids.push(grid);
@@ -4618,6 +4667,41 @@ function menu(chips) {
 function useSkill(sk) {
   var extra = (hasPerk('pebble') ? 3 : 0) + (F.bodyDouble ? 4 : 0);
   runExercise(sk, function (score) { applySkill(sk, score); }, { parked: F.parked, extraSecs: extra, onTempt: function () { F.growNext = true; } });
+}
+function openSteffaniPotions() {
+  var kids = [
+    h('h2', { text: 'Steffani offers one infusion' }),
+    h('p', { text: 'She never attacks. Pick an infusion. It removes half the power of the foe it was made for, and only that foe. It does not take your turn.' }),
+    h('p', { cls: 'note', text: D.potionNote })
+  ];
+  var grid = h('div', { cls: 'grid', role: 'group', 'aria-label': 'Steffani\'s infusions' });
+  D.potions.forEach(function (p) {
+    grid.appendChild(B(p.name, function () { usePotion(p); }, { cls: 'skill', sub: 'For ' + p.foe + ' (' + p.stands + ')', aria: p.name + '. ' + p.desc }));
+  });
+  kids.push(grid);
+  kids.push(h('div', { cls: 'row' }, B('Back to my turn', function () { menu(); }, { cls: 'ghost', aria: 'Back to my turn without using an infusion' })));
+  setPanel.apply(null, kids);
+  focusFirst(grid);
+}
+function usePotion(p) {
+  if (!F) return;
+  var match = !!(F.boss && F.a.boss.stands === p.stands);
+  if (!match) {
+    fightMenu([
+      { who: 'steffani', text: 'Not the right potion for this one.' },
+      { who: 'narrator', text: 'She puts it away. Nothing changes, and you can ask again.' }
+    ]);
+    return;
+  }
+  F.potionUsed = true;
+  F.size = Math.max(1, Math.ceil(F.size / 2));
+  enemyAnim('hurt', 0.45);
+  updMeters(); save();
+  fightMenu([
+    { who: 'steffani', text: 'Medication and therapy can work together.' },
+    { who: 'narrator', text: p.name + ' removes half of ' + F.name + '\'s power. It is still here. Counselor skills still matter.' },
+    { who: 'narrator', text: D.potionNote }
+  ], [{ t: 'Half power left', cls: 'steady' }]);
 }
 function useAssist() {
   var a = F.a, as = V2.assists[a.id], v = V(), chips = [{ t: as.name + '!', cls: 'calm' }];
@@ -5350,6 +5434,18 @@ function showCabin(first) {
   }
   hub();
 }
+function talkSteffani(back) {
+  say(D.steffani.lines.map(function (t) { return { who: 'steffani', text: t }; }), function () {
+    setPanel(
+      h('p', { cls: 'note', text: D.potionNote }),
+      h('div', { cls: 'row' },
+        linkBtn('Medication management', D.links.medication, 'Medication management (opens the medication management page)'),
+        linkBtn('Request an appointment', D.links.request, 'Request an appointment (opens the request page)'),
+        B('Back', back, { cls: 'ghost', aria: 'Back' }))
+    );
+    focusFirst();
+  }, { doneLabel: 'Links' });
+}
 function hub(msg) {
   status();
   var kids = [];
@@ -5365,6 +5461,7 @@ function hub(msg) {
   }, { aria: chaiGiven ? 'Talk to Makayla: a hint' : 'Talk to Makayla: a mug of chai raises your Calm, plus a hint' });
   talk.setAttribute('data-focus', '1');
   row.appendChild(talk);
+  row.appendChild(B('Talk with Steffani', function () { talkSteffani(function () { hub(); }); }, { aria: 'Talk with Steffani Winter by the cabin lantern' }));
   row.appendChild(B('Open the trail map', showMap, { aria: 'Open the trail map' }));
   if (S.cleared.length) row.appendChild(B('Visit your campsite', showCamp, { aria: 'Visit your campsite: see what you have collected and chat with counselors' }));
   if (S.cleared.length >= 6) row.appendChild(B('Go to the campfire', showEnding, { cls: 'big', aria: 'Go to the evening campfire ending' }));
@@ -5414,6 +5511,7 @@ function campHubScene() {
     if (v.supplies.burn) { R(60, 100, 1, 12, '#1a120b'); R(61, 100, 8, 5, '#d9a92e'); }
     // counselors of the areas you've finished drop by
     AREAS.forEach(function (a, k) { if (!isCleared(a.id)) return; var px = [150, 168, 186, 206, 222, 64][k], py = [126, 130, 128, 132, 140, 134][k]; person(px, py, a.guide.look, { dir: 'left', item: true, light: 'fireR' }); });
+    person(96, 150, D.steffani.look, { dir: 'down', item: true, expr: EXPR.steffani, light: 'fireR' });
     drawCritters(84, 156, t, 1);
   };
 }
@@ -5423,6 +5521,7 @@ function showCamp() {
   setScene(campHubScene(), 'Your campsite. It has grown with ' + n + ' stamp' + (n === 1 ? '' : 's') + '. ' + AREAS.filter(function (a) { return isCleared(a.id); }).map(function (a) { return a.guide.name; }).join(', ') + (n ? ' dropped by.' : ''));
   setResume({ k: 'camp' });
   var v = V(), grid = h('div', { cls: 'grid', role: 'group', 'aria-label': 'Campsite chats' });
+  grid.appendChild(B('Talk with Steffani', function () { talkSteffani(showCamp); }, { cls: 'skill', sub: 'Lantern rest stop', aria: 'Talk with Steffani Winter at the campsite lantern' }));
   AREAS.forEach(function (a) {
     if (!isCleared(a.id)) return;
     var who = CHAT_OF[a.id];
