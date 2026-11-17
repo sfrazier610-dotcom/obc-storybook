@@ -1,0 +1,6 @@
+/* Shared color tokens. Professional palette: one teal, one gold, one cream. */
+:root{
+  --obc-teal:#1F6F6B;
+  --obc-gold:#7A5A10;
+  --obc-cream:#FFF6E0;
+}
