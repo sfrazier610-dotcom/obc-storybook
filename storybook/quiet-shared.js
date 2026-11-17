@@ -96,7 +96,7 @@ const AGE8='Medication management listed here is for ages 8 and up.';
 function medCard(s){
  const file=PHOTOS[s.id];
  const initials=esc(s.name.split(/\s+/).map(p=>p[0]).join(''));
- return `<article class="card portrait-card med-card"><figure class="portrait-frame"><span class="portrait-fallback" aria-hidden="true">${initials}</span>${file?`<img class="portrait" src="../professional/img/team/${file}.webp" alt="" width="160" height="160" decoding="async">`:''}</figure><div class="portrait-body"><h4 class="who"><strong>${esc(s.name)}</strong>, ${esc(s.cred)}</h4><p>${esc(s.role)}</p><p>Ages 8+. Draper, Bountiful, and telehealth.</p><p>${esc(s.card)}</p>${ctas(s.name.split(' ')[0])}</div></article>`;
+ return `<article class="card portrait-card med-card"><figure class="portrait-frame"><span class="portrait-fallback" aria-hidden="true">${initials}</span>${file?`<img class="portrait" src="../professional/img/team/${file}.webp" alt="" width="160" height="160" decoding="async">`:''}</figure><div class="portrait-body"><p class="note">Potions and Pills: Medication management with ${esc(s.name)}, Psychiatric Mental Health Nurse Practitioner</p><h4 class="who"><strong>${esc(s.name)}</strong>, ${esc(s.cred)}</h4><p>${esc(s.role)}</p><p>Ages 8+. Draper, Bountiful, and telehealth.</p><p>${esc(s.card)}</p><p><a href="#potions">Potions and Pills</a></p>${ctas(s.name.split(' ')[0])}</div></article>`;
 }
 function medBlock(a){
  const s=medPerson();
@@ -107,7 +107,7 @@ function medBlock(a){
  if(!medAgeOk(a.age)) return `<p class="note">${esc(AGE8)}</p>`;
  const multi=n>1;
  const note=multi?`<p>${esc(WRAP)}</p>`:(n||(a.mods&&a.mods.length))?`<p class="note">${esc(TOGETHER)}</p>`:'';
- return `<section class="med-result"><h3>${multi?'Wraparound care':'Medication management'}</h3>${note}${medCard(s)}</section>`;
+ return `<section class="med-result"><h3>Potions and Pills</h3>${note}${medCard(s)}</section>`;
 }
 function resultsHtml(a){
  const G=(a.gender==='man'||a.gender==='woman')?a.gender:null;
