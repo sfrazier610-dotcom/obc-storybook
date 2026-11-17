@@ -157,30 +157,23 @@ write('professional/fees-insurance.html', shell({
 <p><a class="btn" href="/professional/intake.html">Request appointment</a></p></section>`
 }));
 
-write('professional/request-appointment.html', shell({
-  depth: 1, path: '/professional/intake.html', nav: 'request', story: '/storybook/#home',
-  title: 'Request an appointment | Open Book Counseling, PLLC',
-  description: 'Call or email Open Book Counseling to request an appointment.',
-  main: `<section class="page-hero"><p class="eyebrow">Request</p><h1>Request an appointment</h1>
-<p class="lead">Call or email to request.</p>
-<p><a class="btn call" href="tel:+13855246665">Call (385) 524-6665</a></p>
-<p><a href="mailto:makayla@openbooktherapist.com">makayla@openbooktherapist.com</a></p>
-<p>Please don't send health details by email.</p>
-<p><a href="/professional/match.html">Find my match</a> · <a href="/crisis/">If you are in crisis</a></p></section>`
-}));
-
-write('professional/get-started.html', shell({
-  depth: 1, path: '/professional/get-started.html', nav: '', story: '/storybook/#home',
-  title: 'Get started | Open Book Counseling, PLLC',
-  description: 'Choose a counselor or use the matching guide, then call or email to request an appointment.',
-  main: `<section class="page-hero"><p class="eyebrow">Get started</p><h1>How to get started</h1></section>
-<ol>
-<li><a href="/professional/team.html">Choose a counselor</a> or <a href="/professional/match.html">use the matching guide</a>.</li>
-<li><a href="/professional/fees-insurance.html">Fees and insurance</a> are optional to read. They are not a gate.</li>
-<li><a href="/professional/intake.html">Call or email to request an appointment</a>.</li>
-</ol>
-<p>If you are in crisis, <a href="/crisis/">use the crisis page</a>. This site is not monitored for emergencies.</p>`
-}));
+const redirect = (file, title) => `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${title}</title>
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://www.openbooktherapist.com/professional/intake.html">
+<meta http-equiv="refresh" content="0;url=/professional/intake.html">
+</head>
+<body>
+<p>This page has moved. <a href="/professional/intake.html">Continue to the intake page</a>.</p>
+</body>
+</html>
+`;
+write('professional/request-appointment.html', redirect('request-appointment.html', 'Request an appointment | Open Book Counseling, PLLC'));
+write('professional/get-started.html', redirect('get-started.html', 'Get started | Open Book Counseling, PLLC'));
 
 write('professional/match.html', shell({
   depth: 1, path: '/professional/match.html', nav: 'match', story: '/storybook/#match',
@@ -243,7 +236,6 @@ const locs = [
   '/professional/locations/',
   '/professional/locations/draper.html',
   '/professional/locations/bountiful.html',
-  '/professional/get-started.html',
   '/professional/match.html',
   '/professional/intake.html',
   '/professional/approaches/',
