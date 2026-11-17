@@ -15,7 +15,7 @@ function esc(s) {
 const AGE = { under8: 'children under 8', child8: 'children 8–12', teen: 'teens', adult: 'adults' };
 const OFFICE = {
   draper: { name: 'Draper', line: '12401 S. 450 E, Suite F2, Draper, UT 84020', map: 'https://www.google.com/maps/search/?api=1&query=12401%20S.%20450%20E%2C%20Suite%20F2%2C%20Draper%2C%20UT%2084020' },
-  bountiful: { name: 'Bountiful', line: '420 W 1500 S, Suite 100, Bountiful, UT 84010', map: 'https://www.google.com/maps/search/?api=1&query=420+W+1500+S+Suite+100+Bountiful+UT+84010' }
+  bountiful: { name: 'Bountiful', line: '420 W 1500 S, Suite 100, Bountiful, UT 84010', map: 'https://www.google.com/maps/place/Open+Book+Counseling/@40.8750447,-111.8912637,17z/data=!4m6!3m5!1s0x8752f77601b422d5:0x6d518d4d0dec1f49!8m2!3d40.8750447!4d-111.8912637!16s%2Fg%2F11x2t5xtxb' }
 };
 const HOURS = 'Mon–Fri 8am–9pm · Sat 8am–4pm · Sun closed';
 
