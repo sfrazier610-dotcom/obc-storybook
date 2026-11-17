@@ -43,7 +43,7 @@ function shell(opt) {
   const org = opt.person ? '' : `<script type="application/ld+json">${JSON.stringify({
     '@context': 'https://schema.org', '@type': 'Organization',
     name: 'Open Book Counseling, PLLC', url: 'https://www.openbooktherapist.com/professional/',
-    telephone: '+1-385-524-6665', email: 'makayla@openbooktherapist.com'
+    telephone: '(385) 524-6665', email: 'makayla@openbooktherapist.com'
   })}</script>`;
   const person = opt.person ? `<script type="application/ld+json">${JSON.stringify(opt.person)}</script>` : '';
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -59,7 +59,7 @@ ${org}${person}
 <header class="top"><a class="brand" href="/professional/"><img class="brand-mark" src="${pre}shared/img/logo-mark.webp" alt="" width="52" height="33"><span>Open Book Counseling</span></a>
 <a class="top-call" href="tel:+13855246665"><span class="ico" aria-hidden="true">☎</span><span class="tc-n">(385) 524-6665</span><span class="sr"> Call Open Book Counseling</span></a>
 <button class="menu" type="button" aria-expanded="false" aria-controls="nav">Menu</button>
-<nav id="nav" aria-label="Main"><a href="/professional/services/">Find care</a><a href="/professional/team.html"${opt.nav === 'team' ? ' aria-current="page"' : ''}>Counselors</a><a href="/professional/fees-insurance.html"${opt.nav === 'fees' ? ' aria-current="page"' : ''}>Fees &amp; insurance</a><a href="/professional/locations/"${opt.nav === 'locations' ? ' aria-current="page"' : ''}>Locations</a><a href="/professional/about.html"${opt.nav === 'about' ? ' aria-current="page"' : ''}>About</a><a href="/professional/match.html"${opt.nav === 'match' ? ' aria-current="page"' : ''}>Find my match</a><a class="btn sm" href="/professional/request-appointment.html"${opt.nav === 'request' ? ' aria-current="page"' : ''}>Request appointment</a></nav></header>
+<nav id="nav" aria-label="Main"><a href="/professional/services/">Find care</a><a href="/professional/team.html"${opt.nav === 'team' ? ' aria-current="page"' : ''}>Counselors</a><a href="/professional/fees-insurance.html"${opt.nav === 'fees' ? ' aria-current="page"' : ''}>Fees &amp; insurance</a><a href="/professional/locations/"${opt.nav === 'locations' ? ' aria-current="page"' : ''}>Locations</a><a href="/professional/about.html"${opt.nav === 'about' ? ' aria-current="page"' : ''}>About</a><a href="/professional/match.html"${opt.nav === 'match' ? ' aria-current="page"' : ''}>Find my match</a><a class="btn sm" href="/professional/intake.html"${opt.nav === 'request' ? ' aria-current="page"' : ''}>Request appointment</a></nav></header>
 <main id="main">
 ${opt.main}
 </main>
@@ -69,7 +69,7 @@ ${opt.main}
 <div><h2>Hours &amp; contact</h2><p>${HOURS}</p><p><a href="tel:+13855246665">(385) 524-6665</a><br><a href="mailto:makayla@openbooktherapist.com">makayla@openbooktherapist.com</a></p><p>Please don't send health details by email.</p></div>
 <div><h2>Explore</h2><p><a href="/professional/services/">Find care</a> · <a href="/professional/team.html">Counselors</a> · <a href="/professional/fees-insurance.html">Fees &amp; insurance</a> · <a href="/professional/locations/">Locations</a> · <a href="/professional/about.html">About</a> · <a href="/professional/resources/">Articles</a> · <a href="/professional/resources.html">Support resources</a> · <a href="/professional/careers/">Careers</a> · <a href="/sitemap.xml">Sitemap</a></p><p><a class="sb-link" href="${story}">Storybook view</a></p></div>
 </div><p class="fine">Crisis: call or text <a href="tel:988">988</a> · Utah: <a href="https://safeut.org" target="_blank" rel="noopener">SafeUT</a> · Emergency: <a href="tel:911">911</a> · This site is not monitored for emergencies.</p></footer>
-<nav class="mbar" aria-label="Quick actions"><a href="/professional/request-appointment.html">Request</a><a href="tel:+13855246665">Call</a><a href="/professional/match.html">Match</a></nav>
+<nav class="mbar" aria-label="Quick actions"><a href="/professional/intake.html">Request</a><a href="tel:+13855246665">Call</a><a href="/professional/match.html">Match</a></nav>
 <script src="${pre}professional/nav.js"></script></body></html>
 `;
 }
@@ -96,7 +96,7 @@ ${c.award ? `<p>${esc(c.award)}</p>` : ''}${c.award2025 ? `<p>${esc(c.award2025)
 ${concerns.length ? `<section><h2>Listed concerns</h2><ul>${concerns.map(x => '<li>' + esc(x) + '</li>').join('')}</ul></section>` : ''}
 ${mods.length ? `<section><h2>Listed approaches</h2><ul>${mods.map(x => '<li>' + esc(x) + '</li>').join('')}</ul></section>` : ''}
 <section class="cta-band"><h2>Request an appointment</h2><p>Call or email to request. Please don't send health details by email.</p>
-<p><a class="btn" href="/professional/request-appointment.html">Request appointment</a> <a class="btn call" href="tel:+13855246665">Call (385) 524-6665</a></p>
+<p><a class="btn" href="/professional/intake.html">Request appointment</a> <a class="btn call" href="tel:+13855246665">Call (385) 524-6665</a></p>
 <p><a href="/professional/team.html#${c.id}">Back to the counselor list</a> · <a href="/storybook/#team">Storybook hall</a></p></section>`;
   write('professional/team/' + slug + '.html', shell({
     depth: 2, path: '/professional/team/' + slug + '.html', title: c.name + ' | Open Book Counseling, PLLC',
@@ -154,11 +154,11 @@ write('professional/fees-insurance.html', shell({
 <p class="lead">Self-pay: individual $150, couples $200, group $40 per person. Self-pay clients have the right to a Good Faith Estimate under the No Surprises Act.</p></section>
 <section><h2>Insurance accepted by the practice</h2><ul>${ins}</ul><h2>EAPs</h2><ul>${eap}</ul>
 <p class="note">Credentialing varies by counselor. Please confirm your counselor and benefits with Makayla Jones at <a href="tel:+13855246665">(385) 524-6665</a>.</p>
-<p><a class="btn" href="/professional/request-appointment.html">Request appointment</a></p></section>`
+<p><a class="btn" href="/professional/intake.html">Request appointment</a></p></section>`
 }));
 
 write('professional/request-appointment.html', shell({
-  depth: 1, path: '/professional/request-appointment.html', nav: 'request', story: '/storybook/#home',
+  depth: 1, path: '/professional/intake.html', nav: 'request', story: '/storybook/#home',
   title: 'Request an appointment | Open Book Counseling, PLLC',
   description: 'Call or email Open Book Counseling to request an appointment.',
   main: `<section class="page-hero"><p class="eyebrow">Request</p><h1>Request an appointment</h1>
@@ -177,7 +177,7 @@ write('professional/get-started.html', shell({
 <ol>
 <li><a href="/professional/team.html">Choose a counselor</a> or <a href="/professional/match.html">use the matching guide</a>.</li>
 <li><a href="/professional/fees-insurance.html">Fees and insurance</a> are optional to read. They are not a gate.</li>
-<li><a href="/professional/request-appointment.html">Call or email to request an appointment</a>.</li>
+<li><a href="/professional/intake.html">Call or email to request an appointment</a>.</li>
 </ol>
 <p>If you are in crisis, <a href="/crisis/">use the crisis page</a>. This site is not monitored for emergencies.</p>`
 }));
@@ -190,7 +190,7 @@ write('professional/match.html', shell({
 <p class="lead">Private. Runs only in your browser. Every counselor is shown unless you choose a gender preference.</p>
 <p>The questions, scores, and results are the storybook matching guide. This page does not keep a second copy of the scoring.</p>
 <p><a class="btn" href="/storybook/#match">Open the matching guide</a></p>
-<p><a href="/professional/request-appointment.html">Request an appointment</a> when you are ready. Call or email. Please don't send health details by email.</p></section>`
+<p><a href="/professional/intake.html">Request an appointment</a> when you are ready. Call or email. Please don't send health details by email.</p></section>`
 }));
 
 const mods = Object.keys(D.modLabels).map(k => '<li>' + esc(D.modLabels[k]) + '</li>').join('');
@@ -245,7 +245,7 @@ const locs = [
   '/professional/locations/bountiful.html',
   '/professional/get-started.html',
   '/professional/match.html',
-  '/professional/request-appointment.html',
+  '/professional/intake.html',
   '/professional/approaches/',
   '/crisis/',
   '/storybook/'
@@ -268,10 +268,10 @@ function patchNav(file) {
   else if (rel.includes('/careers/')) story = '/storybook/#careers';
   else if (rel.includes('match.html')) story = '/storybook/#match';
   else if (rel.includes('/resources')) story = '/storybook/resources/';
-  const nav = `<nav id="nav" aria-label="Main"><a href="/professional/services/">Find care</a><a href="/professional/team.html">Counselors</a><a href="/professional/fees-insurance.html">Fees &amp; insurance</a><a href="/professional/locations/">Locations</a><a href="/professional/about.html">About</a><a href="/professional/match.html">Find my match</a><a class="btn sm" href="/professional/request-appointment.html">Request appointment</a></nav>`;
+  const nav = `<nav id="nav" aria-label="Main"><a href="/professional/services/">Find care</a><a href="/professional/team.html">Counselors</a><a href="/professional/fees-insurance.html">Fees &amp; insurance</a><a href="/professional/locations/">Locations</a><a href="/professional/about.html">About</a><a href="/professional/match.html">Find my match</a><a class="btn sm" href="/professional/intake.html">Request appointment</a></nav>`;
   if (!html.includes('<nav id="nav"')) return;
   html = html.replace(/<nav id="nav" aria-label="Main">[\s\S]*?<\/nav>/, nav);
-  html = html.replace(/<nav class="mbar" aria-label="Quick actions">[\s\S]*?<\/nav>/, '<nav class="mbar" aria-label="Quick actions"><a href="/professional/request-appointment.html">Request</a><a href="tel:+13855246665">Call</a><a href="/professional/match.html">Match</a></nav>');
+  html = html.replace(/<nav class="mbar" aria-label="Quick actions">[\s\S]*?<\/nav>/, '<nav class="mbar" aria-label="Quick actions"><a href="/professional/intake.html">Request</a><a href="tel:+13855246665">Call</a><a href="/professional/match.html">Match</a></nav>');
   if (!html.includes('href="/crisis/"') && html.includes('not monitored for emergencies.')) {
     html = html.replace('not monitored for emergencies.</div>', 'not monitored for emergencies. · <a href="/crisis/">Crisis resources</a></div>');
   }
