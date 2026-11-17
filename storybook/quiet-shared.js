@@ -96,7 +96,7 @@ const AGE8='Medication management listed here is for ages 8 and up.';
 function medCard(s){
  const file=PHOTOS[s.id];
  const initials=esc(s.name.split(/\s+/).map(p=>p[0]).join(''));
- return `<article class="card portrait-card med-card"><figure class="portrait-frame"><span class="portrait-fallback" aria-hidden="true">${initials}</span>${file?`<img class="portrait" src="../professional/img/team/${file}.webp" alt="" width="160" height="160" decoding="async">`:''}</figure><div class="portrait-body"><p class="note">Potions and Pills: Medication management with ${esc(s.name)}, Psychiatric Mental Health Nurse Practitioner</p><h4 class="who"><strong>${esc(s.name)}</strong>, ${esc(s.cred)}</h4><p>${esc(s.role)}</p><p>Ages 8+. Draper, Bountiful, and telehealth.</p><p>${esc(s.card)}</p><p><a href="#potions">Potions and Pills</a></p>${ctas(s.name.split(' ')[0])}</div></article>`;
+ return `<article class="card portrait-card med-card"><figure class="portrait-frame"><span class="portrait-fallback" aria-hidden="true">${initials}</span>${file?`<img class="portrait" src="../professional/img/team/${file}.webp" alt="${esc(s.name)}, ${esc(s.cred)}" width="160" height="160" decoding="async">`:''}</figure><div class="portrait-body"><p class="note">Potions and Pills: Medication management with ${esc(s.name)}, Psychiatric Mental Health Nurse Practitioner</p><h4 class="who"><strong>${esc(s.name)}</strong>, ${esc(s.cred)}</h4><p>${esc(s.role)}</p><p>Ages 8+. Draper, Bountiful, and telehealth.</p><p>${esc(s.card)}</p><p><a href="#potions">Potions and Pills</a></p>${ctas(s.name.split(' ')[0])}</div></article>`;
 }
 function medBlock(a){
  const s=medPerson();
@@ -132,7 +132,7 @@ function resultsHtml(a){
  const cards=ranked.map((x,i)=>{const file=PHOTOS[x.c.id];const initials=esc(x.c.name.split(/\s+/).map(s=>s[0]).join(''));
   const human=humanWhy(x.why);
   const first=x.c.name.split(' ')[0];
-  return `<li class="card portrait-card${i===0?' is-lead':''}" style="--i:${i}"><figure class="portrait-frame"><span class="portrait-fallback" aria-hidden="true">${initials}</span>${file?`<img class="portrait" src="../professional/img/team/${file}.webp" alt="" width="160" height="160" decoding="async">`:''}</figure><div class="portrait-body"><div class="rhead"><span class="rank">#${i+1}</span><h4 class="who"><strong>${esc(x.c.name)}</strong>, ${esc(x.c.cred)}</h4><span class="pct">${x.pct}% ${thin?'soft fit':'fit'}</span></div>
+  return `<li class="card portrait-card${i===0?' is-lead':''}" style="--i:${i}"><figure class="portrait-frame"><span class="portrait-fallback" aria-hidden="true">${initials}</span>${file?`<img class="portrait" src="../professional/img/team/${file}.webp" alt="${esc(x.c.name)}, ${esc(x.c.cred)}" width="160" height="160" decoding="async">`:''}</figure><div class="portrait-body"><div class="rhead"><span class="rank">#${i+1}</span><h4 class="who"><strong>${esc(x.c.name)}</strong>, ${esc(x.c.cred)}</h4><span class="pct">${x.pct}% ${thin?'soft fit':'fit'}</span></div>
  ${awardHtml(x.c)}
  <div class="bar" role="img" aria-label="${x.pct} percent"><span style="width:${x.pct}%"></span></div>
  <p><strong>Why</strong></p><ul class="why-human">${human.map(w=>`<li>${esc(w)}</li>`).join('')||'<li>No listed overlap with your selections yet</li>'}</ul>
