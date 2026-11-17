@@ -372,16 +372,16 @@ const GAME_DATA = {
   potions: [
     { id: "sunbeam", stands: "Depression", foe: "The Hollow",
       name: "Selective Sunbeam Restoring Infusion",
-      desc: "A gold-light infusion for the Hollow, the foe that stands for depression. On that foe it removes half the power and leaves the rest. It does not put the foe out." },
+      desc: "A gold-light infusion for the Hollow, the foe that stands for depression. On that foe it removes half the power and leaves the rest. It does not put the foe out. Passing it to you also restores your Calm fully." },
     { id: "trailspark", stands: "ADHD", foe: "The Whirlwind",
       name: "Trail-Spark Attention Infusion",
-      desc: "A bright trail-spark infusion for the Whirlwind, the foe that stands for ADHD. On that foe it removes half the power and leaves the rest. It does not put the foe out." },
+      desc: "A bright trail-spark infusion for the Whirlwind, the foe that stands for ADHD. On that foe it removes half the power and leaves the rest. It does not put the foe out. Passing it to you also restores your Calm fully." },
     { id: "hearth", stands: "Anxiety", foe: "The Fogcaller",
       name: "Hearth-Still Quieting Phial",
-      desc: "A calm hearth-still phial for the Fogcaller, the foe that stands for anxiety. On that foe it removes half the power and leaves the rest. It does not put the foe out." },
+      desc: "A calm hearth-still phial for the Fogcaller, the foe that stands for anxiety. On that foe it removes half the power and leaves the rest. It does not put the foe out. Passing it to you also restores your Calm fully." },
     { id: "threering", stands: "OCD", foe: "The Tollkeeper",
       name: "Three-Ring Dawn Infusion",
-      desc: "A three-ring dawn infusion for the Tollkeeper, the foe that stands for OCD. On that foe it removes half the power and leaves the rest. It does not put the foe out." }
+      desc: "A three-ring dawn infusion for the Tollkeeper, the foe that stands for OCD. On that foe it removes half the power and leaves the rest. It does not put the foe out. Passing it to you also restores your Calm fully." }
   ],
 
   // Lines the counselor says when Calm reaches zero (fight restarts at half Calm).
@@ -4671,7 +4671,7 @@ function useSkill(sk) {
 function openSteffaniPotions() {
   var kids = [
     h('h2', { text: 'Steffani offers one infusion' }),
-    h('p', { text: 'She never attacks. Pick an infusion. It removes half the power of the foe it was made for, and only that foe. It does not take your turn.' }),
+    h('p', { text: 'She never attacks. Pick an infusion. On the foe it was made for, it removes half that foe\'s power and restores your Calm fully. It does not take your turn.' }),
     h('p', { cls: 'note', text: D.potionNote })
   ];
   var grid = h('div', { cls: 'grid', role: 'group', 'aria-label': 'Steffani\'s infusions' });
@@ -4695,13 +4695,14 @@ function usePotion(p) {
   }
   F.potionUsed = true;
   F.size = Math.max(1, Math.ceil(F.size / 2));
+  S.calm = 100;
   enemyAnim('hurt', 0.45);
   updMeters(); save();
   fightMenu([
     { who: 'steffani', text: 'Medication and therapy can work together.' },
-    { who: 'narrator', text: p.name + ' removes half of ' + F.name + '\'s power. It is still here. Counselor skills still matter.' },
+    { who: 'narrator', text: p.name + ' removes half of ' + F.name + '\'s power and restores your Calm fully. It is still here. Counselor skills still matter.' },
     { who: 'narrator', text: D.potionNote }
-  ], [{ t: 'Half power left', cls: 'steady' }]);
+  ], [{ t: 'Calm 100', cls: 'calm' }, { t: 'Half power left', cls: 'steady' }]);
 }
 function useAssist() {
   var a = F.a, as = V2.assists[a.id], v = V(), chips = [{ t: as.name + '!', cls: 'calm' }];
