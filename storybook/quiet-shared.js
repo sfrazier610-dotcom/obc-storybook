@@ -78,7 +78,7 @@ function toolsHtml(){
  return `<div class="match-tools"><button type="button" class="btn ghost sm" data-match-act="retake">Retake</button><button type="button" class="btn ghost sm" data-match-act="adjust">Adjust answers</button></div>`;
 }
 function ctas(first){
- return `<div class="match-ctas"><a class="btn sm" href="/professional/request-appointment.html">Request an appointment with ${esc(first)}</a><a class="btn ghost sm" href="tel:3855246665">Call (385) 524-6665</a><a class="btn ghost sm" href="#team">Meet in the Hall</a></div>`;
+ return `<div class="match-ctas"><a class="btn sm" href="/professional/intake.html">Request an appointment with ${esc(first)}</a><a class="btn ghost sm" href="tel:3855246665">Call (385) 524-6665</a><a class="btn ghost sm" href="#team">Meet in the Hall</a></div>`;
 }
 function softCopy(a){
  const bits=['age','format'];
@@ -184,7 +184,7 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 // --- verbatim from shared/app.js: insurance + fees ---
 // insurance
 const ins=$('#ins');ins.innerHTML+=`<optgroup label="Insurance">${D.insurance.map(i=>`<option>${esc(i)}</option>`).join('')}</optgroup><optgroup label="EAP">${D.eap.map(i=>`<option>${esc(i)}</option>`).join('')}</optgroup><option value="other">My plan isn't listed</option>`;
-ins.addEventListener('change',()=>{const v=ins.value;$('#ins-out').innerHTML=!v?'':v==='other'?`<p>We may still be able to help with self-pay, and we can provide superbills for out-of-network clients. Call <a href="tel:3855246665">385-524-6665</a>.</p>`:`<p class="ok">✓ ${esc(v)} is on the practice's accepted list.</p><p class="note">Credentialing varies by therapist. Please confirm your specific clinician and benefits with Makayla Jones (385-524-6665).</p>`;});
+ins.addEventListener('change',()=>{const v=ins.value;$('#ins-out').innerHTML=!v?'':v==='other'?`<p>We may still be able to help with self-pay, and we can provide superbills for out-of-network clients. Call <a href="tel:3855246665">(385) 524-6665</a>.</p>`:`<p class="ok">✓ ${esc(v)} is on the practice's accepted list.</p><p class="note">Credentialing varies by therapist. Please confirm your specific clinician and benefits with Makayla Jones (385-524-6665).</p>`;});
 function fee(){const t=$('#fee-type').value,n=Math.max(1,Math.min(52,parseInt($('#fee-n').value)||1));$('#fee-out').textContent=`${n} × $${D.fees[t]} = $${(n*D.fees[t]).toLocaleString()}${t==='group'?' per person':''}`;}
 $('#fee-type').addEventListener('input',fee);$('#fee-n').addEventListener('input',fee);fee();
 })();

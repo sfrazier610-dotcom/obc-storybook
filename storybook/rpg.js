@@ -27,7 +27,7 @@ if(loc){var ch=[].slice.call(document.querySelectorAll('.chapter')).map(function
  +'<path class="qm-mtn" d="M150 285 l25-40 25 40 M185 285 l30-52 30 52 M300 285 l22-34 22 34"/>'
  +'<path class="qm-road" d="'+path+'"/>'
  +ch.map(function(c,i){var p=pts[i];if(!p)return'';return '<a href="#'+c.id+'"><circle class="qm-pt" cx="'+p[0]+'" cy="'+p[1]+'" r="7"/><text x="'+p[0]+'" y="'+(p[1]-12)+'" text-anchor="middle">'+esc(c.t)+'</text></a>'}).join('')
- +'<a href="https://www.google.com/maps/search/?api=1&amp;query=420%20W%201500%20S%2C%20Suite%20100%2C%20Bountiful%2C%20UT%2084010" target="_blank" rel="noopener"><path class="qm-tower" d="M268 30 h14 v-14 h-3 v4 h-3 v-4 h-2 v4 h-3 v-4 h-3z"/><text class="qm-land" x="275" y="45" text-anchor="middle">Bountiful</text></a>'
+ +'<a href="https://www.google.com/maps/place/Open+Book+Counseling/@40.8750447,-111.8912637,17z/data=!4m6!3m5!1s0x8752f77601b422d5:0x6d518d4d0dec1f49!8m2!3d40.8750447!4d-111.8912637!16s%2Fg%2F11x2t5xtxb" target="_blank" rel="noopener"><path class="qm-tower" d="M268 30 h14 v-14 h-3 v4 h-3 v-4 h-2 v4 h-3 v-4 h-3z"/><text class="qm-land" x="275" y="45" text-anchor="middle">Bountiful</text></a>'
  +'<a href="https://www.google.com/maps/search/?api=1&amp;query=12401%20S.%20450%20E%2C%20Suite%20F2%2C%20Draper%2C%20UT%2084020" target="_blank" rel="noopener"><path class="qm-tower" d="M108 268 h14 v-14 h-3 v4 h-3 v-4 h-2 v4 h-3 v-4 h-3z"/><text class="qm-land" x="115" y="283" text-anchor="middle">Draper</text></a>'
  +'<text class="qm-n" x="385" y="282" text-anchor="end">N \u2191</text></svg>';
  var dc=loc.querySelector('.dropcap');(dc||loc.lastChild).after(m);}

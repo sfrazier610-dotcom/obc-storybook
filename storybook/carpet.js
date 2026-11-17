@@ -2,7 +2,7 @@
 (function(){
   var OFFICES={
     draper:{name:'Draper',url:'https://www.google.com/maps/search/?api=1&query=12401%20S.%20450%20E%2C%20Suite%20F2%2C%20Draper%2C%20UT%2084020'},
-    bountiful:{name:'Bountiful',url:'https://www.google.com/maps/search/?api=1&query=420%20W%201500%20S%2C%20Suite%20100%2C%20Bountiful%2C%20UT%2084010'}
+    bountiful:{name:'Bountiful',url:'https://www.google.com/maps/place/Open+Book+Counseling/@40.8750447,-111.8912637,17z/data=!4m6!3m5!1s0x8752f77601b422d5:0x6d518d4d0dec1f49!8m2!3d40.8750447!4d-111.8912637!16s%2Fg%2F11x2t5xtxb'}
   };
   var SVG='<svg viewBox="0 0 240 120" aria-hidden="true" focusable="false"><defs>'
    +'<linearGradient id="cpG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8a2d2b"/><stop offset=".55" stop-color="#6e1f24"/><stop offset="1" stop-color="#4a1418"/></linearGradient>'
