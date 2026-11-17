@@ -1,4 +1,5 @@
-:root{--ink:#1f2d3a;--muted:#5a6b7a;--bg:#f7f5f0;--card:#fff;--brand:#2f6f73;--brand2:#e6f0ef;--accent:#b5793b;--r:14px}
+@import url("tokens.css");
+:root{--ink:#1f2d3a;--muted:#5a6b7a;--bg:#f7f5f0;--card:#fff;--brand:var(--obc-teal);--brand2:#e6f0ef;--accent:var(--obc-gold);--r:14px}
 *{box-sizing:border-box}body{margin:0;font:17px/1.6 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:var(--bg)}
 a{color:var(--brand)}.skip{position:absolute;left:-999px}.skip:focus{left:8px;top:8px;background:#fff;padding:8px;z-index:99}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
