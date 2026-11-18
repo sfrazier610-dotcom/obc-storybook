@@ -3397,7 +3397,7 @@ function mapLayer() {
     for (k = 1; k < 7; k++) { RR(cx - 1, cy - 9 + k, 3, 1, k < 4 ? '#6e1f24' : '#8a5f40'); } RR(cx - 1, cy - 12, 3, 2, '#6e1f24'); ell(cx, cy, 2, 2, '#c89b3c');
     // title cartouche
     RR(84, 142, 88, 12, '#6e1f24'); RR(85, 143, 86, 10, '#f3e6c6'); RR(80, 144, 4, 8, '#6e1f24'); RR(172, 144, 4, 8, '#6e1f24');
-    g.fillStyle = '#6e1f24'; g.font = 'bold 8px Georgia, serif'; g.textAlign = 'center'; g.fillText('Trail Map', 128, 151); g.textAlign = 'left';
+    g.fillStyle = '#6e1f24'; bannerLabel('Trail Map', 128, 148, 'bold 8px Georgia, serif');
     // dashed trails from the cabin to each area
     AREAS.forEach(function (a) {
       var p = MAP_POS[a.id], c0 = CABIN_POS, mx2 = (c0[0] + p[0]) / 2 + (p[1] - c0[1]) * 0.2, my2 = (c0[1] + p[1]) / 2 - (p[0] - c0[0]) * 0.15;
@@ -3745,6 +3745,13 @@ var EN = { anim: 'idle', t0: 0, dur: 0.6, disp: 1, swell: 0, shimmer: -9, sq: -9
 function enemyAnim(a, dur) { EN.anim = a; EN.t0 = T; EN.dur = dur || 0.6; }
 function enemyState() { var k = (T - EN.t0) / EN.dur; if (k >= 1 && EN.anim !== 'idle') EN.anim = 'idle'; return { anim: EN.anim, k: clamp(k, 0, 1) }; }
 
+/* Banner labels ignore a leftover textBaseline. txt() sets 'top' and must not leak. */
+function bannerLabel(text, cx, cy, font) {
+  var ta = g.textAlign, tb = g.textBaseline;
+  g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = font;
+  g.fillText(text, cx, cy);
+  g.textAlign = ta; g.textBaseline = tb;
+}
 /* ---------- chapter title cards ---------- */
 var titleCard = null;
 function chapterCard(num, name) { titleCard = { t0: T, num: num, name: name }; }
@@ -3755,10 +3762,10 @@ function drawTitleCard() {
   var y = 52 + dy; R(40, y, 176, 46, '#6e1f24'); R(42, y + 2, 172, 42, '#f3e6c6'); R(44, y + 4, 168, 1, '#c89b3c'); R(44, y + 41, 168, 1, '#c89b3c');
   R(30, y + 12, 12, 22, '#6e1f24'); R(214, y + 12, 12, 22, '#6e1f24'); R(30, y + 22, 4, 2, '#16303a'); R(222, y + 22, 4, 2, '#16303a');
   [[60, y + 22], [196, y + 22]].forEach(function (q) { R(q[0] - 3, q[1], 7, 1, '#c89b3c'); R(q[0], q[1] - 3, 1, 7, '#c89b3c'); R(q[0] - 1, q[1] - 1, 3, 3, '#6e1f24'); });
-  g.fillStyle = snap('#6e1f24'); g.textAlign = 'center';
-  g.font = '600 8px Georgia, serif'; g.fillText('CHAPTER ' + titleCard.num, 128, y + 15);
-  g.font = '600 14px Georgia, serif'; g.fillText(titleCard.name, 128, y + 33);
-  g.textAlign = 'left'; g.globalAlpha = 1;
+  g.fillStyle = snap('#6e1f24');
+  bannerLabel('CHAPTER ' + titleCard.num, 128, y + 16, '600 8px Georgia, serif');
+  bannerLabel(titleCard.name, 128, y + 32, '600 14px Georgia, serif');
+  g.globalAlpha = 1;
 }
 
 /* ---------- stamp press (back at the cabin) ---------- */
@@ -3771,12 +3778,13 @@ function stampOverlay(t) {
   // an open journal
   var bx = 64, by = 26; R(bx - 2, by - 2, 132, 92, '#6e1f24'); R(bx, by, 63, 88, '#f3e6c6'); R(bx + 65, by, 63, 88, '#f3e6c6'); R(bx + 63, by, 2, 88, '#b58a5a');
   for (var l = 0; l < 9; l++) { R(bx + 6, by + 20 + l * 7, 50, 1, '#e9d8b4'); R(bx + 71, by + 20 + l * 7, 50, 1, '#e9d8b4'); }
-  g.fillStyle = snap('#6e1f24'); g.font = '600 7px Georgia, serif'; g.textAlign = 'center';
-  g.fillText('Chapter ' + stampAnim.a.num, bx + 31, by + 12); g.font = '600 6px Georgia, serif'; g.fillText(stampAnim.a.name, bx + 31, by + 22); g.textAlign = 'left';
+  g.fillStyle = snap('#6e1f24');
+  bannerLabel('Chapter ' + stampAnim.a.num, bx + 31, by + 10, '600 7px Georgia, serif');
+  bannerLabel(stampAnim.a.name, bx + 31, by + 20, '600 6px Georgia, serif');
   creature(stampAnim.a.critter.kind, bx + 31, by + 52, 1, t);
   var sx = bx + 96, sy = by + 44, press = 0.55;
   var markA = reduce() ? clamp((k - 0.4) / 0.6, 0, 1) : (k > press ? 1 : 0);
-  if (markA > 0) { g.globalAlpha = a * markA; waxSeal(sx, sy, t); g.fillStyle = snap('#6e1f24'); g.font = 'bold 6px Georgia, serif'; g.textAlign = 'center'; g.fillText('MJ', sx, sy + 17); g.textAlign = 'left'; g.globalAlpha = a; }
+  if (markA > 0) { g.globalAlpha = a * markA; waxSeal(sx, sy, t); g.fillStyle = snap('#6e1f24'); var ta = g.textAlign, tb = g.textBaseline; g.textAlign = 'center'; g.textBaseline = 'alphabetic'; g.font = 'bold 6px Georgia, serif'; g.fillText('MJ', sx, sy + 17); g.textAlign = ta; g.textBaseline = tb; g.globalAlpha = a; }
   if (!reduce() && k < 1.3) {
     var yy = k < press ? -60 + ease(k / press) * 60 : k < 0.75 ? 0 : -ease((k - 0.75) / 0.55) * 70, sq = k > press && k < 0.75 ? 2 : 0;
     R(sx - 9, sy - 12 + yy + sq, 18, 6 - sq, '#8a2d2b'); R(sx - 6, sy - 26 + yy + sq, 12, 14, '#6e4a33'); R(sx - 4, sy - 34 + yy, 8, 9, '#8a5f40'); R(sx - 4, sy - 34 + yy, 8, 2, '#b58a5a');
@@ -3800,7 +3808,7 @@ function drawVictory(t, bx, by) {
     g.translate(bx, by + 36 - hop); g.scale(2, 2); creature(a.critter.kind, 0, 0, 1, t); g.restore(); g.globalAlpha = 1;
     if (!VIC.burst) { VIC.burst = true; leafBurst(bx, by + 20, 6); }
   }
-  if (k > 2) { var ck = clamp((k - 2) / 0.4, 0, 1); g.globalAlpha = ck; R(68, 12, 120, 22, '#6e1f24'); R(70, 14, 116, 18, '#f3e6c6'); g.fillStyle = snap('#6e1f24'); g.font = '600 10px Georgia, serif'; g.textAlign = 'center'; g.fillText('Chapter complete!', 128, 27); g.textAlign = 'left'; g.globalAlpha = 1; }
+  if (k > 2) { var ck = clamp((k - 2) / 0.4, 0, 1); g.globalAlpha = ck; R(58, 8, 140, 28, '#6e1f24'); R(60, 10, 136, 24, '#f3e6c6'); g.fillStyle = snap('#6e1f24'); bannerLabel('Chapter complete!', 128, 22, '600 10px Georgia, serif'); g.globalAlpha = 1; }
   return true;
 }
 
@@ -5953,7 +5961,7 @@ OVERLAYS.push(function (t) {
     R(B0[0] - 14, y - 2, 30, 9, '#fbf3e1'); txt(V3.jokes.pfft, B0[0] - 12, y, '#6e1f24'); g.globalAlpha = 1;
   }
 });
-function txt(s, x, y, c) { g.fillStyle = c; g.font = '7px monospace'; g.textBaseline = 'top'; g.fillText(s, x, y); }
+function txt(s, x, y, c) { var b = g.textBaseline; g.fillStyle = c; g.font = '7px monospace'; g.textBaseline = 'top'; g.fillText(s, x, y); g.textBaseline = b; }
 /* ---------- choose your What If (first fight of each area), and optional little ones on side paths ---------- */
 (function () {
   var oSF = startFight;
