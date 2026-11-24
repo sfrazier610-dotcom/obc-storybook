@@ -153,7 +153,7 @@ write('professional/fees-insurance.html', shell({
   main: `<section class="page-hero"><p class="eyebrow">Fees &amp; insurance</p><h1>Fees and insurance</h1>
 <p class="lead">Self-pay: individual $150, couples $200, group $40 per person. Self-pay clients have the right to a Good Faith Estimate under the No Surprises Act.</p></section>
 <section><h2>Insurance accepted by the practice</h2><ul>${ins}</ul><h2>EAPs</h2><ul>${eap}</ul>
-<p class="note">Credentialing varies by counselor. Please confirm your counselor and benefits with Makayla Jones at <a href="tel:+13855246665">(385) 524-6665</a>.</p>
+<p class="note">Our counselors accept the plans listed above. Please confirm your counselor and benefits with Makayla Jones at <a href="tel:+13855246665">(385) 524-6665</a>.</p>
 <p><a class="btn" href="/professional/intake.html">Request appointment</a></p></section>`
 }));
 

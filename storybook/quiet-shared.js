@@ -184,7 +184,7 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 // --- verbatim from shared/app.js: insurance + fees ---
 // insurance
 const ins=$('#ins');ins.innerHTML+=`<optgroup label="Insurance">${D.insurance.map(i=>`<option>${esc(i)}</option>`).join('')}</optgroup><optgroup label="EAP">${D.eap.map(i=>`<option>${esc(i)}</option>`).join('')}</optgroup><option value="other">My plan isn't listed</option>`;
-ins.addEventListener('change',()=>{const v=ins.value;$('#ins-out').innerHTML=!v?'':v==='other'?`<p>We may still be able to help with self-pay, and we can provide superbills for out-of-network clients. Call <a href="tel:3855246665">(385) 524-6665</a>.</p>`:`<p class="ok">✓ ${esc(v)} is on the practice's accepted list.</p><p class="note">Credentialing varies by therapist. Please confirm your specific clinician and benefits with Makayla Jones (385-524-6665).</p>`;});
+ins.addEventListener('change',()=>{const v=ins.value;$('#ins-out').innerHTML=!v?'':v==='other'?`<p>We may still be able to help with self-pay, and we can provide superbills for out-of-network clients. Call <a href="tel:3855246665">(385) 524-6665</a>.</p>`:`<p class="ok">✓ ${esc(v)} is on the practice's accepted list.</p><p class="note">Our counselors accept the plans listed above. Please confirm your specific clinician and benefits with Makayla Jones (385-524-6665).</p>`;});
 function fee(){const t=$('#fee-type').value,n=Math.max(1,Math.min(52,parseInt($('#fee-n').value)||1));$('#fee-out').textContent=`${n} × $${D.fees[t]} = $${(n*D.fees[t]).toLocaleString()}${t==='group'?' per person':''}`;}
 $('#fee-type').addEventListener('input',fee);$('#fee-n').addEventListener('input',fee);fee();
 })();
@@ -196,7 +196,7 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 const faq=[["Is this an emergency service?","No. If you are in crisis, call or text 988, or call 911 for emergencies."],
 ["Do you offer telehealth?","Yes. Sessions are available in person in Draper and Bountiful, and online."],
 ["What does a session cost?","Self-pay: individual $150, couples $200, group $40 per person. Many insurance plans and EAPs are accepted."],
-["Do you take my insurance?","Use the checker above. Credentialing varies by therapist, so please confirm with scheduling."],
+["Do you take my insurance?","Use the checker above. Our counselors accept the plans listed above. Please confirm with scheduling."],
 ["Who do you work with?","Individuals, couples and families, from children and teens through adults, including people in high-stress or high-visibility roles."],
 ["Is my information private?","Yes. Therapy is confidential within legal limits. This website's match quiz runs only in your browser and sends no data."],
 ["What if my first therapist isn't the right fit?","Fit matters. Let us know and we'll help you switch within the practice."],
